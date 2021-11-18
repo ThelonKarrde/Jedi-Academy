@@ -47,7 +47,7 @@
 // This particular implementation has been heavily modified by jscott@ravensoft.com
 // to increase inflate/deflate speeds on 32 bit machines.
 
-// for more info about .ZIP format, see 
+// for more info about .ZIP format, see
 //    ftp://ftp.cdrom.com/pub/infozip/doc/appnote-970311-iz.zip
 // PkWare has also a specification at :
 //    ftp://ftp.pkware.com/probdesc.zip
@@ -57,12 +57,12 @@
 // ========================================================================================
 
 // The deflate compression method
-#define ZF_STORED					0
-#define ZF_DEFLATED					8
+#define ZF_STORED 0
+#define ZF_DEFLATED 8
 
 // Compression levels
 typedef enum
-{ 
+{
 	Z_STORE_COMPRESSION,
 	Z_FAST_COMPRESSION_LOW,
 	Z_FAST_COMPRESSION,
@@ -78,44 +78,44 @@ typedef enum
 // Allowed flush values
 typedef enum
 {
-	Z_NEED_MORE = -1,					// Special case when finishing up the stream 
+	Z_NEED_MORE = -1, // Special case when finishing up the stream
 	Z_NO_FLUSH,
-	Z_SYNC_FLUSH,						// Sync up the stream ready for another call
-	Z_FINISH							// Finish up the stream
+	Z_SYNC_FLUSH, // Sync up the stream ready for another call
+	Z_FINISH	  // Finish up the stream
 } EFlush;
 
 // Return codes for the compression/decompression functions. Negative
 // values are errors, positive values are used for special but normal events.
 typedef enum
 {
-	Z_STREAM_ERROR = -3,				// Basic error from failed sanity checks
-	Z_BUF_ERROR,						// Not enough input or output
-	Z_DATA_ERROR,						// Invalid data in the stream
-	Z_OK,								
-	Z_STREAM_END						// End of stream
+	Z_STREAM_ERROR = -3, // Basic error from failed sanity checks
+	Z_BUF_ERROR,		 // Not enough input or output
+	Z_DATA_ERROR,		 // Invalid data in the stream
+	Z_OK,
+	Z_STREAM_END // End of stream
 } EStatus;
 
 // Maximum value for windowBits in deflateInit and inflateInit.
 // The memory requirements for inflate are (in bytes) 1 << windowBits
 // that is, 32K for windowBits=15 (default value) plus a few kilobytes
 // for small objects.
-#define MAX_WBITS				15					// 32K LZ77 window
-#define WINDOW_SIZE				(1 << MAX_WBITS)
-#define	BIG_WINDOW_SIZE			(WINDOW_SIZE << 1)
-#define WINDOW_MASK				(WINDOW_SIZE - 1)
+#define MAX_WBITS 15 // 32K LZ77 window
+#define WINDOW_SIZE (1 << MAX_WBITS)
+#define BIG_WINDOW_SIZE (WINDOW_SIZE << 1)
+#define WINDOW_MASK (WINDOW_SIZE - 1)
 
 // The three kinds of block type
-#define STORED_BLOCK			0
-#define STATIC_TREES			1
-#define DYN_TREES				2
-#define MODE_ILLEGAL			3
+#define STORED_BLOCK 0
+#define STATIC_TREES 1
+#define DYN_TREES 2
+#define MODE_ILLEGAL 3
 
 // The minimum and maximum match lengths
-#define MIN_MATCH				3
-#define MAX_MATCH				258
+#define MIN_MATCH 3
+#define MAX_MATCH 258
 
 // number of distance codes
-#define D_CODES					30
+#define D_CODES 30
 
 typedef unsigned long ulong;
 typedef unsigned char byte;
@@ -132,23 +132,23 @@ extern const ulong extra_dbits[D_CODES];
 //  has dropped to zero. All other fields are set by the
 //  compression library and must not be updated by the application.
 
-typedef struct z_stream_s 
+typedef struct z_stream_s
 {
-	byte			*next_in;			// next input unsigned char
-	ulong			avail_in;			// number of unsigned chars available at next_in
-	ulong			total_in;			// total number of bytes processed so far
-										  
-	byte			*next_out;			// next output unsigned char should be put there
-	ulong			avail_out;			// remaining free space at next_out
-	ulong			total_out;			// total number of bytes output
-						  
-	EStatus			status;
-	EStatus			error;				// error code
+	byte *next_in;	// next input unsigned char
+	ulong avail_in; // number of unsigned chars available at next_in
+	ulong total_in; // total number of bytes processed so far
 
-	struct inflate_state_s	*istate;	// not visible by applications
-	struct deflate_state_s	*dstate;	// not visible by applications
+	byte *next_out;	 // next output unsigned char should be put there
+	ulong avail_out; // remaining free space at next_out
+	ulong total_out; // total number of bytes output
 
-	ulong			quality;
+	EStatus status;
+	EStatus error; // error code
+
+	struct inflate_state_s *istate; // not visible by applications
+	struct deflate_state_s *dstate; // not visible by applications
+
+	ulong quality;
 } z_stream;
 
 //     Update a running crc with the bytes buf[0..len-1] and return the updated

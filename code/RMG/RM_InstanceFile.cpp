@@ -29,7 +29,7 @@
  *	none
  *
  ************************************************************************************************/
-CRMInstanceFile::CRMInstanceFile ( )
+CRMInstanceFile::CRMInstanceFile()
 {
 	mInstances = NULL;
 }
@@ -45,9 +45,9 @@ CRMInstanceFile::CRMInstanceFile ( )
  *	none
  *
  ************************************************************************************************/
-CRMInstanceFile::~CRMInstanceFile ( )
+CRMInstanceFile::~CRMInstanceFile()
 {
-	Close ( );
+	Close();
 }
 
 /************************************************************************************************
@@ -63,13 +63,13 @@ CRMInstanceFile::~CRMInstanceFile ( )
  *  false: instance file could not be loaded for some reason
  *
  ************************************************************************************************/
-bool CRMInstanceFile::Open ( const char* instance )
+bool CRMInstanceFile::Open(const char *instance)
 {
-	char		instanceDef[MAX_QPATH];
-	CGPGroup	*basegroup;
+	char instanceDef[MAX_QPATH];
+	CGPGroup *basegroup;
 
 	// Build the filename
-	Com_sprintf(instanceDef, MAX_QPATH, "ext_data/rmg/%s.instance", instance );
+	Com_sprintf(instanceDef, MAX_QPATH, "ext_data/rmg/%s.instance", instance);
 
 #ifndef FINAL_BUILD
 	// Debug message
@@ -77,10 +77,10 @@ bool CRMInstanceFile::Open ( const char* instance )
 #endif
 
 	// Parse the text file using the generic parser
-	if(!Com_ParseTextFile(instanceDef, mParser ))
+	if (!Com_ParseTextFile(instanceDef, mParser))
 	{
-		Com_sprintf(instanceDef, MAX_QPATH, "ext_data/arioche/%s.instance", instance );
-		if(!Com_ParseTextFile(instanceDef, mParser ))
+		Com_sprintf(instanceDef, MAX_QPATH, "ext_data/arioche/%s.instance", instance);
+		if (!Com_ParseTextFile(instanceDef, mParser))
 		{
 			Com_Printf(va("CM_Terrain: Could not open instance file '%s'\n", instanceDef));
 			return false;
@@ -94,7 +94,7 @@ bool CRMInstanceFile::Open ( const char* instance )
 	mInstances = basegroup->GetSubGroups();
 
 	// The "instances" { } structure
-	mInstances = mInstances->GetSubGroups ( );
+	mInstances = mInstances->GetSubGroups();
 
 	return true;
 }
@@ -110,15 +110,15 @@ bool CRMInstanceFile::Open ( const char* instance )
  *	none
  *
  ************************************************************************************************/
-void CRMInstanceFile::Close ( void )
+void CRMInstanceFile::Close(void)
 {
 	// If not open then dont close  it
-	if ( NULL == mInstances )
+	if (NULL == mInstances)
 	{
 		return;
 	}
 	mParser.Clean();
-		
+
 	mInstances = NULL;
 }
 
@@ -134,46 +134,46 @@ void CRMInstanceFile::Close ( void )
  *  NON-NULL: instance created and returned for further use
  *
  ************************************************************************************************/
-CRMInstance* CRMInstanceFile::CreateInstance ( const char* name )
+CRMInstance *CRMInstanceFile::CreateInstance(const char *name)
 {
 	static int instanceID = 0;
 
-	CGPGroup*		group;
-	CRMInstance*	instance;
+	CGPGroup *group;
+	CRMInstance *instance;
 
 	// Make sure we were loaded
-	assert ( mInstances );
+	assert(mInstances);
 
 	// Search through the instances for the one with the given name
-	for ( group = mInstances; group; group = group->GetNext ( ) )
+	for (group = mInstances; group; group = group->GetNext())
 	{
 		// Skip it if the name doesnt match
-		if ( stricmp ( name, group->FindPairValue ( "name", "" ) ) )
+		if (stricmp(name, group->FindPairValue("name", "")))
 		{
 			continue;
 		}
-		
+
 		// Handle the various forms of instance types
-		if ( !stricmp ( group->GetName ( ), "bsp" ) )
+		if (!stricmp(group->GetName(), "bsp"))
 		{
-			instance = new CRMBSPInstance ( group, *this );
+			instance = new CRMBSPInstance(group, *this);
 		}
-		else if ( !stricmp ( group->GetName ( ), "npc" ) )
+		else if (!stricmp(group->GetName(), "npc"))
 		{
-//			instance = new CRMNPCInstance ( group, *this );
+			//			instance = new CRMNPCInstance ( group, *this );
 			continue;
 		}
-		else if ( !stricmp ( group->GetName ( ), "group" ) )
+		else if (!stricmp(group->GetName(), "group"))
 		{
-			instance = new CRMGroupInstance ( group, *this );
+			instance = new CRMGroupInstance(group, *this);
 		}
-		else if ( !stricmp ( group->GetName ( ), "random" ) )
+		else if (!stricmp(group->GetName(), "random"))
 		{
-			instance = new CRMRandomInstance ( group, *this );
+			instance = new CRMRandomInstance(group, *this);
 		}
-		else if ( !stricmp ( group->GetName ( ), "void" ) )
+		else if (!stricmp(group->GetName(), "void"))
 		{
-			instance = new CRMVoidInstance ( group, *this );
+			instance = new CRMVoidInstance(group, *this);
 		}
 		else
 		{
@@ -181,7 +181,7 @@ CRMInstance* CRMInstanceFile::CreateInstance ( const char* name )
 		}
 
 		// If the instance isnt valid after being created then delete it
-		if ( !instance->IsValid ( ) )
+		if (!instance->IsValid())
 		{
 			delete instance;
 			return NULL;
@@ -193,7 +193,7 @@ CRMInstance* CRMInstanceFile::CreateInstance ( const char* name )
 
 #ifndef FINAL_BUILD
 	// The instance wasnt found in the file so report it
-	Com_Printf(va("WARNING:  Instance '%s' was not found in the active instance file\n", name ));
+	Com_Printf(va("WARNING:  Instance '%s' was not found in the active instance file\n", name));
 #endif
 
 	return NULL;

@@ -1,7 +1,6 @@
 // leave this line at the top for all g_xxxx.cpp files...
 #include "g_headers.h"
 
-
 //g_camera.cpp
 #include "g_local.h"
 //#include "Q3_Interface.h"
@@ -50,11 +49,11 @@ The focal point for a camera in a scene
 
 "speed" angular speed modifier - 100 is normal
 */
-void SP_misc_camera_focus (gentity_t *self)
+void SP_misc_camera_focus(gentity_t *self)
 {
-	if(!self->targetname)
+	if (!self->targetname)
 	{
-		gi.Printf(S_COLOR_RED"ERROR: misc_camera_focus with no targetname\n");
+		gi.Printf(S_COLOR_RED "ERROR: misc_camera_focus with no targetname\n");
 		G_FreeEntity(self);
 		return;
 	}
@@ -71,7 +70,7 @@ void SP_misc_camera_focus (gentity_t *self)
 	*/
 	self->speed = 0;
 	self->script_targetname = G_NewString(self->targetname);
-//	self->e_UseFunc = useF_misc_camera_focus_use;
+	//	self->e_UseFunc = useF_misc_camera_focus_use;
 }
 
 /*
@@ -166,11 +165,11 @@ use "path_corner"s - path it should stay on- if that path_corner has a speed val
 
 "radius" - How far camera should try to stay from it's subject, default is 0 (dist doesn't matter), can pick this up from a path_corner too
 */
-void SP_misc_camera_track (gentity_t *self)
+void SP_misc_camera_track(gentity_t *self)
 {
-	if(!self->targetname || !self->targetname[0])
+	if (!self->targetname || !self->targetname[0])
 	{
-		gi.Printf(S_COLOR_RED"ERROR: misc_camera_track with no targetname\n");
+		gi.Printf(S_COLOR_RED "ERROR: misc_camera_track with no targetname\n");
 		G_FreeEntity(self);
 		return;
 	}
@@ -178,22 +177,20 @@ void SP_misc_camera_track (gentity_t *self)
 	self->script_targetname = G_NewString(self->targetname);
 	//self->moveInfo.speed = self->speed/10;
 
-//	self->e_UseFunc = useF_misc_camera_track_use;
+	//	self->e_UseFunc = useF_misc_camera_track_use;
 }
-
 
 //-------------------------------------------------
 //	Bezier camera stuff
 //-------------------------------------------------
 
-void cam_point_link( gentity_t *ent )
+void cam_point_link(gentity_t *ent)
 {
-
 }
 
-void cam_ctrl_point_link( gentity_t *ent )
-{	
-/*	gentity_t	*target2 = NULL;
+void cam_ctrl_point_link(gentity_t *ent)
+{
+	/*	gentity_t	*target2 = NULL;
 
 	target2 = G_Find( NULL, FOFS(targetname), ent->target2 );
 
@@ -234,9 +231,9 @@ A camera point used to construct a camera bezier path
 
 Every cam_point MUST be targeted (target2) at one and only one control point
 */
-void SP_cam_point( gentity_t *ent )
+void SP_cam_point(gentity_t *ent)
 {
-/*	if ( !ent->target2 )
+	/*	if ( !ent->target2 )
 	{
 		// Bah, you fool!  Target2 not found so we have no idea how to make the curve
 		Com_Printf( "cam_point_link: target2 was required but not found\n" );

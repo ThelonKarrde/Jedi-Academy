@@ -3,56 +3,56 @@
 
 //#include "ff_public.h"
 
-template<typename Type>
-inline Type Clamp( Type arg, Type min, Type max )
-{;
-	if ( arg <= min )
+template <typename Type>
+inline Type Clamp(Type arg, Type min, Type max)
+{
+	;
+	if (arg <= min)
 		return min;
-	else 
-	if ( arg > max )
+	else if (arg > max)
 		return max;
 	return arg;
 }
 
-template<typename Type>
-inline Type Max( Type arg, Type arg2 )
+template <typename Type>
+inline Type Max(Type arg, Type arg2)
 {
-	if ( arg < arg2 )
+	if (arg < arg2)
 		return arg2;
 	return arg;
 }
 
-template<typename Type>
-inline Type Min( Type arg, Type arg2 )
+template <typename Type>
+inline Type Min(Type arg, Type arg2)
 {
-	if ( arg > arg2 )
+	if (arg > arg2)
 		return arg2;
 	return arg;
 }
 
-template<typename Type>
-inline Type InRange( Type arg, Type min, Type max, Type invalid )
+template <typename Type>
+inline Type InRange(Type arg, Type min, Type max, Type invalid)
 {
-	if ( arg < min || arg > max )
+	if (arg < min || arg > max)
 		return invalid;
 	return arg;
 }
 
 typedef vector<string> TNameTable;
 
-int _rcpos( const char* string, char c, int pos = -1 );
-void* LoadFile( const char *filename );
-const char *UncommonDirectory( const char *target, const char *comp );
-const char* RightOf( const char *str, const char *str2 );
+int _rcpos(const char *string, char c, int pos = -1);
+void *LoadFile(const char *filename);
+const char *UncommonDirectory(const char *target, const char *comp);
+const char *RightOf(const char *str, const char *str2);
 
-template< class Type >
-void DeletePointer( Type &Pointer, const char *String = 0 )
+template <class Type>
+void DeletePointer(Type &Pointer, const char *String = 0)
 {
-	if ( Pointer )
+	if (Pointer)
 	{
 #ifdef FF_PRINT
-		if ( String )
-			Com_Printf( "%s\n", String );
+		if (String)
+			Com_Printf("%s\n", String);
 #endif
 		delete Pointer;
 		Pointer = NULL;
@@ -60,10 +60,10 @@ void DeletePointer( Type &Pointer, const char *String = 0 )
 }
 
 #ifdef FF_PRINT
-void ConsoleParseError( const char *message, const char *line, int pos = 0 );
+void ConsoleParseError(const char *message, const char *line, int pos = 0);
 #endif
 
-qboolean FS_VerifyName( const char *src, const char *name, char *out, int maxlen = FF_MAX_PATH );
+qboolean FS_VerifyName(const char *src, const char *name, char *out, int maxlen = FF_MAX_PATH);
 
 //===[multimapIterator]================================================/////////////
 //
@@ -73,50 +73,50 @@ qboolean FS_VerifyName( const char *src, const char *name, char *out, int maxlen
 //
 //====================================================================/////////////
 
-template< class T >
+template <class T>
 class multimapIterator
 {
 protected:
 	T::iterator mIt;
 	T &mMap;
 	T::key_type mKey;
+
 public:
-	multimapIterator( T &map, T::key_type key )
-	:	mMap( map )
-	,	mKey( key )
+	multimapIterator(T &map, T::key_type key)
+		: mMap(map), mKey(key)
 	{
-		mIt = mMap.find( mKey );
+		mIt = mMap.find(mKey);
 	}
-	multimapIterator& operator ++ ()
+	multimapIterator &operator++()
 	{
-		if ( mIt != mMap.end() )
+		if (mIt != mMap.end())
 		{
 			mIt++;
-			if ( (*mIt).first != mKey )
+			if ((*mIt).first != mKey)
 				mIt = mMap.end();
 		}
 		return *this;
 	}
-	qboolean operator != ( T::iterator it )
+	qboolean operator!=(T::iterator it)
 	{
-		return qboolean( mIt != it );
+		return qboolean(mIt != it);
 	}
-	qboolean operator == ( T::iterator it )
+	qboolean operator==(T::iterator it)
 	{
-		return qboolean( mIt == it );
+		return qboolean(mIt == it);
 	}
-	T::iterator operator * ()
+	T::iterator operator*()
 	{
-		return mIt;				// must dereference twice to access first and second
+		return mIt; // must dereference twice to access first and second
 	}
-	T::iterator operator = ( T::iterator it )
+	T::iterator operator=(T::iterator it)
 	{
 		mIt = it;
 		return mIt;
 	}
-	operator qboolean ()
+	operator qboolean()
 	{
-		return qboolean( mIt != mMap.end() );
+		return qboolean(mIt != mMap.end());
 	}
 };
 

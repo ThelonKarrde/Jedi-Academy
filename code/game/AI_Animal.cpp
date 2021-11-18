@@ -1,48 +1,46 @@
 // leave this line at the top of all AI_xxxx.cpp files for PCH reasons...
 #include "g_headers.h"
 
-	    
 #include "b_local.h"
 
 #include "..\Ratl\vector_vs.h"
 
-#define MAX_PACKS			10
+#define MAX_PACKS 10
 
-#define	LEAVE_PACK_DISTANCE	1000
-#define	JOIN_PACK_DISTANCE	800
-#define	WANDER_RANGE		1000
-#define	FRIGHTEN_DISTANCE	300
+#define LEAVE_PACK_DISTANCE 1000
+#define JOIN_PACK_DISTANCE 800
+#define WANDER_RANGE 1000
+#define FRIGHTEN_DISTANCE 300
 
-extern qboolean G_PlayerSpawned( void );
+extern qboolean G_PlayerSpawned(void);
 
-ratl::vector_vs<gentity_t*, MAX_PACKS>	mPacks;
-
+ratl::vector_vs<gentity_t *, MAX_PACKS> mPacks;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Update The Packs, Delete Dead Leaders, Join / Split Packs, Find MY Leader
 ////////////////////////////////////////////////////////////////////////////////////////
-gentity_t* NPC_AnimalUpdateLeader(void)
+gentity_t *NPC_AnimalUpdateLeader(void)
 {
 	// Find The Closest Pack Leader, Not Counting Myself
 	//---------------------------------------------------
-	gentity_t*	closestLeader = 0;
-	float		closestDist = 0;
-	int			myLeaderNum = 0;
-	
-	for (int i=0; i<mPacks.size(); i++)
+	gentity_t *closestLeader = 0;
+	float closestDist = 0;
+	int myLeaderNum = 0;
+
+	for (int i = 0; i < mPacks.size(); i++)
 	{
 		// Dump Dead Leaders
 		//-------------------
-		if (mPacks[i]==0 || mPacks[i]->health<=0)
+		if (mPacks[i] == 0 || mPacks[i]->health <= 0)
 		{
-			if (mPacks[i]==NPC->client->leader)
+			if (mPacks[i] == NPC->client->leader)
 			{
 				NPC->client->leader = 0;
 			}
 
 			mPacks.erase_swap(i);
 
-			if (i>=mPacks.size())
+			if (i >= mPacks.size())
 			{
 				closestLeader = 0;
 				break;
@@ -51,14 +49,14 @@ gentity_t* NPC_AnimalUpdateLeader(void)
 
 		// Don't Count Self
 		//------------------
-		if (mPacks[i]==NPC)
+		if (mPacks[i] == NPC)
 		{
 			myLeaderNum = i;
 			continue;
 		}
 
-		float	Dist = Distance(mPacks[i]->currentOrigin, NPC->currentOrigin);
-		if (!closestLeader || Dist<closestDist)
+		float Dist = Distance(mPacks[i]->currentOrigin, NPC->currentOrigin);
+		if (!closestLeader || Dist < closestDist)
 		{
 			closestDist = Dist;
 			closestLeader = mPacks[i];
@@ -67,13 +65,13 @@ gentity_t* NPC_AnimalUpdateLeader(void)
 
 	// In Joining Distance?
 	//----------------------
-	if (closestLeader && closestDist<JOIN_PACK_DISTANCE)
+	if (closestLeader && closestDist < JOIN_PACK_DISTANCE)
 	{
 		// Am I Already A Leader?
 		//------------------------
-		if (NPC->client->leader==NPC)
+		if (NPC->client->leader == NPC)
 		{
-			mPacks.erase_swap(myLeaderNum);		// Erase Myself From The Leader List
+			mPacks.erase_swap(myLeaderNum); // Erase Myself From The Leader List
 		}
 
 		// Join The Pack!
@@ -81,25 +79,24 @@ gentity_t* NPC_AnimalUpdateLeader(void)
 		NPC->client->leader = closestLeader;
 	}
 
-
 	// Do I Have A Leader?
 	//---------------------
 	if (NPC->client->leader)
 	{
 		// AM I A Leader?
 		//----------------
-		if (NPC->client->leader!=NPC)
+		if (NPC->client->leader != NPC)
 		{
 			// If Our Leader Is Dead, Clear Him Out
 
-			if ( NPC->client->leader->health<=0 || NPC->client->leader->inuse == 0)
+			if (NPC->client->leader->health <= 0 || NPC->client->leader->inuse == 0)
 			{
 				NPC->client->leader = 0;
 			}
-			
+
 			// If My Leader Isn't His Own Leader, Then, Use His Leader
 			//---------------------------------------------------------
-			else if (NPC->client->leader->client->leader!=NPC->client->leader)
+			else if (NPC->client->leader->client->leader != NPC->client->leader)
 			{
 				// Eh.  Can this get more confusing?
 				NPC->client->leader = NPC->client->leader->client->leader;
@@ -107,12 +104,11 @@ gentity_t* NPC_AnimalUpdateLeader(void)
 
 			// If Our Leader Is Too Far Away, Clear Him Out
 			//------------------------------------------------------
-			else if ( Distance(NPC->client->leader->currentOrigin, NPC->currentOrigin)>LEAVE_PACK_DISTANCE)
+			else if (Distance(NPC->client->leader->currentOrigin, NPC->currentOrigin) > LEAVE_PACK_DISTANCE)
 			{
 				NPC->client->leader = 0;
 			}
 		}
-
 	}
 
 	// If We Couldn't Find A Leader, Then Become One
@@ -125,15 +121,12 @@ gentity_t* NPC_AnimalUpdateLeader(void)
 	return NPC->client->leader;
 }
 
-
-
-
 /*
 -------------------------
 NPC_BSAnimal_Default
 -------------------------
 */
-void NPC_BSAnimal_Default( void )
+void NPC_BSAnimal_Default(void)
 {
 	if (!NPC || !NPC->client)
 	{
@@ -142,48 +135,40 @@ void NPC_BSAnimal_Default( void )
 
 	// Update Some Positions
 	//-----------------------
-	CVec3	CurrentLocation(NPC->currentOrigin);
-
+	CVec3 CurrentLocation(NPC->currentOrigin);
 
 	// Update The Leader
 	//-------------------
-	gentity_t*	leader = NPC_AnimalUpdateLeader();
-
+	gentity_t *leader = NPC_AnimalUpdateLeader();
 
 	// Select Closest Threat Location
 	//--------------------------------
-	CVec3	ThreatLocation(0,0,0);
+	CVec3 ThreatLocation(0, 0, 0);
 	qboolean PlayerSpawned = G_PlayerSpawned();
-	if ( PlayerSpawned )
-	{//player is actually in the level now
+	if (PlayerSpawned)
+	{ //player is actually in the level now
 		ThreatLocation = player->currentOrigin;
 	}
-	int	alertEvent = NPC_CheckAlertEvents(qtrue, qtrue, -1, qfalse, AEL_MINOR, qfalse);
-	if ( alertEvent >= 0 )
+	int alertEvent = NPC_CheckAlertEvents(qtrue, qtrue, -1, qfalse, AEL_MINOR, qfalse);
+	if (alertEvent >= 0)
 	{
 		alertEvent_t *event = &level.alertEvents[alertEvent];
-		if (event->owner!=NPC  &&  Distance(event->position, CurrentLocation.v)<event->radius)
+		if (event->owner != NPC && Distance(event->position, CurrentLocation.v) < event->radius)
 		{
 			ThreatLocation = event->position;
 		}
 	}
 
+	//	float	DistToThreat	= CurrentLocation.Dist(ThreatLocation);
+	//	float	DistFromHome	= CurrentLocation.Dist(mHome);
 
-
-//	float	DistToThreat	= CurrentLocation.Dist(ThreatLocation);
-//	float	DistFromHome	= CurrentLocation.Dist(mHome);
-
-
-
-	bool	EvadeThreat		= (level.time<NPCInfo->investigateSoundDebounceTime);
-	bool	CharmedDocile	= (level.time<NPCInfo->confusionTime);
-	bool	CharmedApproach = (level.time<NPCInfo->charmedTime);
-
-
+	bool EvadeThreat = (level.time < NPCInfo->investigateSoundDebounceTime);
+	bool CharmedDocile = (level.time < NPCInfo->confusionTime);
+	bool CharmedApproach = (level.time < NPCInfo->charmedTime);
 
 	// If Not Already Evading, Test To See If We Should "Know" About The Threat
 	//--------------------------------------------------------------------------
-/*	if (false && !EvadeThreat && PlayerSpawned && (DistToThreat<FRIGHTEN_DISTANCE))
+	/*	if (false && !EvadeThreat && PlayerSpawned && (DistToThreat<FRIGHTEN_DISTANCE))
 	{
 		CVec3	LookAim(NPC->currentAngles);
 		LookAim.AngToVec();
@@ -200,10 +185,6 @@ void NPC_BSAnimal_Default( void )
 			VectorCopy(ThreatLocation.v, NPCInfo->investigateGoal);
 		}
 	}*/
-
-
-
-
 
 	STEER::Activate(NPC);
 	{
@@ -236,19 +217,18 @@ void NPC_BSAnimal_Default( void )
 		{
 			// Follow Our Pack Leader!
 			//-------------------------
-			if (leader && leader!=NPC)
+			if (leader && leader != NPC)
 			{
-				float	followDist	= 100.0f;
-				float	curDist		= Distance(NPC->currentOrigin, leader->followPos);
-
+				float followDist = 100.0f;
+				float curDist = Distance(NPC->currentOrigin, leader->followPos);
 
 				// Update The Leader's Follow Position
 				//-------------------------------------
 				STEER::FollowLeader(NPC, leader, followDist);
 
-				bool	inSeekRange = (curDist<followDist*10.0f);
-				bool	onNbrPoints = (NAV::OnNeighboringPoints(NAV::GetNearestNode(NPC), leader->followPosWaypoint));
-				bool	leaderStop	= ((level.time - leader->lastMoveTime)>500);
+				bool inSeekRange = (curDist < followDist * 10.0f);
+				bool onNbrPoints = (NAV::OnNeighboringPoints(NAV::GetNearestNode(NPC), leader->followPosWaypoint));
+				bool leaderStop = ((level.time - leader->lastMoveTime) > 500);
 
 				// If Close Enough, Dump Any Existing Path
 				//-----------------------------------------
@@ -267,7 +247,7 @@ void NPC_BSAnimal_Default( void )
 					//----------------------------------------------
 					else
 					{
-						STEER::Seek(NPC, leader->followPos, fabsf(followDist)/2.0f/*slowing distance*/, 1.0f/*wight*/, leader->resultspeed);
+						STEER::Seek(NPC, leader->followPos, fabsf(followDist) / 2.0f /*slowing distance*/, 1.0f /*wight*/, leader->resultspeed);
 					}
 				}
 
@@ -287,13 +267,13 @@ void NPC_BSAnimal_Default( void )
 			{
 				// Are We Doing A Path?
 				//----------------------
-				bool	HasPath = NAV::HasPath(NPC);
+				bool HasPath = NAV::HasPath(NPC);
 				if (HasPath)
 				{
 					HasPath = NAV::UpdatePath(NPC);
 					if (HasPath)
 					{
-						STEER::Path(NPC);	// Follow The Path
+						STEER::Path(NPC); // Follow The Path
 						STEER::AvoidCollisions(NPC);
 					}
 				}
@@ -302,22 +282,19 @@ void NPC_BSAnimal_Default( void )
 				{
 					// If Debounce Time Has Expired, Choose A New Sub State
 					//------------------------------------------------------
-					if (NPCInfo->investigateDebounceTime<level.time)
+					if (NPCInfo->investigateDebounceTime < level.time)
 					{
 						// Clear Out Flags From The Previous Substate
 						//--------------------------------------------
-						NPCInfo->aiFlags	&= ~NPCAI_OFF_PATH;
-						NPCInfo->aiFlags	&= ~NPCAI_WALKING;
-
+						NPCInfo->aiFlags &= ~NPCAI_OFF_PATH;
+						NPCInfo->aiFlags &= ~NPCAI_WALKING;
 
 						// Pick Another Spot
 						//-------------------
-						int		NEXTSUBSTATE = Q_irand(0, 10);
+						int NEXTSUBSTATE = Q_irand(0, 10);
 
-						bool	RandomPathNode = (NEXTSUBSTATE<8); //(NEXTSUBSTATE<9);  
-						bool	PathlessWander = (NEXTSUBSTATE<9); //false;				
-
-						
+						bool RandomPathNode = (NEXTSUBSTATE < 8); //(NEXTSUBSTATE<9);
+						bool PathlessWander = (NEXTSUBSTATE < 9); //false;
 
 						// Random Path Node
 						//------------------
@@ -325,13 +302,13 @@ void NPC_BSAnimal_Default( void )
 						{
 							// Sometimes, Walk
 							//-----------------
-							if (Q_irand(0, 1)==0)
+							if (Q_irand(0, 1) == 0)
 							{
-								NPCInfo->aiFlags	|= NPCAI_WALKING;
+								NPCInfo->aiFlags |= NPCAI_WALKING;
 							}
 
 							NPCInfo->investigateDebounceTime = level.time + Q_irand(3000, 10000);
-							NAV::FindPath(NPC, NAV::ChooseRandomNeighbor(NAV::GetNearestNode(NPC)));//, mHome.v, WANDER_RANGE));
+							NAV::FindPath(NPC, NAV::ChooseRandomNeighbor(NAV::GetNearestNode(NPC))); //, mHome.v, WANDER_RANGE));
 						}
 
 						// Pathless Wandering
@@ -340,9 +317,9 @@ void NPC_BSAnimal_Default( void )
 						{
 							// Sometimes, Walk
 							//-----------------
-							if (Q_irand(0, 1)==0)
+							if (Q_irand(0, 1) == 0)
 							{
-								NPCInfo->aiFlags	|= NPCAI_WALKING;
+								NPCInfo->aiFlags |= NPCAI_WALKING;
 							}
 
 							NPCInfo->investigateDebounceTime = level.time + Q_irand(3000, 10000);
@@ -362,11 +339,11 @@ void NPC_BSAnimal_Default( void )
 					//--------------------------------------------------------------------------------------------------------------
 					else
 					{
-					//	if (DistFromHome>(WANDER_RANGE))
-					//	{
-					//		STEER::Seek(NPC, mHome);
-					//	}
-					//	else
+						//	if (DistFromHome>(WANDER_RANGE))
+						//	{
+						//		STEER::Seek(NPC, mHome);
+						//	}
+						//	else
 						{
 							if (NPCInfo->aiFlags & NPCAI_OFF_PATH)
 							{
@@ -383,8 +360,7 @@ void NPC_BSAnimal_Default( void )
 			}
 		}
 	}
-	STEER::DeActivate(NPC, &ucmd); 
+	STEER::DeActivate(NPC, &ucmd);
 
-	NPC_UpdateAngles( qtrue, qtrue );
+	NPC_UpdateAngles(qtrue, qtrue);
 }
-

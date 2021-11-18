@@ -10,8 +10,8 @@
 
 #include "rm_headers.h"
 
-#define ARIOCHE_CLIPBRUSH_SIZE	300
-#define	CVAR_OBJECTIVE	0
+#define ARIOCHE_CLIPBRUSH_SIZE 300
+#define CVAR_OBJECTIVE 0
 
 /************************************************************************************************
  * CRMMission::CRMMission
@@ -24,50 +24,50 @@
  *	none
  *
  ************************************************************************************************/
-CRMMission::CRMMission ( CRandomTerrain* landscape )
+CRMMission::CRMMission(CRandomTerrain *landscape)
 {
-	mCurrentObjective		= NULL;
-	mValidPaths				= false;
-	mValidRivers			= false;
-	mValidNodes				= false;
-	mValidWeapons			= false;
-	mValidAmmo				= false;
-	mValidObjectives		= false;
-	mValidInstances			= false;
-	mTimeLimit				= 0;
-	mMaxInstancePosition	= 1;
-	mAccuracyMultiplier		= 1.0f;
-	mHealthMultiplier		= 1.0f;
-	mPickupHealth			= 1.0f;
-	mPickupArmor			= 1.0f;
-	mPickupAmmo				= 1.0f;
-	mPickupWeapon			= 1.0f;
-	mPickupEquipment		= 1.0f;
-	
+	mCurrentObjective = NULL;
+	mValidPaths = false;
+	mValidRivers = false;
+	mValidNodes = false;
+	mValidWeapons = false;
+	mValidAmmo = false;
+	mValidObjectives = false;
+	mValidInstances = false;
+	mTimeLimit = 0;
+	mMaxInstancePosition = 1;
+	mAccuracyMultiplier = 1.0f;
+	mHealthMultiplier = 1.0f;
+	mPickupHealth = 1.0f;
+	mPickupArmor = 1.0f;
+	mPickupAmmo = 1.0f;
+	mPickupWeapon = 1.0f;
+	mPickupEquipment = 1.0f;
+
 	mDefaultPadding = 0;
 	mSymmetric = SYMMETRY_NONE;
 
-//	mCheckedEnts.clear();
+	//	mCheckedEnts.clear();
 
 	mLandScape = landscape;
 
 	// cut down the possible area that is 'legal' for area manager to use by 20%
 	vec3_t land_min, land_max;
 
-	land_min[0] = mLandScape->GetBounds ( )[0][0] + (mLandScape->GetBounds ( )[1][0]-mLandScape->GetBounds ( )[0][0]) * 0.1f;
-	land_min[1] = mLandScape->GetBounds ( )[0][1] + (mLandScape->GetBounds ( )[1][1]-mLandScape->GetBounds ( )[0][1]) * 0.1f;
-	land_min[2] = mLandScape->GetBounds ( )[0][2] + (mLandScape->GetBounds ( )[1][2]-mLandScape->GetBounds ( )[0][2]) * 0.1f;
+	land_min[0] = mLandScape->GetBounds()[0][0] + (mLandScape->GetBounds()[1][0] - mLandScape->GetBounds()[0][0]) * 0.1f;
+	land_min[1] = mLandScape->GetBounds()[0][1] + (mLandScape->GetBounds()[1][1] - mLandScape->GetBounds()[0][1]) * 0.1f;
+	land_min[2] = mLandScape->GetBounds()[0][2] + (mLandScape->GetBounds()[1][2] - mLandScape->GetBounds()[0][2]) * 0.1f;
 
-	land_max[0] = mLandScape->GetBounds ( )[1][0] - (mLandScape->GetBounds ( )[1][0]-mLandScape->GetBounds ( )[0][0]) * 0.1f;
-	land_max[1] = mLandScape->GetBounds ( )[1][1] - (mLandScape->GetBounds ( )[1][1]-mLandScape->GetBounds ( )[0][1]) * 0.1f;
-	land_max[2] = mLandScape->GetBounds ( )[1][2] - (mLandScape->GetBounds ( )[1][2]-mLandScape->GetBounds ( )[0][2]) * 0.1f;
+	land_max[0] = mLandScape->GetBounds()[1][0] - (mLandScape->GetBounds()[1][0] - mLandScape->GetBounds()[0][0]) * 0.1f;
+	land_max[1] = mLandScape->GetBounds()[1][1] - (mLandScape->GetBounds()[1][1] - mLandScape->GetBounds()[0][1]) * 0.1f;
+	land_max[2] = mLandScape->GetBounds()[1][2] - (mLandScape->GetBounds()[1][2] - mLandScape->GetBounds()[0][2]) * 0.1f;
 
 	// Create a new area manager for the landscape
-	mAreaManager = new CRMAreaManager ( land_min,
-										land_max );
+	mAreaManager = new CRMAreaManager(land_min,
+									  land_max);
 
 	// Create a new path manager
-	mPathManager = new CRMPathManager ( mLandScape );
+	mPathManager = new CRMPathManager(mLandScape);
 }
 
 /************************************************************************************************
@@ -81,12 +81,12 @@ CRMMission::CRMMission ( CRandomTerrain* landscape )
  *	none
  *
  ************************************************************************************************/
-CRMMission::~CRMMission ( )
+CRMMission::~CRMMission()
 {
-	rmObjectiveIter_t	oit;
-	rmInstanceIter_t	iit;
+	rmObjectiveIter_t oit;
+	rmInstanceIter_t iit;
 
-//	mCheckedEnts.clear();
+	//	mCheckedEnts.clear();
 
 	// Cleanup the objectives
 	for (oit = mObjectives.begin(); oit != mObjectives.end(); oit++)
@@ -124,14 +124,14 @@ CRMMission::~CRMMission ( )
  *	objective: objective matching the given name or NULL if it couldnt be found
  *
  ************************************************************************************************/
-CRMObjective* CRMMission::FindObjective ( const char* name )
+CRMObjective *CRMMission::FindObjective(const char *name)
 {
 	rmObjectiveIter_t it;
 
 	for (it = mObjectives.begin(); it != mObjectives.end(); it++)
 	{
 		// Does it match?
-		if (!stricmp ((*it)->GetName(), name ))
+		if (!stricmp((*it)->GetName(), name))
 		{
 			return (*it);
 		}
@@ -141,7 +141,7 @@ CRMObjective* CRMMission::FindObjective ( const char* name )
 	return NULL;
 }
 
-void	CRMMission::MirrorPos(vec3_t pos)
+void CRMMission::MirrorPos(vec3_t pos)
 {
 	pos[0] = 1.0f - pos[0];
 	pos[1] = 1.0f - pos[1];
@@ -159,57 +159,57 @@ void	CRMMission::MirrorPos(vec3_t pos)
  *  false: failed to parse
  *
  ************************************************************************************************/
-bool CRMMission::ParseOrigin ( CGPGroup* originGroup, vec3_t origin, vec3_t lookat, int* flattenHeight )
+bool CRMMission::ParseOrigin(CGPGroup *originGroup, vec3_t origin, vec3_t lookat, int *flattenHeight)
 {
-	const char*	szNodeName;
-	vec3_t		mins;
-	vec3_t		maxs;
+	const char *szNodeName;
+	vec3_t mins;
+	vec3_t maxs;
 
-	if ( flattenHeight )
+	if (flattenHeight)
 	{
 		*flattenHeight = 66;
 	}
-	
+
 	// If no group was given then use 0,0,0
-	if ( NULL == originGroup )
+	if (NULL == originGroup)
 	{
-		VectorCopy ( vec3_origin, origin );
+		VectorCopy(vec3_origin, origin);
 		return false;
 	}
 
 	// See if attaching to a named node
-	szNodeName = originGroup->FindPairValue ( "node", "" );
-	if ( *szNodeName )
+	szNodeName = originGroup->FindPairValue("node", "");
+	if (*szNodeName)
 	{
-		CRMNode*	node;
+		CRMNode *node;
 		// Find the node being attached to
-		node = mPathManager->FindNodeByName ( szNodeName );
-		if ( node )
+		node = mPathManager->FindNodeByName(szNodeName);
+		if (node)
 		{
-			if ( flattenHeight )
+			if (flattenHeight)
 			{
-				if ( node->GetFlattenHeight ( ) == -1 )
+				if (node->GetFlattenHeight() == -1)
 				{
-					node->SetFlattenHeight ( 40 + mLandScape->irand(0,40) );
+					node->SetFlattenHeight(40 + mLandScape->irand(0, 40));
 				}
 
-				*flattenHeight = node->GetFlattenHeight ( );
+				*flattenHeight = node->GetFlattenHeight();
 			}
 
 			VectorCopy(node->GetPos(), origin);
 
-			VectorCopy ( origin, lookat );
+			VectorCopy(origin, lookat);
 
 			int dir;
-			int rnd_offset = mLandScape->irand(0, DIR_MAX-1);
-			for (dir=0; dir<DIR_MAX; dir++)
+			int rnd_offset = mLandScape->irand(0, DIR_MAX - 1);
+			for (dir = 0; dir < DIR_MAX; dir++)
 			{
 				int d = (dir + rnd_offset) % DIR_MAX;
 				if (node->PathExist(d))
 				{
 					vec4_t tmp_pt, tmp_dir;
 					int pathID = node->GetPath(d);
-					mLandScape->GetPathInfo(pathID, 0.1f, tmp_pt, tmp_dir );
+					mLandScape->GetPathInfo(pathID, 0.1f, tmp_pt, tmp_dir);
 					lookat[0] = tmp_pt[0];
 					lookat[1] = tmp_pt[1];
 					lookat[2] = 0;
@@ -220,13 +220,13 @@ bool CRMMission::ParseOrigin ( CGPGroup* originGroup, vec3_t origin, vec3_t look
 		}
 	}
 
-	mins[0] = atof( originGroup->FindPairValue ( "left", ".1" ) );
-	mins[1] = atof( originGroup->FindPairValue ( "top", ".1" ) );
-	maxs[0] = atof( originGroup->FindPairValue ( "right", ".9" ) );
-	maxs[1] = atof( originGroup->FindPairValue ( "bottom", ".9" ) );
+	mins[0] = atof(originGroup->FindPairValue("left", ".1"));
+	mins[1] = atof(originGroup->FindPairValue("top", ".1"));
+	maxs[0] = atof(originGroup->FindPairValue("right", ".9"));
+	maxs[1] = atof(originGroup->FindPairValue("bottom", ".9"));
 
-	lookat[0] = origin[0] = mLandScape->flrand(mins[0],maxs[0]);
-	lookat[1] = origin[1] = mLandScape->flrand(mins[1],maxs[1]);
+	lookat[0] = origin[0] = mLandScape->flrand(mins[0], maxs[0]);
+	lookat[1] = origin[1] = mLandScape->flrand(mins[1], maxs[1]);
 	lookat[2] = origin[2] = 0;
 
 	return true;
@@ -244,34 +244,34 @@ bool CRMMission::ParseOrigin ( CGPGroup* originGroup, vec3_t origin, vec3_t look
  *  false: failed to parse
  *
  ************************************************************************************************/
-bool CRMMission::ParseNodes ( CGPGroup* group )
+bool CRMMission::ParseNodes(CGPGroup *group)
 {
 	// If NULL that means this particular difficulty level has no named nodes
-	if ( NULL == group || mValidNodes)
+	if (NULL == group || mValidNodes)
 	{
 		return true;
 	}
 
 	// how many nodes spaced over map?
-	int			x_cells;
-	int			y_cells;
+	int x_cells;
+	int y_cells;
 
-	x_cells = atoi ( group->FindPairValue ( "x_cells", "3" ) );
-	y_cells = atoi ( group->FindPairValue ( "y_cells", "3" ) );
+	x_cells = atoi(group->FindPairValue("x_cells", "3"));
+	y_cells = atoi(group->FindPairValue("y_cells", "3"));
 
 	mPathManager->CreateArray(x_cells, y_cells);
 
 	// Loop through all the nodes and generate each as specified
-	for ( group = group->GetSubGroups(); 
-		  group; 
-		  group=group->GetNext() )
+	for (group = group->GetSubGroups();
+		 group;
+		 group = group->GetNext())
 	{
-		int min_depth = atof( group->FindPairValue ( "min_depth", "0" ) );
-		int max_depth = atof( group->FindPairValue ( "max_depth", "5" ) );
-		int min_paths = atoi( group->FindPairValue ( "min_paths", "1" ) );
-		int max_paths = atoi( group->FindPairValue ( "max_paths", "1" ) );		
+		int min_depth = atof(group->FindPairValue("min_depth", "0"));
+		int max_depth = atof(group->FindPairValue("max_depth", "5"));
+		int min_paths = atoi(group->FindPairValue("min_paths", "1"));
+		int max_paths = atoi(group->FindPairValue("max_paths", "1"));
 
-		mPathManager->CreateLocation( group->GetName(), min_depth, max_depth, min_paths, max_paths );
+		mPathManager->CreateLocation(group->GetName(), min_depth, max_depth, min_paths, max_paths);
 	}
 
 	mValidNodes = true;
@@ -290,34 +290,34 @@ bool CRMMission::ParseNodes ( CGPGroup* group )
  *  false: failed to parse
  *
  ************************************************************************************************/
-bool CRMMission::ParsePaths ( CGPGroup* group )
+bool CRMMission::ParsePaths(CGPGroup *group)
 {
 	// If NULL that means this particular difficulty level has no paths
-	if ( NULL == group || mValidPaths)
+	if (NULL == group || mValidPaths)
 	{
 		return true;
 	}
 
 	// path style info
-	float		depth;
-	float		deviation;
-	float		breadth;
-	float		minwidth;
-	float		maxwidth;
-	int			points;
+	float depth;
+	float deviation;
+	float breadth;
+	float minwidth;
+	float maxwidth;
+	int points;
 
-	points    = atoi ( group->FindPairValue ( "points", "10" ) );
-	depth     = atof ( group->FindPairValue ( "depth", ".31" ) );
-	deviation = atof ( group->FindPairValue ( "deviation", ".025" ) );
-	breadth   = atof ( group->FindPairValue ( "breadth", "5" ) );
-	minwidth  = atof ( group->FindPairValue ( "minwidth", ".03" ) );
-	maxwidth  = atof ( group->FindPairValue ( "maxwidth", ".05" ) );
+	points = atoi(group->FindPairValue("points", "10"));
+	depth = atof(group->FindPairValue("depth", ".31"));
+	deviation = atof(group->FindPairValue("deviation", ".025"));
+	breadth = atof(group->FindPairValue("breadth", "5"));
+	minwidth = atof(group->FindPairValue("minwidth", ".03"));
+	maxwidth = atof(group->FindPairValue("maxwidth", ".05"));
 
-	mPathManager->SetPathStyle( points, minwidth, maxwidth, depth, deviation, breadth);
+	mPathManager->SetPathStyle(points, minwidth, maxwidth, depth, deviation, breadth);
 
 	if (!mValidPaths)
-	{	// we must create paths
-		mPathManager->GeneratePaths( mSymmetric );
+	{ // we must create paths
+		mPathManager->GeneratePaths(mSymmetric);
 		mValidPaths = true;
 	}
 
@@ -336,38 +336,38 @@ bool CRMMission::ParsePaths ( CGPGroup* group )
  *  false: failed to parse
  *
  ************************************************************************************************/
-bool CRMMission::ParseRivers ( CGPGroup* group )
+bool CRMMission::ParseRivers(CGPGroup *group)
 {
 	// If NULL that means this particular difficulty level has no rivers
-	if ( NULL == group || mValidRivers)
+	if (NULL == group || mValidRivers)
 	{
 		return true;
 	}
 
 	// river style info
-	int			maxdepth;
-	float		beddepth;
-	float		deviation;
-	float		breadth;
-	float		minwidth;
-	float		maxwidth;
-	int			points;
-	string		bridge_name;
+	int maxdepth;
+	float beddepth;
+	float deviation;
+	float breadth;
+	float minwidth;
+	float maxwidth;
+	int points;
+	string bridge_name;
 
-	maxdepth  = atoi ( group->FindPairValue ( "maxpathdepth", "5" ) );
-	points    = atoi ( group->FindPairValue ( "points", "10" ) );
-	beddepth  = atof ( group->FindPairValue ( "depth", "1" ) );
-	deviation = atof ( group->FindPairValue ( "deviation", ".03" ) );
-	breadth   = atof ( group->FindPairValue ( "breadth", "7" ) );
-	minwidth  = atof ( group->FindPairValue ( "minwidth", ".01" ) );
-	maxwidth  = atof ( group->FindPairValue ( "maxwidth", ".03" ) );
-	bridge_name= group->FindPairValue ( "bridge", "" ) ;
+	maxdepth = atoi(group->FindPairValue("maxpathdepth", "5"));
+	points = atoi(group->FindPairValue("points", "10"));
+	beddepth = atof(group->FindPairValue("depth", "1"));
+	deviation = atof(group->FindPairValue("deviation", ".03"));
+	breadth = atof(group->FindPairValue("breadth", "7"));
+	minwidth = atof(group->FindPairValue("minwidth", ".01"));
+	maxwidth = atof(group->FindPairValue("maxwidth", ".03"));
+	bridge_name = group->FindPairValue("bridge", "");
 
-	mPathManager->SetRiverStyle( maxdepth, points, minwidth, maxwidth, beddepth, deviation, breadth, bridge_name);
+	mPathManager->SetRiverStyle(maxdepth, points, minwidth, maxwidth, beddepth, deviation, breadth, bridge_name);
 
-	if (!mValidRivers && 
-		beddepth < 1)						// use a depth of 1 if we don't want any rivers
-	{	// we must create rivers
+	if (!mValidRivers &&
+		beddepth < 1) // use a depth of 1 if we don't want any rivers
+	{				  // we must create rivers
 		mPathManager->GenerateRivers();
 		mValidRivers = true;
 	}
@@ -380,82 +380,82 @@ void CRMMission::PlaceBridges()
 	if (!mValidRivers || strlen(mPathManager->GetBridgeName()) < 1)
 		return;
 
-	int		max_bridges = 0;
-	int		path;
-	float	t;
-	float	river_depth = mLandScape->GetLandScape()->GetWaterHeight();
-	vec3_t	pos, lastpos;
+	int max_bridges = 0;
+	int path;
+	float t;
+	float river_depth = mLandScape->GetLandScape()->GetWaterHeight();
+	vec3_t pos, lastpos;
 	vec3pair_t bounds;
-	VectorSet(bounds[0], 0,0,0);
-	VectorSet(bounds[1], 0,0,0);
+	VectorSet(bounds[0], 0, 0, 0);
+	VectorSet(bounds[1], 0, 0, 0);
 
 	// walk along paths looking for dips
 	for (path = 0; path < mPathManager->GetPathCount(); path++)
 	{
 		vec4_t tmp_pt, tmp_dir;
-		bool	new_water = true;
+		bool new_water = true;
 
-		mLandScape->GetPathInfo(path, 0, tmp_pt, tmp_dir );
-		lastpos[0] = mLandScape->GetBounds ( )[0][0] + (mLandScape->GetBounds ( )[1][0]-mLandScape->GetBounds ( )[0][0]) * tmp_pt[0];
-		lastpos[1] = mLandScape->GetBounds ( )[0][1] + (mLandScape->GetBounds ( )[1][1]-mLandScape->GetBounds ( )[0][1]) * tmp_pt[1];
-		lastpos[2] = mLandScape->GetBounds ( )[0][2] + (mLandScape->GetBounds ( )[1][2]-mLandScape->GetBounds ( )[0][2]) * tmp_pt[2];
-		mLandScape->GetLandScape()->GetWorldHeight ( lastpos, bounds, true );
+		mLandScape->GetPathInfo(path, 0, tmp_pt, tmp_dir);
+		lastpos[0] = mLandScape->GetBounds()[0][0] + (mLandScape->GetBounds()[1][0] - mLandScape->GetBounds()[0][0]) * tmp_pt[0];
+		lastpos[1] = mLandScape->GetBounds()[0][1] + (mLandScape->GetBounds()[1][1] - mLandScape->GetBounds()[0][1]) * tmp_pt[1];
+		lastpos[2] = mLandScape->GetBounds()[0][2] + (mLandScape->GetBounds()[1][2] - mLandScape->GetBounds()[0][2]) * tmp_pt[2];
+		mLandScape->GetLandScape()->GetWorldHeight(lastpos, bounds, true);
 
 		const float delta = 0.05f;
-		for (t= delta; t < 1.0f; t += delta)
+		for (t = delta; t < 1.0f; t += delta)
 		{
-			mLandScape->GetPathInfo(path, t, tmp_pt, tmp_dir );
-			pos[0] = mLandScape->GetBounds ( )[0][0] + (mLandScape->GetBounds ( )[1][0]-mLandScape->GetBounds ( )[0][0]) * tmp_pt[0];
-			pos[1] = mLandScape->GetBounds ( )[0][1] + (mLandScape->GetBounds ( )[1][1]-mLandScape->GetBounds ( )[0][1]) * tmp_pt[1];
-			pos[2] = mLandScape->GetBounds ( )[0][2] + (mLandScape->GetBounds ( )[1][2]-mLandScape->GetBounds ( )[0][2]) * tmp_pt[2];
-			mLandScape->GetLandScape()->GetWorldHeight ( pos, bounds, true );
+			mLandScape->GetPathInfo(path, t, tmp_pt, tmp_dir);
+			pos[0] = mLandScape->GetBounds()[0][0] + (mLandScape->GetBounds()[1][0] - mLandScape->GetBounds()[0][0]) * tmp_pt[0];
+			pos[1] = mLandScape->GetBounds()[0][1] + (mLandScape->GetBounds()[1][1] - mLandScape->GetBounds()[0][1]) * tmp_pt[1];
+			pos[2] = mLandScape->GetBounds()[0][2] + (mLandScape->GetBounds()[1][2] - mLandScape->GetBounds()[0][2]) * tmp_pt[2];
+			mLandScape->GetLandScape()->GetWorldHeight(pos, bounds, true);
 
-			if (new_water && 
-				lastpos[2] < river_depth && 
-				pos[2] < river_depth && 
+			if (new_water &&
+				lastpos[2] < river_depth &&
+				pos[2] < river_depth &&
 				pos[2] > lastpos[2])
-			{	// add a bridge
+			{ // add a bridge
 				if (max_bridges < 3)
 				{
-					CRMArea*		area;
-					CRMInstance*	instance;
+					CRMArea *area;
+					CRMInstance *instance;
 
 					max_bridges++;
 
 					// create a single bridge
-					lastpos[2] = mLandScape->GetBounds ( )[0][2] + (mLandScape->GetBounds ( )[1][2]-mLandScape->GetBounds ( )[0][2]) * mPathManager->GetPathDepth();
-					instance = mInstanceFile.CreateInstance ( mPathManager->GetBridgeName() );
+					lastpos[2] = mLandScape->GetBounds()[0][2] + (mLandScape->GetBounds()[1][2] - mLandScape->GetBounds()[0][2]) * mPathManager->GetPathDepth();
+					instance = mInstanceFile.CreateInstance(mPathManager->GetBridgeName());
 
-					if ( NULL != instance )
-					{	// Set the area 
+					if (NULL != instance)
+					{ // Set the area
 						vec3_t zerodvec;
 						VectorClear(zerodvec);
-						area = mAreaManager->CreateArea ( lastpos, instance->GetSpacingRadius(), instance->GetSpacingLine(), GetDefaultPadding(), 0, zerodvec, pos, instance->GetFlattenRadius()?true:false, false, instance->GetLockOrigin() );
+						area = mAreaManager->CreateArea(lastpos, instance->GetSpacingRadius(), instance->GetSpacingLine(), GetDefaultPadding(), 0, zerodvec, pos, instance->GetFlattenRadius() ? true : false, false, instance->GetLockOrigin());
 						area->EnableLookAt(false);
 
-						instance->SetArea ( mAreaManager, area );
-						mInstances.push_back ( instance );
+						instance->SetArea(mAreaManager, area);
+						mInstances.push_back(instance);
 						new_water = false;
 					}
 				}
 			}
 			else if (pos[2] > river_depth)
-			{	// hit land again
+			{ // hit land again
 				new_water = true;
 			}
-			VectorCopy ( pos, lastpos );
+			VectorCopy(pos, lastpos);
 		}
 	}
 }
 
-void CRMMission::PlaceWallInstance(CRMInstance*	instance, float xpos, float ypos, float zpos, int x, int y, float angle)
+void CRMMission::PlaceWallInstance(CRMInstance *instance, float xpos, float ypos, float zpos, int x, int y, float angle)
 {
 	if (NULL == instance)
 		return;
 
 	float spacing = instance->GetSpacingRadius();
-	CRMArea*		area;
-	vec3_t			origin;
+	CRMArea *area;
+	vec3_t origin;
 	vec3_t zerodvec;
 	VectorClear(zerodvec);
 
@@ -464,14 +464,13 @@ void CRMMission::PlaceWallInstance(CRMInstance*	instance, float xpos, float ypos
 	origin[2] = zpos;
 
 	// Set the area of position
-	area = mAreaManager->CreateArea ( origin, (spacing / 2.1f), 0, GetDefaultPadding(), 0, zerodvec, origin, instance->GetFlattenRadius()?true:false, false, instance->GetLockOrigin() );
+	area = mAreaManager->CreateArea(origin, (spacing / 2.1f), 0, GetDefaultPadding(), 0, zerodvec, origin, instance->GetFlattenRadius() ? true : false, false, instance->GetLockOrigin());
 	area->EnableLookAt(false);
 	area->SetAngle(angle);
-	instance->SetArea ( mAreaManager, area );
+	instance->SetArea(mAreaManager, area);
 
-	mInstances.push_back ( instance );
+	mInstances.push_back(instance);
 }
-
 
 /************************************************************************************************
  * CRMMission::ParseWallRect
@@ -485,48 +484,48 @@ void CRMMission::PlaceWallInstance(CRMInstance*	instance, float xpos, float ypos
  *  false: failed to parse
  *
  ************************************************************************************************/
-bool CRMMission::ParseWallRect(CGPGroup* group , int side)
+bool CRMMission::ParseWallRect(CGPGroup *group, int side)
 {
 #ifndef PRE_RELEASE_DEMO
-	CGPGroup* wallGroup = group->FindSubGroup ( "wallrect" ) ;
+	CGPGroup *wallGroup = group->FindSubGroup("wallrect");
 
 	// If NULL that means this particular instance has no wall rect
-	if ( NULL == group || NULL == wallGroup)
+	if (NULL == group || NULL == wallGroup)
 	{
 		return true;
 	}
 
-	const char* wallName = wallGroup->FindPairValue ( "wall_instance", "" );
-	const char* cornerName = wallGroup->FindPairValue ( "corner_instance", "" );
-	const char* towerName = wallGroup->FindPairValue ( "tower_instance", "" );
-	const char* gateName = wallGroup->FindPairValue ( "gate_instance", "" );
-	const char* ripName = wallGroup->FindPairValue ( "rip_instance", "" );
+	const char *wallName = wallGroup->FindPairValue("wall_instance", "");
+	const char *cornerName = wallGroup->FindPairValue("corner_instance", "");
+	const char *towerName = wallGroup->FindPairValue("tower_instance", "");
+	const char *gateName = wallGroup->FindPairValue("gate_instance", "");
+	const char *ripName = wallGroup->FindPairValue("rip_instance", "");
 
-	if ( NULL != wallName )
+	if (NULL != wallName)
 	{
-		int xcount = atoi( wallGroup->FindPairValue ( "xcount", "0" ) );
-		int ycount = atoi( wallGroup->FindPairValue ( "ycount", "0" ) );
+		int xcount = atoi(wallGroup->FindPairValue("xcount", "0"));
+		int ycount = atoi(wallGroup->FindPairValue("ycount", "0"));
 
-		int gateCount = atoi( wallGroup->FindPairValue ( "gate_count", "1" ) );
-		int gateMin = atoi( wallGroup->FindPairValue ( "gate_min", "0" ) );
-		int gateMax = atoi( wallGroup->FindPairValue ( "gate_max", "0" ) );
+		int gateCount = atoi(wallGroup->FindPairValue("gate_count", "1"));
+		int gateMin = atoi(wallGroup->FindPairValue("gate_min", "0"));
+		int gateMax = atoi(wallGroup->FindPairValue("gate_max", "0"));
 
-		int ripCount = atoi( wallGroup->FindPairValue ( "rip_count", "0" ) );
-		int ripMin = atoi( wallGroup->FindPairValue ( "rip_min", "0" ) );
-		int ripMax = atoi( wallGroup->FindPairValue ( "rip_max", "0" ) );
+		int ripCount = atoi(wallGroup->FindPairValue("rip_count", "0"));
+		int ripMin = atoi(wallGroup->FindPairValue("rip_min", "0"));
+		int ripMax = atoi(wallGroup->FindPairValue("rip_max", "0"));
 
-		int towerCount = atoi( wallGroup->FindPairValue ( "tower_count", "0" ) );
-		int towerMin = atoi( wallGroup->FindPairValue ( "tower_min", "0" ) );
-		int towerMax = atoi( wallGroup->FindPairValue ( "tower_max", "0" ) );
+		int towerCount = atoi(wallGroup->FindPairValue("tower_count", "0"));
+		int towerMin = atoi(wallGroup->FindPairValue("tower_min", "0"));
+		int towerMax = atoi(wallGroup->FindPairValue("tower_max", "0"));
 
 		if (gateMin != gateMax)
-			gateCount = mLandScape->irand(gateMin,gateMax);
+			gateCount = mLandScape->irand(gateMin, gateMax);
 
 		if (ripMin != ripMax)
-			ripCount = mLandScape->irand(ripMin,ripMax);
+			ripCount = mLandScape->irand(ripMin, ripMax);
 
 		if (towerMin != towerMax)
-			towerCount = mLandScape->irand(towerMin,towerMax);
+			towerCount = mLandScape->irand(towerMin, towerMax);
 
 		if (NULL == gateName)
 			gateCount = 0;
@@ -537,128 +536,128 @@ bool CRMMission::ParseWallRect(CGPGroup* group , int side)
 		if (NULL == ripName)
 			ripCount = 0;
 
-		const char*		nodename;
-		CGPGroup* originGroup = group->FindSubGroup ( "origin" );
+		const char *nodename;
+		CGPGroup *originGroup = group->FindSubGroup("origin");
 		if (originGroup)
 		{
-			nodename = originGroup->FindPairValue ( "node", "" );
+			nodename = originGroup->FindPairValue("node", "");
 			if (*nodename)
 			{
-				CRMNode*	node;
+				CRMNode *node;
 				// Find the node being attached to
-				node = mPathManager->FindNodeByName ( nodename );
-				if ( node )
+				node = mPathManager->FindNodeByName(nodename);
+				if (node)
 				{
-					CRMInstance*	instance;
-					int x,y;
-					int halfx = xcount/2;
-					int halfy = ycount/2;
-					float xpos = mLandScape->GetBounds ( )[0][0] + (mLandScape->GetBounds ( )[1][0]-mLandScape->GetBounds ( )[0][0]) * node->GetPos()[0];
-					float ypos = mLandScape->GetBounds ( )[0][1] + (mLandScape->GetBounds ( )[1][1]-mLandScape->GetBounds ( )[0][1]) * node->GetPos()[1];
-					float zpos = mLandScape->GetBounds ( )[1][2] + 100;
+					CRMInstance *instance;
+					int x, y;
+					int halfx = xcount / 2;
+					int halfy = ycount / 2;
+					float xpos = mLandScape->GetBounds()[0][0] + (mLandScape->GetBounds()[1][0] - mLandScape->GetBounds()[0][0]) * node->GetPos()[0];
+					float ypos = mLandScape->GetBounds()[0][1] + (mLandScape->GetBounds()[1][1] - mLandScape->GetBounds()[0][1]) * node->GetPos()[1];
+					float zpos = mLandScape->GetBounds()[1][2] + 100;
 					float angle = 0;
-					int  lastGate = 0;
-					int  lastRip = 0;
+					int lastGate = 0;
+					int lastRip = 0;
 
 					// corners
 					x = -halfx;
 					y = -halfy;
-					if (towerCount > 3 || 
-  					    (towerCount > 0 && mLandScape->irand(1,2) == 1) )
+					if (towerCount > 3 ||
+						(towerCount > 0 && mLandScape->irand(1, 2) == 1))
 					{
 						towerCount--;
-						instance = mInstanceFile.CreateInstance ( towerName );
+						instance = mInstanceFile.CreateInstance(towerName);
 					}
 					else
-						instance = mInstanceFile.CreateInstance ( cornerName );
+						instance = mInstanceFile.CreateInstance(cornerName);
 					angle = (float)DEG2RAD(90);
 					instance->SetSide(side);
 					PlaceWallInstance(instance, xpos, ypos, zpos, x, y, angle);
 
 					x = halfx;
 					y = -halfy;
-					if (towerCount > 3 || 
-  					    (towerCount > 0 && mLandScape->irand(1,2) == 1) )
+					if (towerCount > 3 ||
+						(towerCount > 0 && mLandScape->irand(1, 2) == 1))
 					{
 						towerCount--;
-						instance = mInstanceFile.CreateInstance ( towerName );
+						instance = mInstanceFile.CreateInstance(towerName);
 					}
 					else
-						instance = mInstanceFile.CreateInstance ( cornerName );
+						instance = mInstanceFile.CreateInstance(cornerName);
 					angle = (float)DEG2RAD(180);
 					instance->SetSide(side);
 					PlaceWallInstance(instance, xpos, ypos, zpos, x, y, angle);
 
 					x = halfx;
 					y = halfy;
-					if (towerCount > 3 || 
-  					    (towerCount > 0 && mLandScape->irand(1,2) == 1) )
+					if (towerCount > 3 ||
+						(towerCount > 0 && mLandScape->irand(1, 2) == 1))
 					{
 						towerCount--;
-						instance = mInstanceFile.CreateInstance ( towerName );
+						instance = mInstanceFile.CreateInstance(towerName);
 					}
 					else
-						instance = mInstanceFile.CreateInstance ( cornerName );
+						instance = mInstanceFile.CreateInstance(cornerName);
 					angle = (float)DEG2RAD(270);
 					instance->SetSide(side);
 					PlaceWallInstance(instance, xpos, ypos, zpos, x, y, angle);
 
 					x = -halfx;
 					y = halfy;
-					if (towerCount > 3 || 
-  					    (towerCount > 0 && mLandScape->irand(1,2) == 1) )
+					if (towerCount > 3 ||
+						(towerCount > 0 && mLandScape->irand(1, 2) == 1))
 					{
 						towerCount--;
-						instance = mInstanceFile.CreateInstance ( towerName );
+						instance = mInstanceFile.CreateInstance(towerName);
 					}
 					else
-						instance = mInstanceFile.CreateInstance ( cornerName );
+						instance = mInstanceFile.CreateInstance(cornerName);
 					angle = DEG2RAD(0);
 					instance->SetSide(side);
 					PlaceWallInstance(instance, xpos, ypos, zpos, x, y, angle);
 
 					// walls
 					angle = DEG2RAD(0);
-					for (x = -halfx+1; x <= halfx-1; x++)
+					for (x = -halfx + 1; x <= halfx - 1; x++)
 					{
-						if (lastGate<1 && gateCount > 0 && mLandScape->irand(1,(halfx+halfy)/gateCount) == 1)
-						{	// gate
+						if (lastGate < 1 && gateCount > 0 && mLandScape->irand(1, (halfx + halfy) / gateCount) == 1)
+						{ // gate
 							gateCount--;
 							lastGate = 3;
-							instance = mInstanceFile.CreateInstance ( gateName );
+							instance = mInstanceFile.CreateInstance(gateName);
 						}
-						else if (lastRip<1 && ripCount > 0 && mLandScape->irand(1,(halfx+halfy)/ripCount) == 1)
-						{	// damaged fence
+						else if (lastRip < 1 && ripCount > 0 && mLandScape->irand(1, (halfx + halfy) / ripCount) == 1)
+						{ // damaged fence
 							ripCount--;
 							lastRip = 3;
-							instance = mInstanceFile.CreateInstance ( ripName );
+							instance = mInstanceFile.CreateInstance(ripName);
 						}
 						else
-						{   // just a wall
-							instance = mInstanceFile.CreateInstance ( wallName );
+						{ // just a wall
+							instance = mInstanceFile.CreateInstance(wallName);
 							lastRip--;
 							lastGate--;
 						}
 						instance->SetSide(side);
 						PlaceWallInstance(instance, xpos, ypos, zpos, x, -halfy, angle);
 					}
-					for (x = -halfx+1; x <= halfx-1; x++)
+					for (x = -halfx + 1; x <= halfx - 1; x++)
 					{
-						if (lastGate<1 && gateCount > 0 && mLandScape->irand(1,(halfx+halfy)/gateCount) == 1)
-						{	// gate
+						if (lastGate < 1 && gateCount > 0 && mLandScape->irand(1, (halfx + halfy) / gateCount) == 1)
+						{ // gate
 							gateCount--;
 							lastGate = 3;
-							instance = mInstanceFile.CreateInstance ( gateName );
+							instance = mInstanceFile.CreateInstance(gateName);
 						}
-						else if (lastRip<1 && ripCount > 0 && mLandScape->irand(1,(halfx+halfy)/ripCount) == 1)
-						{	// damaged fence
+						else if (lastRip < 1 && ripCount > 0 && mLandScape->irand(1, (halfx + halfy) / ripCount) == 1)
+						{ // damaged fence
 							ripCount--;
 							lastRip = 3;
-							instance = mInstanceFile.CreateInstance ( ripName );
+							instance = mInstanceFile.CreateInstance(ripName);
 						}
 						else
-						{   // just a wall
-							instance = mInstanceFile.CreateInstance ( wallName );
+						{ // just a wall
+							instance = mInstanceFile.CreateInstance(wallName);
 							lastRip--;
 							lastGate--;
 						}
@@ -667,46 +666,46 @@ bool CRMMission::ParseWallRect(CGPGroup* group , int side)
 					}
 
 					angle = (float)DEG2RAD(90);
-					for (y = -halfy+1; y <= halfy-1; y++)
+					for (y = -halfy + 1; y <= halfy - 1; y++)
 					{
-						if (lastGate<1 && gateCount > 0 && mLandScape->irand(1,(halfx+halfy)/gateCount) == 1)
-						{	// gate
+						if (lastGate < 1 && gateCount > 0 && mLandScape->irand(1, (halfx + halfy) / gateCount) == 1)
+						{ // gate
 							gateCount--;
 							lastGate = 3;
-							instance = mInstanceFile.CreateInstance ( gateName );
+							instance = mInstanceFile.CreateInstance(gateName);
 						}
-						else if (lastRip<1 && ripCount > 0 && mLandScape->irand(1,(halfx+halfy)/ripCount) == 1)
-						{	// damaged fence
+						else if (lastRip < 1 && ripCount > 0 && mLandScape->irand(1, (halfx + halfy) / ripCount) == 1)
+						{ // damaged fence
 							ripCount--;
 							lastRip = 3;
-							instance = mInstanceFile.CreateInstance ( ripName );
+							instance = mInstanceFile.CreateInstance(ripName);
 						}
 						else
-						{   // just a wall
-							instance = mInstanceFile.CreateInstance ( wallName );
+						{ // just a wall
+							instance = mInstanceFile.CreateInstance(wallName);
 							lastRip--;
 							lastGate--;
 						}
 						instance->SetSide(side);
 						PlaceWallInstance(instance, xpos, ypos, zpos, -halfx, y, angle);
 					}
-					for (y = -halfy+1; y <= halfy-1; y++)
+					for (y = -halfy + 1; y <= halfy - 1; y++)
 					{
-						if (lastGate<1 && gateCount > 0 && mLandScape->irand(1,(halfx+halfy)/gateCount) == 1)
-						{	// gate
+						if (lastGate < 1 && gateCount > 0 && mLandScape->irand(1, (halfx + halfy) / gateCount) == 1)
+						{ // gate
 							gateCount--;
 							lastGate = 3;
-							instance = mInstanceFile.CreateInstance ( gateName );
+							instance = mInstanceFile.CreateInstance(gateName);
 						}
-						else if (lastRip<1 && ripCount > 0 && mLandScape->irand(1,(halfx+halfy)/ripCount) == 1)
-						{	// damaged fence
+						else if (lastRip < 1 && ripCount > 0 && mLandScape->irand(1, (halfx + halfy) / ripCount) == 1)
+						{ // damaged fence
 							ripCount--;
 							lastRip = 3;
-							instance = mInstanceFile.CreateInstance ( ripName );
+							instance = mInstanceFile.CreateInstance(ripName);
 						}
 						else
-						{   // just a wall
-							instance = mInstanceFile.CreateInstance ( wallName );
+						{ // just a wall
+							instance = mInstanceFile.CreateInstance(wallName);
 							lastRip--;
 							lastGate--;
 						}
@@ -716,14 +715,13 @@ bool CRMMission::ParseWallRect(CGPGroup* group , int side)
 				}
 			}
 		}
-	}			
+	}
 	else
 		return false;
 #endif // #ifndef PRE_RELEASE_DEMO
 
 	return true;
 }
-
 
 /************************************************************************************************
  * CRMMission::ParseInstancesOnPath
@@ -737,138 +735,137 @@ bool CRMMission::ParseWallRect(CGPGroup* group , int side)
  *  false: failed to parse
  *
  ************************************************************************************************/
-bool CRMMission::ParseInstancesOnPath ( CGPGroup* group )
+bool CRMMission::ParseInstancesOnPath(CGPGroup *group)
 {
 #ifndef PRE_RELEASE_DEMO
-	CGPGroup* defenseGroup;
-	for ( defenseGroup = group->GetSubGroups(); 
-		  defenseGroup; 
-		  defenseGroup=defenseGroup->GetNext() )
-	if (stricmp ( defenseGroup->GetName ( ), "defenses" )==0 ||
-		stricmp ( defenseGroup->GetName(), "instanceonpath")==0)
-	{
-		const char* defName = defenseGroup->FindPairValue ( "instance", "" );
-		if ( *defName )
+	CGPGroup *defenseGroup;
+	for (defenseGroup = group->GetSubGroups();
+		 defenseGroup;
+		 defenseGroup = defenseGroup->GetNext())
+		if (stricmp(defenseGroup->GetName(), "defenses") == 0 ||
+			stricmp(defenseGroup->GetName(), "instanceonpath") == 0)
 		{
-			float	minpos;
-			float	maxpos;
-			int		mincount;
-			int		maxcount;
-
-			// how far along path does this get placed?
-			minpos = atof( defenseGroup->FindPairValue ( "minposition", "0.5" ) );
-			maxpos = atof( defenseGroup->FindPairValue ( "maxposition", "0.5" ) );
-			mincount = atoi( defenseGroup->FindPairValue ( "mincount", "1" ) );
-			maxcount = atoi( defenseGroup->FindPairValue ( "maxcount", "1" ) );
-
-			const char*		nodename;
-			CGPGroup* originGroup = group->FindSubGroup ( "origin" );
-			if (originGroup)
+			const char *defName = defenseGroup->FindPairValue("instance", "");
+			if (*defName)
 			{
-				nodename = originGroup->FindPairValue ( "node", "" );
-				if (*nodename)
+				float minpos;
+				float maxpos;
+				int mincount;
+				int maxcount;
+
+				// how far along path does this get placed?
+				minpos = atof(defenseGroup->FindPairValue("minposition", "0.5"));
+				maxpos = atof(defenseGroup->FindPairValue("maxposition", "0.5"));
+				mincount = atoi(defenseGroup->FindPairValue("mincount", "1"));
+				maxcount = atoi(defenseGroup->FindPairValue("maxcount", "1"));
+
+				const char *nodename;
+				CGPGroup *originGroup = group->FindSubGroup("origin");
+				if (originGroup)
 				{
-					CRMNode*	node;
-					// Find the node being attached to
-					node = mPathManager->FindNodeByName ( nodename );
-					if ( node )
+					nodename = originGroup->FindPairValue("node", "");
+					if (*nodename)
 					{
-						int dir;
-						// look at each connection from this node to others, if there is a path, create a defense
-						for (dir=0; dir<DIR_MAX; dir++)
+						CRMNode *node;
+						// Find the node being attached to
+						node = mPathManager->FindNodeByName(nodename);
+						if (node)
 						{
-							if (node->PathExist(dir))
-							{	// path leads out of this node
-								CRMArea*		area;
-								CRMInstance*	instance;
-								float			spacing;
-								vec3_t			origin;
-								vec3_t			lookat;
-								vec4_t			tmp_pt, tmp_dir;
-								int				n,num_insts = mLandScape->irand(mincount,maxcount);
-								int				pathID = node->GetPath(dir);
+							int dir;
+							// look at each connection from this node to others, if there is a path, create a defense
+							for (dir = 0; dir < DIR_MAX; dir++)
+							{
+								if (node->PathExist(dir))
+								{ // path leads out of this node
+									CRMArea *area;
+									CRMInstance *instance;
+									float spacing;
+									vec3_t origin;
+									vec3_t lookat;
+									vec4_t tmp_pt, tmp_dir;
+									int n, num_insts = mLandScape->irand(mincount, maxcount);
+									int pathID = node->GetPath(dir);
 
-								if (0 == num_insts)
-									continue;
+									if (0 == num_insts)
+										continue;
 
-								float posdelta = (maxpos - minpos) / num_insts;
+									float posdelta = (maxpos - minpos) / num_insts;
 
-								for (n=0; n<num_insts; n++)
-								{
-
-									instance = mInstanceFile.CreateInstance ( defName );
-									// Failed to create, not good
-									if ( NULL == instance )
+									for (n = 0; n < num_insts; n++)
 									{
-										continue; 
+
+										instance = mInstanceFile.CreateInstance(defName);
+										// Failed to create, not good
+										if (NULL == instance)
+										{
+											continue;
+										}
+										// If a spacing radius was specified then override the one thats
+										// in the instance
+										spacing = atof(defenseGroup->FindPairValue("spacing", "0"));
+										if (spacing)
+										{
+											instance->SetSpacingRadius(spacing);
+										}
+
+										instance->SetFilter(group->FindPairValue("filter", ""));
+										instance->SetTeamFilter(group->FindPairValue("teamfilter", ""));
+
+										if (strstr(instance->GetTeamFilter(), "red"))
+											instance->SetSide(SIDE_RED);
+										else if (strstr(instance->GetTeamFilter(), "blue"))
+											instance->SetSide(SIDE_BLUE);
+
+										float pos_along_path = mLandScape->flrand(minpos + posdelta * n, minpos + posdelta * (n + 1));
+										float look_along_path = atof(defenseGroup->FindPairValue("pathalign", "1"));
+										mLandScape->GetPathInfo(pathID, pos_along_path, tmp_pt, tmp_dir);
+										origin[0] = tmp_pt[0];
+										origin[1] = tmp_pt[1];
+
+										mLandScape->GetPathInfo(pathID, look_along_path, tmp_dir, tmp_pt);
+										lookat[0] = tmp_pt[0];
+										lookat[1] = tmp_pt[1];
+
+										origin[0] = mLandScape->GetBounds()[0][0] + (mLandScape->GetBounds()[1][0] - mLandScape->GetBounds()[0][0]) * origin[0];
+										origin[1] = mLandScape->GetBounds()[0][1] + (mLandScape->GetBounds()[1][1] - mLandScape->GetBounds()[0][1]) * origin[1];
+										origin[2] = mLandScape->GetBounds()[0][2];
+
+										// look at a point along the path at this location
+										lookat[0] = mLandScape->GetBounds()[0][0] + (mLandScape->GetBounds()[1][0] - mLandScape->GetBounds()[0][0]) * lookat[0];
+										lookat[1] = mLandScape->GetBounds()[0][1] + (mLandScape->GetBounds()[1][1] - mLandScape->GetBounds()[0][1]) * lookat[1];
+										lookat[2] = 0;
+
+										// Fixed height?  (used for bridges)
+										if (!atoi(group->FindPairValue("nodrop", "0")))
+										{
+											origin[2] = mLandScape->GetBounds()[1][2] + 100;
+										}
+
+										// Set the area of position
+										area = mAreaManager->CreateArea(origin, instance->GetSpacingRadius(), instance->GetSpacingLine(), GetDefaultPadding(), 0, origin, lookat, instance->GetFlattenRadius() ? true : false, true, instance->GetLockOrigin(), mSymmetric);
+										area->EnableLookAt(false);
+
+										if (node->GetFlattenHeight() == -1)
+										{
+											node->SetFlattenHeight(66 + mLandScape->irand(0, 40));
+										}
+										instance->SetFlattenHeight(node->GetFlattenHeight());
+
+										instance->SetArea(mAreaManager, area);
+
+										mInstances.push_back(instance);
 									}
-									// If a spacing radius was specified then override the one thats
-									// in the instance
-									spacing = atof( defenseGroup->FindPairValue ( "spacing", "0" ) );
-									if ( spacing )
-									{
-										instance->SetSpacingRadius ( spacing );
-									}
-
-									instance->SetFilter(group->FindPairValue("filter", ""));
-									instance->SetTeamFilter(group->FindPairValue("teamfilter", ""));
-
-									if (strstr(instance->GetTeamFilter(),"red"))
-										instance->SetSide(SIDE_RED);
-									else if (strstr(instance->GetTeamFilter(),"blue"))
-										instance->SetSide(SIDE_BLUE);
-
-									float pos_along_path = mLandScape->flrand(minpos + posdelta*n, minpos + posdelta*(n+1));
-									float look_along_path = atof( defenseGroup->FindPairValue ( "pathalign", "1" ) ) ;
-									mLandScape->GetPathInfo (pathID, pos_along_path, tmp_pt, tmp_dir );
-									origin[0] = tmp_pt[0];
-									origin[1] = tmp_pt[1];
-
-									mLandScape->GetPathInfo (pathID, look_along_path, tmp_dir, tmp_pt );
-									lookat[0] = tmp_pt[0];
-									lookat[1] = tmp_pt[1];
-
-									origin[0] = mLandScape->GetBounds ( )[0][0] + (mLandScape->GetBounds ( )[1][0]-mLandScape->GetBounds ( )[0][0]) * origin[0];
-									origin[1] = mLandScape->GetBounds ( )[0][1] + (mLandScape->GetBounds ( )[1][1]-mLandScape->GetBounds ( )[0][1]) * origin[1];
-									origin[2] = mLandScape->GetBounds ( )[0][2] ;
-
-									// look at a point along the path at this location
-									lookat[0] = mLandScape->GetBounds ( )[0][0] + (mLandScape->GetBounds ( )[1][0]-mLandScape->GetBounds ( )[0][0]) * lookat[0];
-									lookat[1] = mLandScape->GetBounds ( )[0][1] + (mLandScape->GetBounds ( )[1][1]-mLandScape->GetBounds ( )[0][1]) * lookat[1];
-									lookat[2] = 0;
-
-									// Fixed height?  (used for bridges)
-									if ( !atoi(group->FindPairValue ( "nodrop", "0" )) )
-									{
-										origin[2] = mLandScape->GetBounds ( )[1][2] + 100;
-									}
-					
-									// Set the area of position
-									area = mAreaManager->CreateArea ( origin, instance->GetSpacingRadius(), instance->GetSpacingLine(), GetDefaultPadding(), 0, origin, lookat, instance->GetFlattenRadius()?true:false, true, instance->GetLockOrigin(), mSymmetric );
-									area->EnableLookAt(false);
-
-									if ( node->GetFlattenHeight ( ) == -1 )
-									{
-										node->SetFlattenHeight ( 66 + mLandScape->irand(0,40) );
-									}
-									instance->SetFlattenHeight ( node->GetFlattenHeight ( ) );
-
-									instance->SetArea ( mAreaManager, area );
-
-									mInstances.push_back ( instance );
 								}
 							}
 						}
 					}
 				}
+				else
+					return false;
 			}
 			else
 				return false;
-		}			
-		else
-			return false;
-
-	}
+		}
 #endif // #ifndef PRE_RELEASE_DEMO
 
 	return true;
@@ -886,76 +883,75 @@ bool CRMMission::ParseInstancesOnPath ( CGPGroup* group )
  *  false: instances failed to parse
  *
  ************************************************************************************************/
-bool CRMMission::ParseInstance ( CGPGroup* group )
+bool CRMMission::ParseInstance(CGPGroup *group)
 {
-	CRMArea*		area;
-	CRMInstance*	instance;
-	float			spacing;
-	vec3_t			origin;
-	vec3_t			lookat;
-	int				flattenHeight;
-	vec3_t			zerodvec;
+	CRMArea *area;
+	CRMInstance *instance;
+	float spacing;
+	vec3_t origin;
+	vec3_t lookat;
+	int flattenHeight;
+	vec3_t zerodvec;
 
 	VectorClear(zerodvec);
 
-	// create fences / walls 
+	// create fences / walls
 
 	// Create the instance using the instance file helper class
-	instance = mInstanceFile.CreateInstance ( group->GetName ( ) );
+	instance = mInstanceFile.CreateInstance(group->GetName());
 
 	// Failed to create, not good
-	if ( NULL == instance )
+	if (NULL == instance)
 	{
 		return false;
 	}
 
 	// If a spacing radius was specified then override the one thats
 	// in the instance
-	spacing = atof( group->FindPairValue ( "spacing", "0" ) );
-	if ( spacing )
+	spacing = atof(group->FindPairValue("spacing", "0"));
+	if (spacing)
 	{
-		instance->SetSpacingRadius ( spacing );
+		instance->SetSpacingRadius(spacing);
 	}
 
 	instance->SetFilter(group->FindPairValue("filter", ""));
 	instance->SetTeamFilter(group->FindPairValue("teamfilter", ""));
 
-	if (strstr(instance->GetTeamFilter(),"red"))
-		instance->SetSide( SIDE_RED);
-	else if (strstr(instance->GetTeamFilter(),"blue"))
-		instance->SetSide( SIDE_BLUE );
+	if (strstr(instance->GetTeamFilter(), "red"))
+		instance->SetSide(SIDE_RED);
+	else if (strstr(instance->GetTeamFilter(), "blue"))
+		instance->SetSide(SIDE_BLUE);
 
-//	ParseWallRect(group, instance->GetSide());
+	//	ParseWallRect(group, instance->GetSide());
 
 	// Get its origin now
-	ParseOrigin ( group->FindSubGroup ( "origin" ), origin, lookat, &flattenHeight );
-	origin[0] = mLandScape->GetBounds ( )[0][0] + (mLandScape->GetBounds ( )[1][0]-mLandScape->GetBounds ( )[0][0]) * origin[0];
-	origin[1] = mLandScape->GetBounds ( )[0][1] + (mLandScape->GetBounds ( )[1][1]-mLandScape->GetBounds ( )[0][1]) * origin[1];
-	origin[2] = mLandScape->GetBounds ( )[0][2] + (mLandScape->GetBounds ( )[1][2]-mLandScape->GetBounds ( )[0][2]) * origin[2];
+	ParseOrigin(group->FindSubGroup("origin"), origin, lookat, &flattenHeight);
+	origin[0] = mLandScape->GetBounds()[0][0] + (mLandScape->GetBounds()[1][0] - mLandScape->GetBounds()[0][0]) * origin[0];
+	origin[1] = mLandScape->GetBounds()[0][1] + (mLandScape->GetBounds()[1][1] - mLandScape->GetBounds()[0][1]) * origin[1];
+	origin[2] = mLandScape->GetBounds()[0][2] + (mLandScape->GetBounds()[1][2] - mLandScape->GetBounds()[0][2]) * origin[2];
 
-	lookat[0] = mLandScape->GetBounds ( )[0][0] + (mLandScape->GetBounds ( )[1][0]-mLandScape->GetBounds ( )[0][0]) * lookat[0];
-	lookat[1] = mLandScape->GetBounds ( )[0][1] + (mLandScape->GetBounds ( )[1][1]-mLandScape->GetBounds ( )[0][1]) * lookat[1];
-	lookat[2] = mLandScape->GetBounds ( )[0][2] + (mLandScape->GetBounds ( )[1][2]-mLandScape->GetBounds ( )[0][2]) * lookat[2];
+	lookat[0] = mLandScape->GetBounds()[0][0] + (mLandScape->GetBounds()[1][0] - mLandScape->GetBounds()[0][0]) * lookat[0];
+	lookat[1] = mLandScape->GetBounds()[0][1] + (mLandScape->GetBounds()[1][1] - mLandScape->GetBounds()[0][1]) * lookat[1];
+	lookat[2] = mLandScape->GetBounds()[0][2] + (mLandScape->GetBounds()[1][2] - mLandScape->GetBounds()[0][2]) * lookat[2];
 
 	// Fixed height?  (used for bridges)
-	if ( !atoi(group->FindPairValue ( "nodrop", "0" )) )
+	if (!atoi(group->FindPairValue("nodrop", "0")))
 	{
-		origin[2] = mLandScape->GetBounds ( )[1][2] + 100;
+		origin[2] = mLandScape->GetBounds()[1][2] + 100;
 	}
 
 	// Set the area of position
-	area = mAreaManager->CreateArea ( origin, instance->GetSpacingRadius(), instance->GetSpacingLine(), GetDefaultPadding(), 0, zerodvec, lookat, instance->GetFlattenRadius()?true:false, true, instance->GetLockOrigin(), mSymmetric );
-	instance->SetArea ( mAreaManager, area );
-	instance->SetFlattenHeight ( flattenHeight );
+	area = mAreaManager->CreateArea(origin, instance->GetSpacingRadius(), instance->GetSpacingLine(), GetDefaultPadding(), 0, zerodvec, lookat, instance->GetFlattenRadius() ? true : false, true, instance->GetLockOrigin(), mSymmetric);
+	instance->SetArea(mAreaManager, area);
+	instance->SetFlattenHeight(flattenHeight);
 
-	mInstances.push_back ( instance );
+	mInstances.push_back(instance);
 
 	// create defenses?
-	ParseInstancesOnPath(group );
+	ParseInstancesOnPath(group);
 
 	return true;
 }
-
 
 /************************************************************************************************
  * CRMMission::ParseInstances
@@ -969,22 +965,22 @@ bool CRMMission::ParseInstance ( CGPGroup* group )
  *  false: instances failed to parse
  *
  ************************************************************************************************/
-bool CRMMission::ParseInstances ( CGPGroup* group )
+bool CRMMission::ParseInstances(CGPGroup *group)
 {
 #ifndef PRE_RELEASE_DEMO
 	// If NULL that means this particular difficulty level has no instances
-	if ( NULL == group )
+	if (NULL == group)
 	{
 		return true;
 	}
 
-	// Loop through all the instances in the mission and add each 
+	// Loop through all the instances in the mission and add each
 	// to the master list of instances
-	for ( group = group->GetSubGroups(); 
-		  group; 
-		  group=group->GetNext() )
+	for (group = group->GetSubGroups();
+		 group;
+		 group = group->GetNext())
 	{
-		ParseInstance ( group );
+		ParseInstance(group);
 	}
 #endif // #ifndef PRE_RELEASE_DEMO
 
@@ -1003,30 +999,30 @@ bool CRMMission::ParseInstances ( CGPGroup* group )
  *  false: objectives failed to parse
  *
  ************************************************************************************************/
-bool CRMMission::ParseObjectives ( CGPGroup* group )
+bool CRMMission::ParseObjectives(CGPGroup *group)
 {
 	// If NULL that means this particular difficulty level has no objectives
-	if ( NULL == group )
+	if (NULL == group)
 	{
 		return true;
 	}
 
 	// Loop through all the objectives in the mission and add each
 	// to the master list of objectives
-	for ( group = group->GetSubGroups(); 
-		  group; 
-		  group=group->GetNext() )
+	for (group = group->GetSubGroups();
+		 group;
+		 group = group->GetNext())
 	{
-		CRMObjective* objective;
+		CRMObjective *objective;
 
 		// Create the new objective
-		objective = new CRMObjective ( group );
+		objective = new CRMObjective(group);
 
-		mObjectives.push_back ( objective );
+		mObjectives.push_back(objective);
 	}
 
 	mValidObjectives = true;
-	
+
 	return true;
 }
 
@@ -1043,9 +1039,9 @@ bool CRMMission::ParseObjectives ( CGPGroup* group )
  *  false: ammo failed to parse
  *
  ************************************************************************************************/
-bool CRMMission::ParseAmmo ( CGPGroup* ammos )
+bool CRMMission::ParseAmmo(CGPGroup *ammos)
 {
-/*	CGPValue* ammo;
+	/*	CGPValue* ammo;
 
 	// No weapons, no success
 	if ( NULL == ammos )
@@ -1093,9 +1089,9 @@ bool CRMMission::ParseAmmo ( CGPGroup* ammos )
  *  false: weapons failed to parse
  *
  ************************************************************************************************/
-bool CRMMission::ParseWeapons ( CGPGroup* weapons )
+bool CRMMission::ParseWeapons(CGPGroup *weapons)
 {
-/*	CGPValue*	weapon;
+	/*	CGPValue*	weapon;
 	WpnID		id;
 
 	// No weapons, no success
@@ -1150,14 +1146,14 @@ bool CRMMission::ParseWeapons ( CGPGroup* weapons )
  *  false: failed to parse
  *
  ************************************************************************************************/
-bool CRMMission::ParseOutfit ( CGPGroup* outfit )
+bool CRMMission::ParseOutfit(CGPGroup *outfit)
 {
-	if ( NULL == outfit )
+	if (NULL == outfit)
 	{
 		return false;
 	}
 
-/*	// Its ok to fail parsing weapons as long as weapons have
+	/*	// Its ok to fail parsing weapons as long as weapons have
 	// already been parsed at some point
 	if ( !ParseWeapons ( ParseRandom ( outfit->FindSubGroup ( "weapons" ) ) ) )
 	{
@@ -1192,39 +1188,39 @@ bool CRMMission::ParseOutfit ( CGPGroup* outfit )
  *  false: failed to parse
  *
  ************************************************************************************************/
-CGPGroup* CRMMission::ParseRandom ( CGPGroup* randomGroup )
+CGPGroup *CRMMission::ParseRandom(CGPGroup *randomGroup)
 {
 	if (NULL == randomGroup)
 		return NULL;
 
-	CGPGroup* group;
-	CGPGroup* groups[MAX_RANDOM_CHOICES];
-	int		  numGroups;
+	CGPGroup *group;
+	CGPGroup *groups[MAX_RANDOM_CHOICES];
+	int numGroups;
 
 	// Build a list of the groups one can be chosen
-	for ( numGroups = 0, group = randomGroup->GetSubGroups ( ); 
-		  group; 
-		  group = group->GetNext ( ) )
+	for (numGroups = 0, group = randomGroup->GetSubGroups();
+		 group;
+		 group = group->GetNext())
 	{
-		if ( stricmp ( group->GetName ( ), "random_choice" ) )
+		if (stricmp(group->GetName(), "random_choice"))
 		{
 			continue;
 		}
 
-		int weight = atoi ( group->FindPairValue ( "random_weight", "1" ) );
+		int weight = atoi(group->FindPairValue("random_weight", "1"));
 		while (weight-- > 0)
 			groups[numGroups++] = group;
-		assert (numGroups <= MAX_RANDOM_CHOICES);
+		assert(numGroups <= MAX_RANDOM_CHOICES);
 	}
 
 	// No groups!
-	if ( !numGroups )
+	if (!numGroups)
 	{
 		return randomGroup;
 	}
 
 	// Now choose a group to parse
-	return groups[mLandScape->irand(0,numGroups-1)];
+	return groups[mLandScape->irand(0, numGroups - 1)];
 }
 
 /************************************************************************************************
@@ -1239,11 +1235,11 @@ CGPGroup* CRMMission::ParseRandom ( CGPGroup* randomGroup )
  *  false: difficulty failed to parse
  *
  ************************************************************************************************/
-bool CRMMission::ParseDifficulty ( CGPGroup* difficulty, CGPGroup *parent )
+bool CRMMission::ParseDifficulty(CGPGroup *difficulty, CGPGroup *parent)
 {
 	// If a null difficulty then stop the recursion.  Make sure to
 	// return true here so the parsing doesnt fail
-	if ( NULL == difficulty )
+	if (NULL == difficulty)
 	{
 		return true;
 	}
@@ -1254,51 +1250,51 @@ bool CRMMission::ParseDifficulty ( CGPGroup* difficulty, CGPGroup *parent )
 	}
 
 	// is map supposed to be symmetric?
-	mSymmetric = (symmetry_t)atoi(parent->FindPairValue ( "symmetric", "0" ));
-	mBackUpPath = atoi(parent->FindPairValue ( "backuppath", "0" ));
-	if( mSymmetric )
-	{// pick between the 2 starting corners -- yes this is a hack
+	mSymmetric = (symmetry_t)atoi(parent->FindPairValue("symmetric", "0"));
+	mBackUpPath = atoi(parent->FindPairValue("backuppath", "0"));
+	if (mSymmetric)
+	{ // pick between the 2 starting corners -- yes this is a hack
 		mSymmetric = SYMMETRY_TOPLEFT;
-		if( TheRandomMissionManager->GetLandScape()->irand(0, 1) )
+		if (TheRandomMissionManager->GetLandScape()->irand(0, 1))
 		{
 			mSymmetric = SYMMETRY_BOTTOMRIGHT;
 		}
 	}
-	
-	mDefaultPadding = atoi(parent->FindPairValue ( "padding", "0" ));
-		
+
+	mDefaultPadding = atoi(parent->FindPairValue("padding", "0"));
+
 	// Parse the nodes
-	if ( !ParseNodes (  ParseRandom ( difficulty->FindSubGroup ( "nodes" ) ) ) )
+	if (!ParseNodes(ParseRandom(difficulty->FindSubGroup("nodes"))))
 	{
 		return false;
 	}
 
 	// Parse the paths
-	if ( !ParsePaths (  ParseRandom ( difficulty->FindSubGroup ( "paths" ) ) ) )
+	if (!ParsePaths(ParseRandom(difficulty->FindSubGroup("paths"))))
 	{
 		return false;
 	}
 
-	// Parse the rivers 
-	if ( !ParseRivers (  ParseRandom ( difficulty->FindSubGroup ( "rivers" ) ) ) )
+	// Parse the rivers
+	if (!ParseRivers(ParseRandom(difficulty->FindSubGroup("rivers"))))
 	{
 		return false;
 	}
 
 	// Handle inherited properties
-	if ( !ParseDifficulty ( parent->FindSubGroup ( difficulty->FindPairValue ( "inherit", "" ) ), parent ) )
+	if (!ParseDifficulty(parent->FindSubGroup(difficulty->FindPairValue("inherit", "")), parent))
 	{
 		return false;
 	}
 
 	// parse the player's outfit (weapons and ammo)
-	if ( !ParseOutfit( ParseRandom ( difficulty->FindSubGroup ( "outfit" ) ) ) )
+	if (!ParseOutfit(ParseRandom(difficulty->FindSubGroup("outfit"))))
 	{
 		// Its ok to fail parsing weapons as long as weapons have
 		// already been parsed at some point
-		if ( !ParseWeapons ( ParseRandom ( difficulty->FindSubGroup ( "weapons" ) ) ) )
+		if (!ParseWeapons(ParseRandom(difficulty->FindSubGroup("weapons"))))
 		{
-			if ( !mValidWeapons )
+			if (!mValidWeapons)
 			{
 				return false;
 			}
@@ -1306,9 +1302,9 @@ bool CRMMission::ParseDifficulty ( CGPGroup* difficulty, CGPGroup *parent )
 
 		// Its ok to fail parsing ammo as long as ammo have
 		// already been parsed at some point
-		if ( !ParseAmmo ( ParseRandom ( difficulty->FindSubGroup ( "ammo" ) ) ) )
+		if (!ParseAmmo(ParseRandom(difficulty->FindSubGroup("ammo"))))
 		{
-			if ( !mValidAmmo)
+			if (!mValidAmmo)
 			{
 				return false;
 			}
@@ -1317,17 +1313,17 @@ bool CRMMission::ParseDifficulty ( CGPGroup* difficulty, CGPGroup *parent )
 
 	// Its ok to fail parsing objectives as long as objectives have
 	// already been parsed at some point
-	if ( !ParseObjectives ( ParseRandom ( difficulty->FindSubGroup ( "objectives" ) ) ) )
+	if (!ParseObjectives(ParseRandom(difficulty->FindSubGroup("objectives"))))
 	{
-		if ( !mValidObjectives )
+		if (!mValidObjectives)
 		{
 			return false;
 		}
 	}
 
 	// Set the cvars with the available values
-	Cvar_Set ( "mi_health", difficulty->FindPairValue ( "health", "100" ) );
-	Cvar_Set ( "mi_armor", difficulty->FindPairValue ( "armor", "0" ) );
+	Cvar_Set("mi_health", difficulty->FindPairValue("health", "100"));
+	Cvar_Set("mi_armor", difficulty->FindPairValue("armor", "0"));
 
 	// Parse out the timelimit
 	mTimeLimit = atol(difficulty->FindPairValue("timelimit", "0"));
@@ -1345,9 +1341,9 @@ bool CRMMission::ParseDifficulty ( CGPGroup* difficulty, CGPGroup *parent )
 
 	// Its ok to fail parsing instances as long as instances have
 	// already been parsed at some point
-	if ( !ParseInstances ( ParseRandom ( difficulty->FindSubGroup ( "instances" ) ) ) )
+	if (!ParseInstances(ParseRandom(difficulty->FindSubGroup("instances"))))
 	{
-		if ( !mValidInstances )
+		if (!mValidInstances)
 		{
 			return false;
 		}
@@ -1369,47 +1365,47 @@ bool CRMMission::ParseDifficulty ( CGPGroup* difficulty, CGPGroup *parent )
  *  false: mission failed to load
  *
  ************************************************************************************************/
-bool CRMMission::Load ( const char* mission, const char* instances, const char* difficulty )
+bool CRMMission::Load(const char *mission, const char *instances, const char *difficulty)
 {
-	CGenericParser2		parser;
-	CGPGroup*			root;
+	CGenericParser2 parser;
+	CGPGroup *root;
 
 	// Create the parser for the mission file
-	if(!Com_ParseTextFile(va("ext_data/rmg/%s.mission", mission), parser))
+	if (!Com_ParseTextFile(va("ext_data/rmg/%s.mission", mission), parser))
 	{
-		if(!Com_ParseTextFile(va("ext_data/arioche/%s.mission", mission), parser))
+		if (!Com_ParseTextFile(va("ext_data/arioche/%s.mission", mission), parser))
 		{
 			Com_Printf("ERROR: Failed to open mission file '%s'\n", mission);
 			return false;
 		}
 	}
-	
+
 	// Grab the root parser groop and make sure its mission, otherwise this
 	// isnt a valid mission file
 	root = parser.GetBaseParseGroup()->GetSubGroups();
-	if(stricmp(root->GetName(), "mission"))
+	if (stricmp(root->GetName(), "mission"))
 	{
-		Com_Printf("ERROR: '%s' is not a valid mission file\n", mission );
+		Com_Printf("ERROR: '%s' is not a valid mission file\n", mission);
 		parser.Clean();
 		return false;
 	}
-	
+
 	// Grab the mission description and set the cvar for it
-	mDescription = root->FindPairValue ( "description", "<MISSION DESCRIPTION MISSING>" );
-//	Cvar_Set("ar_obj_main0",mDescription.c_str(), CVAR_OBJECTIVE);
-//	Cvar_Set("ar_obj_maincom0", "&OBJECTIVES_INPROGRESS&", CVAR_OBJECTIVE);
-//	Cvar_SetValue ("ar_cur_objective", 0, CVAR_OBJECTIVE);
+	mDescription = root->FindPairValue("description", "<MISSION DESCRIPTION MISSING>");
+	//	Cvar_Set("ar_obj_main0",mDescription.c_str(), CVAR_OBJECTIVE);
+	//	Cvar_Set("ar_obj_maincom0", "&OBJECTIVES_INPROGRESS&", CVAR_OBJECTIVE);
+	//	Cvar_SetValue ("ar_cur_objective", 0, CVAR_OBJECTIVE);
 
-	string mInfo = root->FindPairValue ( "info", "<MISSION ADDITIONAL INFO MISSING>" );
-//	Cvar_Set("ar_obj_info0",mInfo.c_str(), CVAR_OBJECTIVE);
+	string mInfo = root->FindPairValue("info", "<MISSION ADDITIONAL INFO MISSING>");
+	//	Cvar_Set("ar_obj_info0",mInfo.c_str(), CVAR_OBJECTIVE);
 
-	mExitScreen = root->FindPairValue ( "exitScreen", "<EXIT SCREEN MISSING>" );
-	mTimeExpiredScreen = root->FindPairValue ( "TimeExpiredScreen", "<TIME EXPIRED SCREEN MISSING>" );
-	
+	mExitScreen = root->FindPairValue("exitScreen", "<EXIT SCREEN MISSING>");
+	mTimeExpiredScreen = root->FindPairValue("TimeExpiredScreen", "<TIME EXPIRED SCREEN MISSING>");
+
 	// Open the instance file for the specified instances
-	if ( !mInstanceFile.Open ( instances) )
+	if (!mInstanceFile.Open(instances))
 	{
-		Com_Printf ( "ERROR: Could not open instance file '%s'\n", instances );
+		Com_Printf("ERROR: Could not open instance file '%s'\n", instances);
 		return false;
 	}
 
@@ -1418,14 +1414,14 @@ bool CRMMission::Load ( const char* mission, const char* instances, const char* 
 	mMaxInstancePosition = 1;
 
 	// Now parse the specified difficulty level
-	CGPGroup* parserdif = root->FindSubGroup ( difficulty );
-	CGPGroup* parserpar = parserdif->GetParent();
+	CGPGroup *parserdif = root->FindSubGroup(difficulty);
+	CGPGroup *parserpar = parserdif->GetParent();
 	if (!parserpar)
 	{ //rww - expected to have a parent, but sometime doesn't get set.
-	  //I take it JK2's generic parser is not quite the same as SOF2's. Or is out of date.
+		//I take it JK2's generic parser is not quite the same as SOF2's. Or is out of date.
 		parserpar = root;
 	}
-	if ( !ParseDifficulty ( parserdif, parserpar ) )
+	if (!ParseDifficulty(parserdif, parserpar))
 	{
 		return false;
 	}
@@ -1451,36 +1447,36 @@ bool CRMMission::Load ( const char* mission, const char* instances, const char* 
  *  false: instances failed to spawn
  *
  ************************************************************************************************/
-bool CRMMission::Spawn ( CRandomTerrain* terrain, qboolean IsServer )
+bool CRMMission::Spawn(CRandomTerrain *terrain, qboolean IsServer)
 {
 #ifndef PRE_RELEASE_DEMO
-	rmInstanceIter_t	it;
-	int					areaIndex;
-	CRMArea*			area;
+	rmInstanceIter_t it;
+	int areaIndex;
+	CRMArea *area;
 
 	// Prespawn all instances, this is mainly for flattening
-	for(it = mInstances.begin(); it != mInstances.end(); it++)
+	for (it = mInstances.begin(); it != mInstances.end(); it++)
 	{
-		CRMInstance* instance = *it;
+		CRMInstance *instance = *it;
 
 		// Pre-Spawn
-		instance->PreSpawn ( terrain, IsServer );
+		instance->PreSpawn(terrain, IsServer);
 
 		if (mSymmetric)
 		{
 			instance->SetMirror(1);
-			instance->PreSpawn ( terrain, IsServer );
+			instance->PreSpawn(terrain, IsServer);
 			instance->SetMirror(0);
 		}
 	}
 
-	mLandScape->Smooth ( );
+	mLandScape->Smooth();
 
 	// place bridges
 	PlaceBridges();
 
 	// create automap
-//	if (!com_dedicated->integer)
+	//	if (!com_dedicated->integer)
 	{
 #ifndef DEDICATED
 		CM_TM_Create(mLandScape->GetLandScape());
@@ -1490,19 +1486,19 @@ bool CRMMission::Spawn ( CRandomTerrain* terrain, qboolean IsServer )
 	mLandScape->GetLandScape()->UpdatePatches();
 
 	// Spawn all instances
-	for(it = mInstances.begin(); it != mInstances.end(); it++)
+	for (it = mInstances.begin(); it != mInstances.end(); it++)
 	{
-		CRMInstance* instance = *it;
+		CRMInstance *instance = *it;
 
 		// Spawn
-		instance->Spawn ( terrain, IsServer );
-		instance->PostSpawn ( terrain, IsServer );
+		instance->Spawn(terrain, IsServer);
+		instance->PostSpawn(terrain, IsServer);
 
 		if (mSymmetric)
-		{	// spawn the mirror version
+		{ // spawn the mirror version
 			instance->SetMirror(1);
-			instance->Spawn ( terrain, IsServer );
-			instance->PostSpawn ( terrain, IsServer );
+			instance->Spawn(terrain, IsServer);
+			instance->PostSpawn(terrain, IsServer);
 			instance->SetMirror(0);
 		}
 	}
@@ -1510,7 +1506,7 @@ bool CRMMission::Spawn ( CRandomTerrain* terrain, qboolean IsServer )
 #ifndef FINAL_BUILD
 	// make sure to write out after the mirror happens so red side is displayed on map
 	if (1 == Cvar_VariableIntegerValue("rmg_saveautomap"))
-	{	// write out automap for test purposes
+	{ // write out automap for test purposes
 		char seed[MAX_QPATH];
 		char terrainName[MAX_QPATH];
 		char missionName[MAX_QPATH];
@@ -1519,61 +1515,61 @@ bool CRMMission::Spawn ( CRandomTerrain* terrain, qboolean IsServer )
 		Cvar_VariableStringBuffer("RMG_mission", missionName, MAX_QPATH);
 
 #ifndef DEDICATED
-		for(it = mInstances.begin(); it != mInstances.end(); it++)
+		for (it = mInstances.begin(); it != mInstances.end(); it++)
 		{
 			(*it)->DrawAutomapSymbol();
 		}
 		//gi.CM_TM_SaveImageToDisk(terrainName, missionName, seed);
 		CM_TM_SaveImageToDisk(terrainName, missionName, seed);
 #endif
-		Com_Error (ERR_DROP, "RMG Automap written.");
+		Com_Error(ERR_DROP, "RMG Automap written.");
 		return false;
 	}
 #endif
 
-//	// draw player start on automap
-//	CEntity	*spot = NULL;
-//	spot = entitySystem->GetEntityFromClassname( spot, "info_player_start");
-//	if (spot)
-//	{
-//		gi.CM_TM_AddStart(spot->GetOrigin()[0], spot->GetOrigin()[1]);
-//	}
+	//	// draw player start on automap
+	//	CEntity	*spot = NULL;
+	//	spot = entitySystem->GetEntityFromClassname( spot, "info_player_start");
+	//	if (spot)
+	//	{
+	//		gi.CM_TM_AddStart(spot->GetOrigin()[0], spot->GetOrigin()[1]);
+	//	}
 
 	// Spawn NPC triggers now
-//	SpawnNPCTriggers ( mLandScape );
+	//	SpawnNPCTriggers ( mLandScape );
 
 	// Restory all the NPC's accuracies to the template accuracies times the
 	// multiplier
-//	INPCEnt::RestoreTemplate ( mAccuracyMultiplier, mHealthMultiplier );
+	//	INPCEnt::RestoreTemplate ( mAccuracyMultiplier, mHealthMultiplier );
 
 	// Little trick to set the current objective to the first in the list
-	CompleteObjective ( NULL );
+	CompleteObjective(NULL);
 
 	// Iterate through the areas and add each to the landscapes list, this is sorta hacky
 	// but bridges the game / common gap
-	for ( areaIndex = 0; NULL != (area = mAreaManager->EnumArea ( areaIndex )); areaIndex ++ )
+	for (areaIndex = 0; NULL != (area = mAreaManager->EnumArea(areaIndex)); areaIndex++)
 	{
 		// Dont bother adding it to the list if collision isnt enabled
-		if ( !area->IsCollisionEnabled() )
+		if (!area->IsCollisionEnabled())
 		{
 			continue;
 		}
 
-		CArea* newarea = new CArea ( );
-		newarea->Init ( area->GetOrigin(), area->GetSpacingRadius (), 0, area->IsFlattened()?AT_FLAT:AT_NONE );
-		mLandScape->GetLandScape()->SaveArea( newarea );
+		CArea *newarea = new CArea();
+		newarea->Init(area->GetOrigin(), area->GetSpacingRadius(), 0, area->IsFlattened() ? AT_FLAT : AT_NONE);
+		mLandScape->GetLandScape()->SaveArea(newarea);
 
 		if (mSymmetric)
 		{
-			CArea* newarea = new CArea ( );
-			newarea->Init ( area->GetOrigin(), area->GetSpacingRadius (), 0, area->IsFlattened()?AT_FLAT:AT_NONE );
-			newarea->GetPosition()[0] = mLandScape->GetBounds ( )[0][0]+mLandScape->GetBounds ( )[1][0]-newarea->GetPosition()[0];
-			newarea->GetPosition()[1] = mLandScape->GetBounds ( )[0][1]+mLandScape->GetBounds ( )[1][1]-newarea->GetPosition()[1];
-			mLandScape->GetLandScape()->SaveArea( newarea );
+			CArea *newarea = new CArea();
+			newarea->Init(area->GetOrigin(), area->GetSpacingRadius(), 0, area->IsFlattened() ? AT_FLAT : AT_NONE);
+			newarea->GetPosition()[0] = mLandScape->GetBounds()[0][0] + mLandScape->GetBounds()[1][0] - newarea->GetPosition()[0];
+			newarea->GetPosition()[1] = mLandScape->GetBounds()[0][1] + mLandScape->GetBounds()[1][1] - newarea->GetPosition()[1];
+			mLandScape->GetLandScape()->SaveArea(newarea);
 		}
 	}
 
-	mInstanceFile.Close ( );
+	mInstanceFile.Close();
 #endif // PRE_RELEASE_DEMO
 
 	return true;
@@ -1589,13 +1585,13 @@ bool CRMMission::Spawn ( CRandomTerrain* terrain, qboolean IsServer )
  * Output / Return                                                                              *
  *    <Variable>: <Description>                                                                 *
  ************************************************************************************************/
- void CRMMission::CompleteMission(void)
- {
-	Cvar_Set ("cl_paused", "1");
+void CRMMission::CompleteMission(void)
+{
+	Cvar_Set("cl_paused", "1");
 
-//	AddText(va("killserver; menu %s\n", mExitScreen.c_str()));
+	//	AddText(va("killserver; menu %s\n", mExitScreen.c_str()));
 	return;
- }
+}
 
 /************************************************************************************************
  * CRMMission::FailedMission
@@ -1607,16 +1603,16 @@ bool CRMMission::Spawn ( CRandomTerrain* terrain, qboolean IsServer )
  * Output / Return                                                                              *
  *    <Variable>: <Description>                                                                 *
  ************************************************************************************************/
- void CRMMission::FailedMission(bool TimeExpired)
- {
-	Cvar_Set ("cl_paused", "1");
+void CRMMission::FailedMission(bool TimeExpired)
+{
+	Cvar_Set("cl_paused", "1");
 
 	if (TimeExpired)
 	{
-//		AddText(va("killserver; menu %s\n", mTimeExpiredScreen.c_str()));
+		//		AddText(va("killserver; menu %s\n", mTimeExpiredScreen.c_str()));
 	}
 	return;
- }
+}
 
 /************************************************************************************************
  * CRMMission::CompleteObjective
@@ -1629,19 +1625,19 @@ bool CRMMission::Spawn ( CRandomTerrain* terrain, qboolean IsServer )
  *	none
  *
  ************************************************************************************************/
-void CRMMission::CompleteObjective ( CRMObjective* objective )
+void CRMMission::CompleteObjective(CRMObjective *objective)
 {
 	rmObjectiveIter_t it;
 
 	// Set the object as completed
-	if ( objective )
+	if (objective)
 	{
-		objective->Complete ( true );
+		objective->Complete(true);
 
 		// Set the completed text for the objective
-//		gi.Cvar_Set( va("ar_obj_subcom0_%i", objective->GetOrderIndex ( )), "&OBJECTIVES_COMPLETE&", CVAR_OBJECTIVE) ;
+		//		gi.Cvar_Set( va("ar_obj_subcom0_%i", objective->GetOrderIndex ( )), "&OBJECTIVES_COMPLETE&", CVAR_OBJECTIVE) ;
 
-/*		CEntity *tent = G_TempEntity( vec3_origin, EV_SUB_PRINT );
+		/*		CEntity *tent = G_TempEntity( vec3_origin, EV_SUB_PRINT );
 		tent->s.time2 = gi.SP_GetStringID ( objective->GetMessage ( ) );	
 		tent->r.svFlags |= SVF_BROADCAST;
 		G_AddTempEntity(tent);
@@ -1659,31 +1655,31 @@ void CRMMission::CompleteObjective ( CRMObjective* objective )
 		objective = (*it);
 
 		// Skip completed objectives
-		if ( objective->IsCompleted ( ) )
+		if (objective->IsCompleted())
 		{
 			continue;
 		}
 
 		// Find the objective with the lowest priority
-		if ( mCurrentObjective && objective->GetPriority ( ) > mCurrentObjective->GetPriority ( ) )
+		if (mCurrentObjective && objective->GetPriority() > mCurrentObjective->GetPriority())
 		{
 			continue;
 		}
 
 		// Found one
 		mCurrentObjective = objective;
-	}	
+	}
 
-	if ( NULL != mCurrentObjective )
+	if (NULL != mCurrentObjective)
 	{
-//		Cvar_SetValue ("ar_cur_objective", mCurrentObjective->GetOrderIndex ( ), CVAR_OBJECTIVE);
+		//		Cvar_SetValue ("ar_cur_objective", mCurrentObjective->GetOrderIndex ( ), CVAR_OBJECTIVE);
 
-		mCurrentObjective->Activate ( );
+		mCurrentObjective->Activate();
 	}
 	else
 	{
 		// Set the completed text for the objective
-//		Cvar_Set( "ar_obj_maincom0", "&OBJECTIVES_COMPLETE&", CVAR_OBJECTIVE) ;
+		//		Cvar_Set( "ar_obj_maincom0", "&OBJECTIVES_COMPLETE&", CVAR_OBJECTIVE) ;
 	}
 }
 
@@ -1698,31 +1694,31 @@ void CRMMission::CompleteObjective ( CRMObjective* objective )
  *	none
  *
  ************************************************************************************************/
-void CRMMission::Preview ( const vec3_t from )
+void CRMMission::Preview(const vec3_t from)
 {
-	rmInstanceIter_t	it;
+	rmInstanceIter_t it;
 
 	// Look for settlements close to the player and put up some debug stuff
-	for(it = mInstances.begin(); it != mInstances.end(); it++)
+	for (it = mInstances.begin(); it != mInstances.end(); it++)
 	{
-		CRMInstance* instance = *it;
+		CRMInstance *instance = *it;
 
 		vec3_t a;
 		vec3_t b;
 
-		VectorCopy ( from, a );
-		VectorCopy ( instance->GetOrigin(), b );
+		VectorCopy(from, a);
+		VectorCopy(instance->GetOrigin(), b);
 
 		a[2] = 0;
 		b[2] = 0;
 
 		// Skip stuff thats too far away
-		if ( Distance ( a, b) > 2000 )
+		if (Distance(a, b) > 2000)
 		{
 			continue;
 		}
 
-		instance->Preview ( from );
+		instance->Preview(from);
 	}
 }
 
@@ -1926,5 +1922,3 @@ void CRMMission::Preview ( const vec3_t from )
 	}
 }
 */
-
-

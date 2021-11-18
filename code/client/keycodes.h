@@ -268,7 +268,7 @@ typedef enum
 	A_LOW_YACUTE,
 	A_LOW_THORN,
 	A_LOW_YDIERESIS,
-	
+
 	A_JOY0,
 	A_JOY1,
 	A_JOY2,
@@ -338,10 +338,9 @@ typedef enum
 	MAX_KEYS
 } fakeAscii_t;
 
-
 // The menu code needs to get both key and char events, but
 // to avoid duplicating the paths, the char events are just
 // distinguished by or'ing in K_CHAR_FLAG (ugly)
-#define	K_CHAR_FLAG		1024
+#define K_CHAR_FLAG 1024
 
 #endif

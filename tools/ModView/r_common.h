@@ -3,18 +3,16 @@
 //  quick and dirty common file that I just paste stuff into to get other model formats to compile
 //
 
-
 #ifndef R_COMMON_H
 #define R_COMMON_H
-
 
 #include "md3_format.h"
 #include "mdr_format.h"
 #include "mdx_format.h"
-#include "glm_code.h"	// tied to mdx_format.h, contains stuff that jake added for render-side
+#include "glm_code.h" // tied to mdx_format.h, contains stuff that jake added for render-side
 
-
-typedef enum {
+typedef enum
+{
 	RT_MODEL,
 	RT_POLY,
 	RT_SPRITE,
@@ -22,24 +20,25 @@ typedef enum {
 	RT_RAIL_CORE,
 	RT_RAIL_RINGS,
 	RT_LIGHTNING,
-	RT_PORTALSURFACE,		// doesn't draw anything, just info for portals
-	RT_TERRAIN,				// draws a terrain type entity
+	RT_PORTALSURFACE, // doesn't draw anything, just info for portals
+	RT_TERRAIN,		  // draws a terrain type entity
 
 	RT_MAX_REF_ENTITY_TYPE
 } refEntityType_t;
 
 // search for "R_ModView_AddEntity" for the init code to this struct
-typedef struct {
-/*
+typedef struct
+{
+	/*
 	refEntityType_t	reType;
 */
-	int			renderfx;
+	int renderfx;
 
-	qhandle_t	hModel;				// opaque type outside refresh
-	mdxaBone_t	tempBoneList[MAX_POSSIBLE_BONES];		// created each frame with a list of all the bones
-	surfaceInfo_t *slist;			// pointer to list of surfaces turned off
-	boneInfo_t	*blist;				// pointer to list of bones to be overriden
-/*
+	qhandle_t hModel;							 // opaque type outside refresh
+	mdxaBone_t tempBoneList[MAX_POSSIBLE_BONES]; // created each frame with a list of all the bones
+	surfaceInfo_t *slist;						 // pointer to list of surfaces turned off
+	boneInfo_t *blist;							 // pointer to list of bones to be overriden
+												 /*
 	// most recent data
 	vec3_t		lightingOrigin;		// so multi-part models can be lit identically (RF_LIGHTING_ORIGIN)
 	float		shadowPlane;		// projection shadows go here, stencils go slightly lower
@@ -48,19 +47,19 @@ typedef struct {
 	qboolean	nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
 	float		origin[3];			// also used as MODEL_BEAM's "from"
 */
-	int			iFrame_Primary;				// also used as MODEL_BEAM's diameter
-/*
+	int iFrame_Primary;							 // also used as MODEL_BEAM's diameter
+												 /*
 	// previous data for frame interpolation
 	float		oldorigin[3];		// also used as MODEL_BEAM's "to"
 */
-	int			iOldFrame_Primary;
-	int			iBoneNum_SecondaryStart;	// -1 if not active
-	int			iFrame_Secondary;
-	int			iOldFrame_Secondary;
-	int			iSurfaceNum_RootOverride;
+	int iOldFrame_Primary;
+	int iBoneNum_SecondaryStart; // -1 if not active
+	int iFrame_Secondary;
+	int iOldFrame_Secondary;
+	int iSurfaceNum_RootOverride;
 
-	float		backlerp;			// 0.0 = current, 1.0 = old
-/*
+	float backlerp; // 0.0 = current, 1.0 = old
+					/*
 	// texturing
 	int			skinNum;			// inline skin index
 	qhandle_t	customSkin;			// NULL for default skin
@@ -82,68 +81,62 @@ typedef struct {
 	int *piRenderedVerts;
 	int *piRenderedSurfs;
 	int *piXformedG2Bones;
-//	int	*piRenderedBoneWeightsThisSurface;
+	//	int	*piRenderedBoneWeightsThisSurface;
 	int *piRenderedBoneWeights;
 	int *piOmittedBoneWeights;
 
 	// some other stuff for modview, I could optimise it more but this is only a viewer...
 	//
-	mdxaBone_t	*pXFormedG2Bones;
-	bool		*pXFormedG2BonesValid;
-	mdxaBone_t	*pXFormedG2TagSurfs;
-	bool		*pXFormedG2TagSurfsValid;
+	mdxaBone_t *pXFormedG2Bones;
+	bool *pXFormedG2BonesValid;
+	mdxaBone_t *pXFormedG2TagSurfs;
+	bool *pXFormedG2TagSurfsValid;
 
 } refEntity_t;
 
-
 #include "shader.h"
 
+#define MAX_SHADERS 1024
 
-#define	MAX_SHADERS				1024
+#define MAX_MOD_KNOWN 256 // 1024 (since I only alloc 8 bits to store handle numbers)
+#define MAX_DRAWIMAGES 2048
+#define MAX_LIGHTMAPS 256
+#define MAX_SKINS 1024
 
-#define	MAX_MOD_KNOWN			256	// 1024 (since I only alloc 8 bits to store handle numbers)
-#define	MAX_DRAWIMAGES			2048
-#define	MAX_LIGHTMAPS			256
-#define	MAX_SKINS				1024
+#define MAX_DRAWSURFS 0x10000
+#define DRAWSURF_MASK (MAX_DRAWSURFS - 1)
 
+#define FILE_HASH_SIZE 1024
 
-#define	MAX_DRAWSURFS			0x10000
-#define	DRAWSURF_MASK			(MAX_DRAWSURFS-1)
-
-
-#define FILE_HASH_SIZE		1024
-
-
-typedef struct {
-	vec3_t		origin;
-	vec3_t		axis[3];
+typedef struct
+{
+	vec3_t origin;
+	vec3_t axis[3];
 } orientation_t;
 
-
-
 // print levels from renderer (FIXME: set up for game / cgame?)
-typedef enum {
+typedef enum
+{
 	PRINT_ALL,
-	PRINT_DEVELOPER,		// only print when "developer 1"
+	PRINT_DEVELOPER, // only print when "developer 1"
 	PRINT_WARNING,
 	PRINT_ERROR
 } printParm_t;
 
-
-
-typedef enum {
-	ERR_FATAL,					// exit the entire game with a popup window
-	ERR_DROP,					// print to console and disconnect from game
-	ERR_DISCONNECT,				// don't kill server
-	ERR_NEED_CD					// pop up the need-cd dialog
+typedef enum
+{
+	ERR_FATAL,		// exit the entire game with a popup window
+	ERR_DROP,		// print to console and disconnect from game
+	ERR_DISCONNECT, // don't kill server
+	ERR_NEED_CD		// pop up the need-cd dialog
 } errorParm_t;
-
 
 // any changes in surfaceType must be mirrored in rb_surfaceTable[]
 
-typedef enum {
+typedef enum
+{
 	SF_BAD,
-	SF_SKIP,				// ignore
+	SF_SKIP, // ignore
 	SF_FACE,
 	SF_GRID,
 	SF_TRIANGLES,
@@ -152,66 +145,63 @@ typedef enum {
 	SF_MD4,
 	SF_MDX,
 	SF_FLARE,
-	SF_ENTITY,				// beams, rails, lightning, etc that can be determined by entity
+	SF_ENTITY, // beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
 
 	SF_NUM_SURFACE_TYPES,
-	SF_MAX = 0xffffffff			// ensures that sizeof( surfaceType_t ) == sizeof( int )
+	SF_MAX = 0xffffffff // ensures that sizeof( surfaceType_t ) == sizeof( int )
 } surfaceType_t;
 
-
-typedef struct drawSurf_s {
-	unsigned			sort;			// bit combination for fast compares
-	surfaceType_t		*surface;		// any of surface*_t
+typedef struct drawSurf_s
+{
+	unsigned sort;			// bit combination for fast compares
+	surfaceType_t *surface; // any of surface*_t
 } drawSurf_t;
 
+typedef struct msurface_s
+{
+	int viewCount; // if == tr.viewCount, already added
+	struct shader_s *shader;
+	int fogIndex;
 
-typedef struct msurface_s {
-	int					viewCount;		// if == tr.viewCount, already added
-	struct shader_s		*shader;
-	int					fogIndex;
-
-	surfaceType_t		*data;			// any of srf*_t
+	surfaceType_t *data; // any of srf*_t
 } msurface_t;
 
-
-
-typedef struct {
-	vec3_t		bounds[2];		// for culling
-	msurface_t	*firstSurface;
-	int			numSurfaces;
+typedef struct
+{
+	vec3_t bounds[2]; // for culling
+	msurface_t *firstSurface;
+	int numSurfaces;
 } bmodel_t;
 
+typedef struct model_s
+{
+	char name[MAX_QPATH];
+	modtype_t type;
+	int index; // model = tr.models[model->index]
 
-typedef struct model_s {
-	char		name[MAX_QPATH];
-	modtype_t	type;
-	int			index;				// model = tr.models[model->index]
-
-	int			dataSize;			// just for listing purposes
+	int dataSize; // just for listing purposes
 
 	union
 	{
-		bmodel_t	*bmodel;			// only if type == MOD_BRUSH
-		md3Header_t	*md3[MD3_MAX_LODS];	// only if type == MOD_MESH
-		md4Header_t	*md4;				// only if type == MOD_MD4
+		bmodel_t *bmodel;				// only if type == MOD_BRUSH
+		md3Header_t *md3[MD3_MAX_LODS]; // only if type == MOD_MESH
+		md4Header_t *md4;				// only if type == MOD_MD4
 		mdxmHeader_t *mdxm;				// only if type == MOD_GL2M which is a GHOUL II Mesh file NOT a GHOUL II animation file
 		mdxaHeader_t *mdxa;				// only if type == MOD_GL2A which is a GHOUL II Animation file
-		void *pvData;	// give common addressing to higher functions that don't care about structs
+		void *pvData;					// give common addressing to higher functions that don't care about structs
 	};
-	mdxmSurface_t	*mdxmsurf[MAX_G2_LODS][MAX_G2_SURFACES];
-	int			 numLods;
+	mdxmSurface_t *mdxmsurf[MAX_G2_LODS][MAX_G2_SURFACES];
+	int numLods;
 
 } model_t;
 
-
-
-
 // a trRefEntity_t has all the information passed in by
 // the client game, as well as some locally derived info
-typedef struct {
-	refEntity_t	e;
-/*
+typedef struct
+{
+	refEntity_t e;
+	/*
 	float		axisLength;		// compensate for non-normalized axis
 
 	qboolean	needDlights;	// true for bmodels that touch a dlight
@@ -225,8 +215,9 @@ typedef struct {
 
 // trRefdef_t holds everything that comes in refdef_t,
 // as well as the locally generated scene information
-typedef struct {
-/*
+typedef struct
+{
+	/*
 	int			x, y, width, height;
 	float		fov_x, fov_y;
 	vec3_t		vieworg;
@@ -243,22 +234,21 @@ typedef struct {
 
 	// text messages for deform text shaders
 	char		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
-*/		
-	int			num_entities;
-	trRefEntity_t	entities[MAX_MOD_KNOWN];	//	// MODVIEWHACK	// trRefEntity_t	*entities;
+*/
+	int num_entities;
+	trRefEntity_t entities[MAX_MOD_KNOWN]; //	// MODVIEWHACK	// trRefEntity_t	*entities;
 
-/*
+	/*
 	int			num_dlights;
 	struct dlight_s	*dlights;
 
 	int			numPolys;
 	struct srfPoly_s	*polys;
 */
-	int			numDrawSurfs;
-	struct drawSurf_s	drawSurfs[MAX_DRAWSURFS];	//MODVIEWHACK	//*drawSurfs;
+	int numDrawSurfs;
+	struct drawSurf_s drawSurfs[MAX_DRAWSURFS]; //MODVIEWHACK	//*drawSurfs;
 
 } trRefdef_t;
-
 
 /*
 ** trGlobals_t 
@@ -268,8 +258,9 @@ typedef struct {
 ** but may read fields that aren't dynamically modified
 ** by the frontend.
 */
-typedef struct {
-/*
+typedef struct
+{
+	/*
 	qboolean				registered;		// cleared at shutdown, set at beginRegistration
 
 	int						visCount;		// incremented every time a new vis cluster is entered
@@ -305,16 +296,16 @@ typedef struct {
 	int						numLightmaps;
 	image_t					*lightmaps[MAX_LIGHTMAPS];
 */
-	trRefEntity_t			*currentEntity;
-/*
+	trRefEntity_t *currentEntity;
+	/*
 	trRefEntity_t			worldEntity;		// point currentEntity at this when rendering world
 */
-	int						currentEntityNum;	// used during for-next loop to add all ent surface
-/*
+	int currentEntityNum; // used during for-next loop to add all ent surface
+						  /*
 	int						shiftedEntityNum;	// currentEntityNum << QSORT_ENTITYNUM_SHIFT
 */
-	model_t					*currentModel;
-/*
+	model_t *currentModel;
+	/*
 	viewParms_t				viewParms;
 
 	float					identityLight;		// 1.0 / ( 1 << overbrightBits )
@@ -323,8 +314,8 @@ typedef struct {
 
 	orientationr_t			or;					// for current entity
 */
-	trRefdef_t				refdef;
-/*
+	trRefdef_t refdef;
+	/*
 	int						viewCluster;
 
 	vec3_t					sunLight;			// from the sky shader for this level
@@ -338,9 +329,9 @@ typedef struct {
 	// within the +/32K indexed range on risc processors
 	//
 */
-	model_t					*models[MAX_MOD_KNOWN];
-	int						numModels;
-/*
+	model_t *models[MAX_MOD_KNOWN];
+	int numModels;
+	/*
 	image_t					*images[MAX_DRAWIMAGES];
 	int						numImages;
 
@@ -367,17 +358,16 @@ typedef struct {
 */
 } trGlobals_t;
 
-
 //
 // these are the functions imported by the refresh module
 //
 typedef struct
 {
 	// print message on the local console
-	void	(QDECL *Printf)( int printLevel, const char *fmt, ...);
+	void(QDECL *Printf)(int printLevel, const char *fmt, ...);
 	// abort the game  (flushes model now instead!)
-	void	(QDECL *Error)( int errorLevel, const char *fmt, ...);
-/*
+	void(QDECL *Error)(int errorLevel, const char *fmt, ...);
+	/*
 
 	// functions used to decode key/value pairs
 	char	*(QDECL *ValueForKey)(const char *input, const char *key);
@@ -390,15 +380,15 @@ typedef struct
 	// won't be freed
 	void	(*Hunk_Clear)( void );
 */
-	void	*(*Hunk_Alloc)( int size );
+	void *(*Hunk_Alloc)(int size);
 
-	void	*(*Hunk_AllocateTempMemory)( int size );
-	void	(*Hunk_FreeTempMemory)( void *block );
+	void *(*Hunk_AllocateTempMemory)(int size);
+	void (*Hunk_FreeTempMemory)(void *block);
 
 	// dynamic memory allocator for things that need to be freed
-	void	*(*Malloc)( int bytes );
-	void	(*Free)( void *buf );
-/*
+	void *(*Malloc)(int bytes);
+	void (*Free)(void *buf);
+	/*
 	cvar_t	*(*Cvar_Get)( const char *name, const char *value, int flags );
 	void	(*Cvar_Set)( const char *name, const char *value );
 
@@ -417,39 +407,35 @@ typedef struct
 	// NULL can be passed for buf to just determine existance
 	int		(*FS_FileIsInPAK)( const char *name, int *pCheckSum );
 */
-	int		(*FS_ReadFile)( const char *name, void **buf );
-	void	(*FS_FreeFile)( void *buf );
-/*
+	int (*FS_ReadFile)(const char *name, void **buf);
+	void (*FS_FreeFile)(void *buf);
+	/*
 	char **	(*FS_ListFiles)( const char *name, const char *extension, int *numfilesfound );
 	void	(*FS_FreeFileList)( char **filelist );
 */
-	int 	(*FS_WriteFile)( const char *qpath, const void *buffer, int size );
+	int (*FS_WriteFile)(const char *qpath, const void *buffer, int size);
 
 } refimport_t;
 
-
-
 // renderfx flags
-#define	RF_MINLIGHT			1		// allways have some light (viewmodel, some items)
-#define	RF_THIRD_PERSON		2		// don't draw through eyes, only mirrors (player bodies, chat sprites)
-#define	RF_FIRST_PERSON		4		// only draw through eyes (view weapon, damage blood blob)
-#define	RF_DEPTHHACK		8		// for view weapon Z crunching
-#define	RF_NOSHADOW			64		// don't add stencil shadows
+#define RF_MINLIGHT 1	  // allways have some light (viewmodel, some items)
+#define RF_THIRD_PERSON 2 // don't draw through eyes, only mirrors (player bodies, chat sprites)
+#define RF_FIRST_PERSON 4 // only draw through eyes (view weapon, damage blood blob)
+#define RF_DEPTHHACK 8	  // for view weapon Z crunching
+#define RF_NOSHADOW 64	  // don't add stencil shadows
 
-#define RF_LIGHTING_ORIGIN	128		// use refEntity->lightingOrigin instead of refEntity->origin
-									// for lighting.  This allows entities to sink into the floor
-									// with their origin going solid, and allows all parts of a
-									// player to get the same lighting
-#define	RF_SHADOW_PLANE		256		// use refEntity->shadowPlane
-#define	RF_WRAP_FRAMES		512		// mod the model frames by the maxframes to allow continuous
-									// animation without needing to know the frame count
+#define RF_LIGHTING_ORIGIN 128 // use refEntity->lightingOrigin instead of refEntity->origin \
+							   // for lighting.  This allows entities to sink into the floor \
+							   // with their origin going solid, and allows all parts of a   \
+							   // player to get the same lighting
+#define RF_SHADOW_PLANE 256	   // use refEntity->shadowPlane
+#define RF_WRAP_FRAMES 512	   // mod the model frames by the maxframes to allow continuous \
+							   // animation without needing to know the frame count
 
-#define	RF_CAP_FRAMES		1024	// cap the model frames by the maxframes for one shot anims
-
+#define RF_CAP_FRAMES 1024 // cap the model frames by the maxframes for one shot anims
 
 extern trGlobals_t tr;
 extern refimport_t ri;
-
 
 #include "R_MD3.h"
 #include "R_MDR.h"
@@ -457,56 +443,56 @@ extern refimport_t ri;
 #include "shader.h"
 #include "R_Surface.h"
 
-
-
 //////////////////////////////////////////////////////////
 //
 // some crap for compile-ease...
-#define Q_stricmp	stricmp
-#define Q_strlwr	strlwr
+#define Q_stricmp stricmp
+#define Q_strlwr strlwr
 #define LittleLong(x) x
 #define LittleShort(x) x
 #define LittleFloat(x) x
 #define R_SyncRenderThread()
 #define Com_Error ri.Error
-void Q_strncpyz( char *dest, LPCSTR src, int destlen);
-float Com_Clamp( float min, float max, float value );
+void Q_strncpyz(char *dest, LPCSTR src, int destlen);
+float Com_Clamp(float min, float max, float value);
 //
 // some generic import functions... (all in R_MODEL.H)
 //
-char *COM_SkipPath (char *pathname);
-void COM_StripExtension( const char *in, char *out );
-void COM_DefaultExtension (char *path, int maxSize, const char *extension );
-void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...);
-int    LongSwap (int l);
+char *COM_SkipPath(char *pathname);
+void COM_StripExtension(const char *in, char *out);
+void COM_DefaultExtension(char *path, int maxSize, const char *extension);
+void QDECL Com_sprintf(char *dest, int size, const char *fmt, ...);
+int LongSwap(int l);
 #define BigLong(x) LongSwap(x)
-void Com_Printf( const char *format, ... );
-long generateHashValue( const char *fname );
-model_t	*R_GetModelByHandle( qhandle_t index );
-void R_AddDrawSurf( surfaceType_t *surface, GLuint gluiTextureBind);
-void R_DecomposeSort( unsigned sort, int *entityNum, GLuint* gluiTextureBind);
-int  R_ComputeLOD( trRefEntity_t *ent );
+void Com_Printf(const char *format, ...);
+long generateHashValue(const char *fname);
+model_t *R_GetModelByHandle(qhandle_t index);
+void R_AddDrawSurf(surfaceType_t *surface, GLuint gluiTextureBind);
+void R_DecomposeSort(unsigned sort, int *entityNum, GLuint *gluiTextureBind);
+int R_ComputeLOD(trRefEntity_t *ent);
 //
 // other crap...
 //
-#define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
-#define VectorSubtract(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
-#define VectorAdd(a,b,c)		((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2])
-#define VectorCopy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
-#define	VectorScale(v, s, o)	((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s))
-#define	VectorMA(v, s, b, o)	((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s))
-#define VectorClear(a)			((a)[0]=(a)[1]=(a)[2]=0)
-#define VectorNegate(a,b)		((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2])
-#define VectorSet(v, x, y, z)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z))
-#define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
-#define	SnapVector(v) {v[0]=(int)v[0];v[1]=(int)v[1];v[2]=(int)v[2];}
-void AxisClear( vec3_t axis[3] );
+#define DotProduct(x, y) ((x)[0] * (y)[0] + (x)[1] * (y)[1] + (x)[2] * (y)[2])
+#define VectorSubtract(a, b, c) ((c)[0] = (a)[0] - (b)[0], (c)[1] = (a)[1] - (b)[1], (c)[2] = (a)[2] - (b)[2])
+#define VectorAdd(a, b, c) ((c)[0] = (a)[0] + (b)[0], (c)[1] = (a)[1] + (b)[1], (c)[2] = (a)[2] + (b)[2])
+#define VectorCopy(a, b) ((b)[0] = (a)[0], (b)[1] = (a)[1], (b)[2] = (a)[2])
+#define VectorScale(v, s, o) ((o)[0] = (v)[0] * (s), (o)[1] = (v)[1] * (s), (o)[2] = (v)[2] * (s))
+#define VectorMA(v, s, b, o) ((o)[0] = (v)[0] + (b)[0] * (s), (o)[1] = (v)[1] + (b)[1] * (s), (o)[2] = (v)[2] + (b)[2] * (s))
+#define VectorClear(a) ((a)[0] = (a)[1] = (a)[2] = 0)
+#define VectorNegate(a, b) ((b)[0] = -(a)[0], (b)[1] = -(a)[1], (b)[2] = -(a)[2])
+#define VectorSet(v, x, y, z) ((v)[0] = (x), (v)[1] = (y), (v)[2] = (z))
+#define Vector4Copy(a, b) ((b)[0] = (a)[0], (b)[1] = (a)[1], (b)[2] = (a)[2], (b)[3] = (a)[3])
+#define SnapVector(v)     \
+	{                     \
+		v[0] = (int)v[0]; \
+		v[1] = (int)v[1]; \
+		v[2] = (int)v[2]; \
+	}
+void AxisClear(vec3_t axis[3]);
 //
 //////////////////////////////////////////////////////////
 
-
-#endif	// #ifndef R_COMMON_H
-
+#endif // #ifndef R_COMMON_H
 
 ///////////////// eof //////////////////
-

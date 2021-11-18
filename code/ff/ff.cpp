@@ -2,7 +2,7 @@
 
 #ifdef _IMMERSION
 
-#define INITGUID	// this will need removing if already defined in someone else's module. Only one must exist in whole game
+#define INITGUID // this will need removing if already defined in someone else's module. Only one must exist in whole game
 
 //#include "ff.h"
 //#include "ff_ffset.h"
@@ -11,48 +11,64 @@
 
 FFSystem gFFSystem;
 
-cvar_t	*use_ff;
-cvar_t	*ensureShake;
-cvar_t	*ff_developer;
+cvar_t *use_ff;
+cvar_t *ensureShake;
+cvar_t *ff_developer;
 #ifdef FF_DELAY
-cvar_t	*ff_delay;
+cvar_t *ff_delay;
 #endif
-cvar_t	*ff_channels;
+cvar_t *ff_channels;
 
 static const char *_pass = "SUCCEEDED";
 static const char *_fail = "FAILED";
 
-const char *gChannelName[ FF_CHANNEL_MAX ] =
-{	"FF_CHANNEL_WEAPON"
-,	"FF_CHANNEL_MENU"
-,	"FF_CHANNEL_TOUCH"
-,	"FF_CHANNEL_DAMAGE"
-,	"FF_CHANNEL_BODY"
-,	"FF_CHANNEL_FORCE"
-,	"FF_CHANNEL_FOOT"
-};
+const char *gChannelName[FF_CHANNEL_MAX] =
+	{"FF_CHANNEL_WEAPON", "FF_CHANNEL_MENU", "FF_CHANNEL_TOUCH", "FF_CHANNEL_DAMAGE", "FF_CHANNEL_BODY", "FF_CHANNEL_FORCE", "FF_CHANNEL_FOOT"};
 
 // Enable/Disable Com_Printf in FF_* functions
-#if( 1 )
+#if (1)
 #ifdef FF_PRINT
-#define FF_PROLOGUE( name, string )			qboolean result = qfalse; if ( FF_IsAvailable() ) { if ( ff_developer && ff_developer->integer ) Com_Printf( "%s: \"%s\" ", #name, string );
-#define FF_PROLOGUE_NOQUOTE( name, string )	qboolean result = qfalse; if ( FF_IsAvailable() ) { if ( ff_developer && ff_developer->integer ) Com_Printf( "%s: %s ", #name, string );
-#define FF_EPILOGUE							FF_EPILOGUE_NORETURN; return result;
-#define FF_EPILOGUE_NORETURN				} if ( ff_developer && ff_developer->integer ) Com_Printf( "[%s]\n", ( result ? _pass : _fail ) );
-#define FF_RESULT( function )				result = qboolean( function );
+#define FF_PROLOGUE(name, string)                  \
+	qboolean result = qfalse;                      \
+	if (FF_IsAvailable())                          \
+	{                                              \
+		if (ff_developer && ff_developer->integer) \
+			Com_Printf("%s: \"%s\" ", #name, string);
+#define FF_PROLOGUE_NOQUOTE(name, string)          \
+	qboolean result = qfalse;                      \
+	if (FF_IsAvailable())                          \
+	{                                              \
+		if (ff_developer && ff_developer->integer) \
+			Com_Printf("%s: %s ", #name, string);
+#define FF_EPILOGUE       \
+	FF_EPILOGUE_NORETURN; \
+	return result;
+#define FF_EPILOGUE_NORETURN                   \
+	}                                          \
+	if (ff_developer && ff_developer->integer) \
+		Com_Printf("[%s]\n", (result ? _pass : _fail));
+#define FF_RESULT(function) result = qboolean(function);
 #else
-#define FF_PROLOGUE( name, string )			qboolean result = qfalse; if ( FF_IsAvailable() ) { 
-#define FF_PROLOGUE_NOQUOTE( name, string )	qboolean result = qfalse; if ( FF_IsAvailable() ) { 
-#define FF_EPILOGUE							FF_EPILOGUE_NORETURN; return result;
-#define FF_EPILOGUE_NORETURN				}
-#define FF_RESULT( function )				result = qboolean( function );
+#define FF_PROLOGUE(name, string) \
+	qboolean result = qfalse;     \
+	if (FF_IsAvailable())         \
+	{
+#define FF_PROLOGUE_NOQUOTE(name, string) \
+	qboolean result = qfalse;             \
+	if (FF_IsAvailable())                 \
+	{
+#define FF_EPILOGUE       \
+	FF_EPILOGUE_NORETURN; \
+	return result;
+#define FF_EPILOGUE_NORETURN }
+#define FF_RESULT(function) result = qboolean(function);
 #endif
 #else
-#define FF_PROLOGUE( name, string )			qboolean result = qfalse;
-#define FF_PROLOGUE_NOQUOTE( name, string )	qboolean result = qfalse;
-#define FF_EPILOGUE							return result;
+#define FF_PROLOGUE(name, string) qboolean result = qfalse;
+#define FF_PROLOGUE_NOQUOTE(name, string) qboolean result = qfalse;
+#define FF_EPILOGUE return result;
 #define FF_EPILOGUE_NORETURN
-#define FF_RESULT( function )				result = qboolean( function );
+#define FF_RESULT(function) result = qboolean(function);
 #endif
 
 ////--------------
@@ -101,31 +117,29 @@ qboolean FF_IsInitialized(void)
 //	-	qtrue: module initialized properly.
 //	-	qfalse: module experienced an error. Caller MUST call FF_Shutdown.
 //
-qboolean FF_Init( void )
+qboolean FF_Init(void)
 {
-	if ( !gFFSystem.IsInitialized() )
+	if (!gFFSystem.IsInitialized())
 	{
 		//
 		//	Console variable setup
 		//
 
 #ifdef FF_CONSOLECOMMAND
-		Cmd_AddCommand( "ff_stopall",	CMD_FF_StopAll		);
-		Cmd_AddCommand( "ff_info",		CMD_FF_Info			);
+		Cmd_AddCommand("ff_stopall", CMD_FF_StopAll);
+		Cmd_AddCommand("ff_info", CMD_FF_Info);
 #endif
-		use_ff				= Cvar_Get( "use_ff",				"1",	CVAR_ARCHIVE /*| CVAR_LATCH*/); 
-		ensureShake			= Cvar_Get( "ff_ensureShake",		"1",	CVAR_TEMP);
-		ff_developer		= Cvar_Get( "ff_developer",			"0",	CVAR_TEMP);
-		ff_channels			= Cvar_Get( "ff_channels",		FF_CHANNEL,	CVAR_ARCHIVE);
+		use_ff = Cvar_Get("use_ff", "1", CVAR_ARCHIVE /*| CVAR_LATCH*/);
+		ensureShake = Cvar_Get("ff_ensureShake", "1", CVAR_TEMP);
+		ff_developer = Cvar_Get("ff_developer", "0", CVAR_TEMP);
+		ff_channels = Cvar_Get("ff_channels", FF_CHANNEL, CVAR_ARCHIVE);
 #ifdef FF_DELAY
-		ff_delay			= Cvar_Get( "ff_delay",			FF_DELAY,	CVAR_ARCHIVE);
+		ff_delay = Cvar_Get("ff_delay", FF_DELAY, CVAR_ARCHIVE);
 #endif
 	}
-	
+
 	return qboolean // assumes external system will call FF_Shutdown in case of failure
-	(	ff_channels != NULL
-	&&	gFFSystem.Init( ff_channels->string )
-	);
+		(ff_channels != NULL && gFFSystem.Init(ff_channels->string));
 }
 
 ////-----------
@@ -146,8 +160,8 @@ qboolean FF_Init( void )
 void FF_Shutdown(void)
 {
 #ifdef FF_CONSOLECOMMAND
-	Cmd_RemoveCommand( "ff_stopall" );
-	Cmd_RemoveCommand( "ff_info" );
+	Cmd_RemoveCommand("ff_stopall");
+	Cmd_RemoveCommand("ff_info");
 #endif
 
 	gFFSystem.Shutdown();
@@ -172,19 +186,19 @@ void FF_Shutdown(void)
 //	Returns:
 //		Handle to loaded effect
 //
-ffHandle_t FF_Register( const char *name, int channel, qboolean notfound )
+ffHandle_t FF_Register(const char *name, int channel, qboolean notfound)
 {
 	ffHandle_t ff = FF_HANDLE_NULL;
 
 	// Removed console print... too much spam with AddLoopingForce.
-/*
+	/*
 	FF_PROLOGUE( FF_Register, ( name ? name : "" ) );
 	ff = gFFSystem.Register( name, channel, notfound );
 	FF_RESULT( ff != FF_HANDLE_NULL );
 	FF_EPILOGUE_NORETURN;
 */
-	if ( FF_IsAvailable() )
-		ff = gFFSystem.Register( name, channel, notfound );
+	if (FF_IsAvailable())
+		ff = gFFSystem.Register(name, channel, notfound);
 
 	return ff;
 }
@@ -204,8 +218,8 @@ ffHandle_t FF_Register( const char *name, int channel, qboolean notfound )
 //
 qboolean FF_EnsurePlaying(ffHandle_t ff)
 {
-	FF_PROLOGUE( FF_EnsurePlaying, gFFSystem.GetName( ff ) );
-	FF_RESULT( gFFSystem.EnsurePlaying( ff ) );
+	FF_PROLOGUE(FF_EnsurePlaying, gFFSystem.GetName(ff));
+	FF_RESULT(gFFSystem.EnsurePlaying(ff));
 	FF_EPILOGUE;
 }
 
@@ -223,8 +237,8 @@ qboolean FF_EnsurePlaying(ffHandle_t ff)
 //
 qboolean FF_Play(ffHandle_t ff)
 {
-	FF_PROLOGUE( FF_Play, gFFSystem.GetName( ff ) );
-	FF_RESULT( gFFSystem.Play( ff ) );
+	FF_PROLOGUE(FF_Play, gFFSystem.GetName(ff));
+	FF_RESULT(gFFSystem.Play(ff));
 	FF_EPILOGUE;
 }
 
@@ -242,8 +256,8 @@ qboolean FF_Play(ffHandle_t ff)
 //
 qboolean FF_StopAll(void)
 {
-	FF_PROLOGUE( FF_StopAll, "" );
-	FF_RESULT( gFFSystem.StopAll() );
+	FF_PROLOGUE(FF_StopAll, "");
+	FF_RESULT(gFFSystem.StopAll());
 	FF_EPILOGUE;
 }
 
@@ -261,11 +275,10 @@ qboolean FF_StopAll(void)
 //
 qboolean FF_Stop(ffHandle_t ff)
 {
-	FF_PROLOGUE( FF_Stop, gFFSystem.GetName( ff ) );
-	FF_RESULT( gFFSystem.Stop( ff ) );
+	FF_PROLOGUE(FF_Stop, gFFSystem.GetName(ff));
+	FF_RESULT(gFFSystem.Stop(ff));
 	FF_EPILOGUE;
 }
-
 
 ////--------
 /// FF_Shake
@@ -287,9 +300,9 @@ qboolean FF_Shake(int intensity, int duration)
 {
 	char message[64];
 	message[0] = 0;
-	sprintf( message, "intensity=%d, duration=%d", intensity, duration );
-	FF_PROLOGUE_NOQUOTE( FF_Shake, message );
-	FF_RESULT( gFFSystem.Shake( intensity, duration, qboolean( ensureShake->integer != qfalse ) ) );
+	sprintf(message, "intensity=%d, duration=%d", intensity, duration);
+	FF_PROLOGUE_NOQUOTE(FF_Shake, message);
+	FF_RESULT(gFFSystem.Shake(intensity, duration, qboolean(ensureShake->integer != qfalse)));
 	FF_EPILOGUE;
 }
 
@@ -309,13 +322,13 @@ qboolean FF_Shake(int intensity, int duration)
 void CMD_FF_StopAll(void)
 {
 	// Display messages
-	if ( FF_StopAll() )
+	if (FF_StopAll())
 	{
-		Com_Printf( "stopping all effects\n" );
+		Com_Printf("stopping all effects\n");
 	}
 	else
 	{
-		Com_Printf( "failed to stop all effects\n" );
+		Com_Printf("failed to stop all effects\n");
 	}
 }
 
@@ -339,42 +352,36 @@ void CMD_FF_Info(void)
 	TNameTable Unprocessed, Processed;
 	int i, max;
 
-	for
-	(	i = 1, max = Cmd_Argc()
-	;	i < max
-	;	i++
-	){
-		Unprocessed.push_back( Cmd_Argv( i ) );
+	for (i = 1, max = Cmd_Argc(); i < max; i++)
+	{
+		Unprocessed.push_back(Cmd_Argv(i));
 	}
 
-	if ( Unprocessed.size() == 0 )
+	if (Unprocessed.size() == 0)
 	{
-		
-		if ( ff_developer->integer )
-			Com_Printf( "Usage: ff_info [devices] [channels] [order] [files] [effects]\n" );
+
+		if (ff_developer->integer)
+			Com_Printf("Usage: ff_info [devices] [channels] [order] [files] [effects]\n");
 		else
-			Com_Printf( "Usage: ff_info [devices] [channels]\n" );
+			Com_Printf("Usage: ff_info [devices] [channels]\n");
 
 		return;
 	}
 
-	gFFSystem.Display( Unprocessed, Processed );
+	gFFSystem.Display(Unprocessed, Processed);
 
-	if ( Unprocessed.size() > 0 )
+	if (Unprocessed.size() > 0)
 	{
-		Com_Printf( "invalid parameters:" );
-		for
-		(	i = 0
-		;	i < Unprocessed.size()
-		;	i++
-		){
-			Com_Printf( " %s", Unprocessed[ i ].c_str() );
+		Com_Printf("invalid parameters:");
+		for (i = 0; i < Unprocessed.size(); i++)
+		{
+			Com_Printf(" %s", Unprocessed[i].c_str());
 		}
 
-		if ( ff_developer->integer )
-			Com_Printf( "Usage: ff_info [devices] [channels] [order] [files] [effects]\n" );
+		if (ff_developer->integer)
+			Com_Printf("Usage: ff_info [devices] [channels] [order] [files] [effects]\n");
 		else
-			Com_Printf( "Usage: ff_info [devices] [channels]\n" );
+			Com_Printf("Usage: ff_info [devices] [channels]\n");
 	}
 }
 

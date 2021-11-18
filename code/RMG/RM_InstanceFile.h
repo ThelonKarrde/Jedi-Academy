@@ -3,7 +3,7 @@
 #define RM_INSTANCEFILE_H_INC
 
 #ifdef DEBUG_LINKING
-	#pragma message("...including RM_InstanceFile.h")
+#pragma message("...including RM_InstanceFile.h")
 #endif
 
 class CRMInstance;
@@ -11,18 +11,16 @@ class CRMInstance;
 class CRMInstanceFile
 {
 public:
+	CRMInstanceFile();
+	~CRMInstanceFile();
 
-	CRMInstanceFile ( );
-	~CRMInstanceFile ( );
-
-	bool			Open			( const char* instance );
-	void			Close			( void );
-	CRMInstance*	CreateInstance	( const char* name );
+	bool Open(const char *instance);
+	void Close(void);
+	CRMInstance *CreateInstance(const char *name);
 
 protected:
-
-	CGenericParser2		mParser;
-	CGPGroup*			mInstances;
+	CGenericParser2 mParser;
+	CGPGroup *mInstances;
 };
 
 #endif

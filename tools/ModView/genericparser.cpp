@@ -2,10 +2,8 @@
 //
 
 #if !defined(GENERICPARSER_H_INC)
-	#include "GenericParser.h"
+#include "GenericParser.h"
 #endif
-
-
 
 #if 0
 //

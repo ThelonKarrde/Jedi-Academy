@@ -14,15 +14,17 @@
 class FFMultiSet
 {
 public:
-	typedef vector<FFSet*> Set;
+	typedef vector<FFSet *> Set;
+
 protected:
 	FFConfigParser *mConfig;
 	Set mSet;
 	CImmDevices *mDevices;
+
 public:
-	qboolean Init( FFConfigParser &config );
-//	qboolean Lookup( set<MultiEffect*> &effect, const char *name );
-	qboolean GetRegisteredNames( TNameTable &NameTable );
+	qboolean Init(FFConfigParser &config);
+	//	qboolean Lookup( set<MultiEffect*> &effect, const char *name );
+	qboolean GetRegisteredNames(TNameTable &NameTable);
 	qboolean StopAll();
 	void clear();
 
@@ -30,13 +32,16 @@ public:
 	//	Optional
 	//
 #ifdef FF_ACCESSOR
-	Set& GetSets() { return mSet; }
-	CImmDevices* GetDevices() { return mDevices; }
+	Set &GetSets()
+	{
+		return mSet;
+	}
+	CImmDevices *GetDevices() { return mDevices; }
 #endif
 
 #ifdef FF_CONSOLECOMMAND
-	void Display( TNameTable &Unprocessed, TNameTable &Processed );
-	static void GetDisplayTokens( TNameTable &Tokens );
+	void Display(TNameTable &Unprocessed, TNameTable &Processed);
+	static void GetDisplayTokens(TNameTable &Tokens);
 #endif
 };
 

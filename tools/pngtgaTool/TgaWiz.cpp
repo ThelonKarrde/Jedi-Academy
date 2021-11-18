@@ -6,9 +6,9 @@
 
 typedef unsigned char byte;
 
-void R_MipMap (byte *in, int width, int height, bool simple = true);
-void LoadTGA ( const char *name, byte **pic, int *width, int *height);
-void SaveTGA( byte *pic, int width, int height, char *fileName );
+void R_MipMap(byte *in, int width, int height, bool simple = true);
+void LoadTGA(const char *name, byte **pic, int *width, int *height);
+void SaveTGA(byte *pic, int width, int height, char *fileName);
 
 int main(int argc, char *argv[])
 {
@@ -62,4 +62,3 @@ int main(int argc, char* argv[])
 	return 0;
 }
 #endif
-

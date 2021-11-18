@@ -20,11 +20,11 @@
 //			device. (See base/fffx/fffx.cfg)
 //	*	qfalse - no effects set could be determined for this device.
 //
-qboolean FFConfigParser::Init( const char *filename )
+qboolean FFConfigParser::Init(const char *filename)
 {
-	Clear();	// Always cleanup
+	Clear(); // Always cleanup
 
-	return qboolean( filename && Parse( LoadFile( filename ) ) );
+	return qboolean(filename && Parse(LoadFile(filename)));
 }
 
 ////---------------------
@@ -36,7 +36,7 @@ qboolean FFConfigParser::Init( const char *filename )
 //
 //	Returns:
 //
-void FFConfigParser::Clear( void )
+void FFConfigParser::Clear(void)
 {
 	mMap.clear();
 	mDefaultSet.clear();
@@ -51,27 +51,24 @@ void FFConfigParser::Clear( void )
 //
 //	Returns:
 //
-qboolean FFConfigParser::Parse( void *file )
+qboolean FFConfigParser::Parse(void *file)
 {
-	qboolean result = qboolean( file != NULL );
+	qboolean result = qboolean(file != NULL);
 
-	if ( file )
+	if (file)
 	{
-		const char *token = 0, *pos = (const char*)file;
-		for
-		(	token = COM_ParseExt( &pos, qtrue )
-		;	token[ 0 ]
-		&&	result // fail if any problem
-		;	token = COM_ParseExt( &pos, qtrue )
-		){
-			if ( !stricmp( token, "ffdefaults" ) )
+		const char *token = 0, *pos = (const char *)file;
+		for (token = COM_ParseExt(&pos, qtrue); token[0] && result // fail if any problem
+			 ;
+			 token = COM_ParseExt(&pos, qtrue))
+		{
+			if (!stricmp(token, "ffdefaults"))
 			{
-				result &= ParseDefaults( &pos );
+				result &= ParseDefaults(&pos);
 			}
-			else
-			if ( !stricmp( token, "ffsets" ) )
+			else if (!stricmp(token, "ffsets"))
 			{
-				result &= ParseSets( &pos );
+				result &= ParseSets(&pos);
 			}
 			else
 			{
@@ -80,7 +77,7 @@ qboolean FFConfigParser::Parse( void *file )
 			}
 		}
 
-		FS_FreeFile( file );
+		FS_FreeFile(file);
 	}
 
 	return result;
@@ -95,40 +92,34 @@ qboolean FFConfigParser::Parse( void *file )
 //
 //	Returns:
 //
-qboolean FFConfigParser::ParseDefault( const char **pos, TDeviceType &defaultSet )
+qboolean FFConfigParser::ParseDefault(const char **pos, TDeviceType &defaultSet)
 {
-	qboolean result = qboolean( pos != NULL );
+	qboolean result = qboolean(pos != NULL);
 
-	if ( pos )
+	if (pos)
 	{
-		char *token = COM_ParseExt( pos, qtrue );
-		if ( token[ 0 ] == '{' )
+		char *token = COM_ParseExt(pos, qtrue);
+		if (token[0] == '{')
 		{
-			for
-			(	token = COM_ParseExt( pos, qtrue )
-			;	token[ 0 ]
-			&&	token[ 0 ] != '}'
-			&&	result // fail if any problem
-			;	token = COM_ParseExt( pos, qtrue )
-			){
+			for (token = COM_ParseExt(pos, qtrue); token[0] && token[0] != '}' && result // fail if any problem
+				 ;
+				 token = COM_ParseExt(pos, qtrue))
+			{
 				int device = 0;
 
-				if ( sscanf( token, "%d", &device ) )
+				if (sscanf(token, "%d", &device))
 				{
-					string &str = defaultSet[ device ];
-					if ( !str.size() )
+					string &str = defaultSet[device];
+					if (!str.size())
 					{
-						str = COM_ParseExt( pos, qfalse );
-						result &= qboolean( str.size() > 0 );
+						str = COM_ParseExt(pos, qfalse);
+						result &= qboolean(str.size() > 0);
 					}
 					else
 					{
 						result = qfalse;
 #ifdef FF_PRINT
-						ConsoleParseError
-						(	"Redefinition of DeviceType index"
-						,	token
-						);
+						ConsoleParseError("Redefinition of DeviceType index", token);
 #endif
 					}
 				}
@@ -136,10 +127,7 @@ qboolean FFConfigParser::ParseDefault( const char **pos, TDeviceType &defaultSet
 				{
 					result = qfalse;
 #ifdef FF_PRINT
-					ConsoleParseError
-					(	"DeviceType field should begin with an integer"
-					,	token
-					);
+					ConsoleParseError("DeviceType field should begin with an integer", token);
 #endif
 				}
 			}
@@ -148,8 +136,6 @@ qboolean FFConfigParser::ParseDefault( const char **pos, TDeviceType &defaultSet
 
 	return result;
 }
-
-
 
 ////----------------------------
 /// FFConfigParser::ParseDefault
@@ -160,40 +146,34 @@ qboolean FFConfigParser::ParseDefault( const char **pos, TDeviceType &defaultSet
 //
 //	Returns:
 //
-qboolean FFConfigParser::ParseDefaults( const char **pos )
+qboolean FFConfigParser::ParseDefaults(const char **pos)
 {
-	qboolean result = qboolean( pos != NULL );
+	qboolean result = qboolean(pos != NULL);
 
-	if ( pos )
+	if (pos)
 	{
-		char *token = COM_ParseExt( pos, qtrue );
-		if ( token[ 0 ] == '{' )
+		char *token = COM_ParseExt(pos, qtrue);
+		if (token[0] == '{')
 		{
-			for
-			(	token = COM_ParseExt( pos, qtrue )
-			;	token[ 0 ]
-			&&	token[ 0 ] != '}'
-			&&	result // fail if any problem
-			;	token = COM_ParseExt( pos, qtrue )
-			){
+			for (token = COM_ParseExt(pos, qtrue); token[0] && token[0] != '}' && result // fail if any problem
+				 ;
+				 token = COM_ParseExt(pos, qtrue))
+			{
 				int techType = 0;
 
-				if ( sscanf( token, "%d", &techType ) )
+				if (sscanf(token, "%d", &techType))
 				{
-					TDeviceType &deviceType = mDefaultSet[ techType ];
-					if ( !deviceType.size() )
+					TDeviceType &deviceType = mDefaultSet[techType];
+					if (!deviceType.size())
 					{
-						result &= ParseDefault( pos, deviceType );
-						mDefaultPriority.push_back( techType );
+						result &= ParseDefault(pos, deviceType);
+						mDefaultPriority.push_back(techType);
 					}
 					else
 					{
 						result = qfalse;
 #ifdef FF_PRINT
-						ConsoleParseError
-						(	"Redefinition of TechType index"
-						,	token
-						);
+						ConsoleParseError("Redefinition of TechType index", token);
 #endif
 					}
 				}
@@ -201,10 +181,7 @@ qboolean FFConfigParser::ParseDefaults( const char **pos )
 				{
 					result = qfalse;
 #ifdef FF_PRINT
-					ConsoleParseError
-					(	"TechType fields should begin with integers"
-					,	token
-					);
+					ConsoleParseError("TechType fields should begin with integers", token);
 #endif
 				}
 			}
@@ -228,42 +205,36 @@ qboolean FFConfigParser::ParseDefaults( const char **pos )
 //
 //	Returns:
 //
-const char* FFConfigParser::RightOfSet( const char *effectname )
+const char *FFConfigParser::RightOfSet(const char *effectname)
 {
 	const char *s = effectname;
 
 	// Check through all set names and test effectname against it
-	for
-	(	TMap::iterator itMap = mMap.begin()
-	;	itMap != mMap.end() && s == effectname
-	;	itMap++
-	){
-		s = RightOf( effectname, (*itMap).first.c_str() );
+	for (TMap::iterator itMap = mMap.begin(); itMap != mMap.end() && s == effectname; itMap++)
+	{
+		s = RightOf(effectname, (*itMap).first.c_str());
 	}
 
 	return s ? s : effectname;
 }
 
-qboolean FFConfigParser::ParseSetDevices( const char **pos, TDevice &device )
+qboolean FFConfigParser::ParseSetDevices(const char **pos, TDevice &device)
 {
-	qboolean result = qboolean( pos != NULL );
+	qboolean result = qboolean(pos != NULL);
 
-	if ( pos )
+	if (pos)
 	{
-		char *token = COM_ParseExt( pos, qtrue );
-		if ( token[ 0 ] == '{' )
+		char *token = COM_ParseExt(pos, qtrue);
+		if (token[0] == '{')
 		{
-			for
-			(	token = COM_ParseExt( pos, qtrue )
-			;	token[ 0 ]
-			&&	token[ 0 ] != '}'
-			&&	result // fail if any problem
-			;	token = COM_ParseExt( pos, qtrue )
-			){
-				device.insert( token );
+			for (token = COM_ParseExt(pos, qtrue); token[0] && token[0] != '}' && result // fail if any problem
+				 ;
+				 token = COM_ParseExt(pos, qtrue))
+			{
+				device.insert(token);
 			}
 
-			result = qboolean( token[ 0 ] != 0 );
+			result = qboolean(token[0] != 0);
 		}
 		else
 		{
@@ -275,26 +246,23 @@ qboolean FFConfigParser::ParseSetDevices( const char **pos, TDevice &device )
 	return result;
 }
 
-qboolean FFConfigParser::ParseSetIncludes( const char **pos, TInclude &include )
+qboolean FFConfigParser::ParseSetIncludes(const char **pos, TInclude &include)
 {
-	qboolean result = qboolean( pos != NULL );
+	qboolean result = qboolean(pos != NULL);
 
-	if ( pos )
+	if (pos)
 	{
-		char *token = COM_ParseExt( pos, qtrue );
-		if ( token[ 0 ] == '{' )
+		char *token = COM_ParseExt(pos, qtrue);
+		if (token[0] == '{')
 		{
-			for
-			(	token = COM_ParseExt( pos, qtrue )
-			;	token[ 0 ]
-			&&	token[ 0 ] != '}'
-			&&	result // fail if any problem
-			;	token = COM_ParseExt( pos, qtrue )
-			){
-				include.push_back( token );
+			for (token = COM_ParseExt(pos, qtrue); token[0] && token[0] != '}' && result // fail if any problem
+				 ;
+				 token = COM_ParseExt(pos, qtrue))
+			{
+				include.push_back(token);
 			}
 
-			result = qboolean( token[ 0 ] != 0 );
+			result = qboolean(token[0] != 0);
 		}
 		else
 		{
@@ -306,40 +274,33 @@ qboolean FFConfigParser::ParseSetIncludes( const char **pos, TInclude &include )
 	return result;
 }
 
-qboolean FFConfigParser::ParseSet( const char **pos, TData &data )
+qboolean FFConfigParser::ParseSet(const char **pos, TData &data)
 {
-	qboolean result = qboolean( pos != NULL );
+	qboolean result = qboolean(pos != NULL);
 
-	if ( pos )
+	if (pos)
 	{
-		const char *oldpos = *pos;	// allows set declarations with no attributes to have no "{}" 
-		char *token = COM_ParseExt( pos, qtrue );
-		if ( token[ 0 ] == '{' )
+		const char *oldpos = *pos; // allows set declarations with no attributes to have no "{}"
+		char *token = COM_ParseExt(pos, qtrue);
+		if (token[0] == '{')
 		{
-			for
-			(	token = COM_ParseExt( pos, qtrue )
-			;	token[ 0 ]
-			&&	token[ 0 ] != '}'
-			&&	result // fail if any problem
-			;	token = COM_ParseExt( pos, qtrue )
-			){
-				if ( !stricmp( token, "includes" ) )
+			for (token = COM_ParseExt(pos, qtrue); token[0] && token[0] != '}' && result // fail if any problem
+				 ;
+				 token = COM_ParseExt(pos, qtrue))
+			{
+				if (!stricmp(token, "includes"))
 				{
-					result &= ParseSetIncludes( pos, data.include );
+					result &= ParseSetIncludes(pos, data.include);
 				}
-				else
-				if ( !stricmp( token, "devices" ) )
+				else if (!stricmp(token, "devices"))
 				{
-					result &= ParseSetDevices( pos, data.device );
+					result &= ParseSetDevices(pos, data.device);
 				}
 				else
 				{
 					result = qfalse;
 #ifdef FF_PRINT
-					ConsoleParseError
-					(	"Invalid set parameter. Should be 'includes' or 'devices'"
-					,	token
-					);
+					ConsoleParseError("Invalid set parameter. Should be 'includes' or 'devices'", token);
 #endif
 				}
 			}
@@ -364,25 +325,22 @@ qboolean FFConfigParser::ParseSet( const char **pos, TData &data )
 //
 //	Returns:
 //
-qboolean FFConfigParser::ParseSets( const char **pos )
+qboolean FFConfigParser::ParseSets(const char **pos)
 {
-	qboolean result = qboolean( pos != NULL );
-	string			groupName;
+	qboolean result = qboolean(pos != NULL);
+	string groupName;
 
-	if ( pos )
+	if (pos)
 	{
-		char *token = COM_ParseExt( pos, qtrue );
-		if ( token[ 0 ] == '{' )
+		char *token = COM_ParseExt(pos, qtrue);
+		if (token[0] == '{')
 		{
-			for
-			(	token = COM_ParseExt( pos, qtrue )
-			;	token[ 0 ]
-			&&	token[ 0 ] != '}'
-			&&	result // fail if any problem
-			;	token = COM_ParseExt( pos, qtrue )
-			){
-				TData &data = mMap[ token ];
-				result &= ParseSet( pos, data );
+			for (token = COM_ParseExt(pos, qtrue); token[0] && token[0] != '}' && result // fail if any problem
+				 ;
+				 token = COM_ParseExt(pos, qtrue))
+			{
+				TData &data = mMap[token];
+				result &= ParseSet(pos, data);
 			}
 		}
 		else
@@ -404,10 +362,10 @@ qboolean FFConfigParser::ParseSets( const char **pos )
 //
 //	Returns:
 //
-FFConfigParser::TInclude& FFConfigParser::GetIncludes( const char *name )
+FFConfigParser::TInclude &FFConfigParser::GetIncludes(const char *name)
 {
-	TMap::iterator itMap = mMap.find( name );
-	if ( itMap != mMap.end() )
+	TMap::iterator itMap = mMap.find(name);
+	if (itMap != mMap.end())
 		return (*itMap).second.include;
 
 	// No includes present
@@ -415,9 +373,9 @@ FFConfigParser::TInclude& FFConfigParser::GetIncludes( const char *name )
 	return emptyInclude;
 }
 
-const char * FFConfigParser::GetFFSet( CImmDevice *Device )
+const char *FFConfigParser::GetFFSet(CImmDevice *Device)
 {
-	char devName[ FF_MAX_PATH ];
+	char devName[FF_MAX_PATH];
 	const char *ffset = NULL;
 
 	//
@@ -425,48 +383,41 @@ const char * FFConfigParser::GetFFSet( CImmDevice *Device )
 	//
 
 	devName[0] = 0;
-	Device->GetProductName( devName, FF_MAX_PATH - 1 );
-	for
-	(	TMap::iterator itmap = mMap.begin()
-	;	itmap != mMap.end()
-	;	itmap++
-	){
+	Device->GetProductName(devName, FF_MAX_PATH - 1);
+	for (TMap::iterator itmap = mMap.begin(); itmap != mMap.end(); itmap++)
+	{
 		TDevice::iterator itdev;
 
-		itdev = (*itmap).second.device.find( devName );
-		if ( itdev != (*itmap).second.device.end() )
+		itdev = (*itmap).second.device.find(devName);
+		if (itdev != (*itmap).second.device.end())
 			ffset = (*itmap).first.c_str();
 	}
-
 
 	//
 	//	Check device defaults
 	//
 
-	for
-	(	int i = 0
-	;	!ffset && i < mDefaultPriority.size()
-	;	i++
-	){
+	for (int i = 0; !ffset && i < mDefaultPriority.size(); i++)
+	{
 		int defaultTechType;
-		DWORD	productType = Device->GetProductType();
-		WORD	deviceType	= HIWORD( productType );
-		WORD	techType	= LOWORD( productType );
+		DWORD productType = Device->GetProductType();
+		WORD deviceType = HIWORD(productType);
+		WORD techType = LOWORD(productType);
 
-		defaultTechType = mDefaultPriority[ i ];
+		defaultTechType = mDefaultPriority[i];
 
 		//
 		//	Check for minimum required features
 		//
 
-		if ( (techType & defaultTechType) >= defaultTechType )
+		if ((techType & defaultTechType) >= defaultTechType)
 		{
 			//
 			//	Check that device exists in this technology section
 			//
 
-			TDeviceType::iterator itDeviceType = mDefaultSet[ defaultTechType ].find( deviceType );
-			if ( itDeviceType != mDefaultSet[ defaultTechType ].end() )
+			TDeviceType::iterator itDeviceType = mDefaultSet[defaultTechType].find(deviceType);
+			if (itDeviceType != mDefaultSet[defaultTechType].end())
 			{
 				ffset = (*itDeviceType).second.c_str();
 			}

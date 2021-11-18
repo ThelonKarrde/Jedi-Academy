@@ -25,11 +25,11 @@
  *	none
  *
  ************************************************************************************************/
-CRMVoidInstance::CRMVoidInstance ( CGPGroup *instGroup, CRMInstanceFile& instFile ) 
-	: CRMInstance ( instGroup, instFile )
+CRMVoidInstance::CRMVoidInstance(CGPGroup *instGroup, CRMInstanceFile &instFile)
+	: CRMInstance(instGroup, instFile)
 {
-	mSpacingRadius = atof( instGroup->FindPairValue ( "spacing", "0" ) );
-	mFlattenRadius = atof( instGroup->FindPairValue ( "flatten", "0" ) );
+	mSpacingRadius = atof(instGroup->FindPairValue("spacing", "0"));
+	mFlattenRadius = atof(instGroup->FindPairValue("flatten", "0"));
 }
 
 /************************************************************************************************
@@ -43,11 +43,11 @@ CRMVoidInstance::CRMVoidInstance ( CGPGroup *instGroup, CRMInstanceFile& instFil
  *	none
  *
  ************************************************************************************************/
-void CRMVoidInstance::SetArea ( CRMAreaManager* amanager, CRMArea* area )
+void CRMVoidInstance::SetArea(CRMAreaManager *amanager, CRMArea *area)
 {
 	// Disable collision
-	area->EnableCollision ( false );
+	area->EnableCollision(false);
 
 	// Do what really needs to get done
-	CRMInstance::SetArea ( amanager, area );
+	CRMInstance::SetArea(amanager, area);
 }

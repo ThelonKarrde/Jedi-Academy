@@ -13,15 +13,14 @@
 #include "../qcommon/xb_settings.h"
 
 #define FORCESELECTTIME forcepowerSelectTime
-#define FORCESELECT		forcepowerSelect
-#define INVSELECTTIME	inventorySelectTime
-#define INVSELECT		inventorySelect
-#define REGISTERSOUND	cgi_S_RegisterSound
-#define STARTSOUND		cgi_S_StartLocalSound
-#define WEAPONBINDSTR	"weapon"
+#define FORCESELECT forcepowerSelect
+#define INVSELECTTIME inventorySelectTime
+#define INVSELECT inventorySelect
+#define REGISTERSOUND cgi_S_RegisterSound
+#define STARTSOUND cgi_S_StartLocalSound
+#define WEAPONBINDSTR "weapon"
 
 #define BIND_TIME 2000 //number of milliseconds button is held before binding
-
 
 const char *itemCommands[INV_MAX] = {
 	"use_electrobinoculars\n",
@@ -29,8 +28,8 @@ const char *itemCommands[INV_MAX] = {
 	"use_seeker\n",
 	"use_goggles\n",
 	"use_sentry\n",
-	NULL,						//goodie key
-	NULL,						//security key
+	NULL, //goodie key
+	NULL, //security key
 };
 
 // Commands to issue when user presses a force-bound button
@@ -69,13 +68,10 @@ const char *forceUpCommands[MAX_SHOWPOWERS] = {
 	"-force_grip\n",
 };
 
-
-HotSwapManager::HotSwapManager(int uniqueID) :
-	uniqueID(uniqueID)
+HotSwapManager::HotSwapManager(int uniqueID) : uniqueID(uniqueID)
 {
 	Reset();
 }
-
 
 const char *HotSwapManager::GetBinding(void)
 {
@@ -84,14 +80,19 @@ const char *HotSwapManager::GetBinding(void)
 	sprintf(buf, "hotswap%d", uniqueID);
 	cvar_t *cvar = Cvar_Get(buf, "", CVAR_ARCHIVE);
 
-	if(!cvar || !cvar->string[0])
+	if (!cvar || !cvar->string[0])
 		return NULL;
 
-	if (cvar->integer < HOTSWAP_CAT_ITEM) {	// Weapon
+	if (cvar->integer < HOTSWAP_CAT_ITEM)
+	{ // Weapon
 		return va("weapon %d", cvar->integer);
-	} else if (cvar->integer < HOTSWAP_CAT_FORCE) {	// Item
+	}
+	else if (cvar->integer < HOTSWAP_CAT_FORCE)
+	{ // Item
 		return itemCommands[cvar->integer - HOTSWAP_CAT_ITEM];
-	} else { // Force power
+	}
+	else
+	{ // Force power
 		return forceDownCommands[cvar->integer - HOTSWAP_CAT_FORCE];
 	}
 }
@@ -103,27 +104,36 @@ const char *HotSwapManager::GetBindingUp(void)
 	sprintf(buf, "hotswap%d", uniqueID);
 	cvar_t *cvar = Cvar_Get(buf, "", CVAR_ARCHIVE);
 
-	if(!cvar || !cvar->string[0])
+	if (!cvar || !cvar->string[0])
 		return NULL;
 
 	// Only force powers have release-commands
-	if (cvar->integer < HOTSWAP_CAT_FORCE) {
+	if (cvar->integer < HOTSWAP_CAT_FORCE)
+	{
 		return NULL;
-	} else {
+	}
+	else
+	{
 		return forceUpCommands[cvar->integer - HOTSWAP_CAT_FORCE];
 	}
 }
 
-
 void HotSwapManager::Bind(void)
 {
-	if(WeaponSelectUp()) {
+	if (WeaponSelectUp())
+	{
 		HotSwapBind(uniqueID, HOTSWAP_CAT_WEAPON, cg.weaponSelect);
-	} else if(ForceSelectUp()) {
+	}
+	else if (ForceSelectUp())
+	{
 		HotSwapBind(uniqueID, HOTSWAP_CAT_FORCE, cg.FORCESELECT);
-	} else if(ItemSelectUp()) {
+	}
+	else if (ItemSelectUp())
+	{
 		HotSwapBind(uniqueID, HOTSWAP_CAT_ITEM, cg.INVSELECT);
-	} else{
+	}
+	else
+	{
 		assert(0);
 	}
 
@@ -131,59 +141,58 @@ void HotSwapManager::Bind(void)
 	STARTSOUND(REGISTERSOUND("sound/interface/update"), 0);
 }
 
-
 bool HotSwapManager::ForceSelectUp(void)
 {
 	return cg.FORCESELECTTIME != 0 &&
-		(cg.FORCESELECTTIME + WEAPON_SELECT_TIME >= cg.time);
+		   (cg.FORCESELECTTIME + WEAPON_SELECT_TIME >= cg.time);
 }
-
 
 bool HotSwapManager::WeaponSelectUp(void)
 {
 	return cg.weaponSelectTime != 0 &&
-		(cg.weaponSelectTime + WEAPON_SELECT_TIME >= cg.time);
+		   (cg.weaponSelectTime + WEAPON_SELECT_TIME >= cg.time);
 }
-
 
 bool HotSwapManager::ItemSelectUp(void)
 {
 	return cg.INVSELECTTIME != 0 &&
-		(cg.INVSELECTTIME + WEAPON_SELECT_TIME >= cg.time);
+		   (cg.INVSELECTTIME + WEAPON_SELECT_TIME >= cg.time);
 }
-
 
 bool HotSwapManager::HUDInBindState(void)
 {
 	return ForceSelectUp() || WeaponSelectUp() || ItemSelectUp();
 }
 
-
 void HotSwapManager::Update(void)
 {
-	if(down) {
+	if (down)
+	{
 		//Increment bindTime only if HUD is in select mode.
-		if(HUDInBindState()) {
+		if (HUDInBindState())
+		{
 			bindTime += cls.frametime;
-		} else {
+		}
+		else
+		{
 
 			//Clear bind time.
 			bindTime = 0;
-
 		}
 	}
 
 	//Down long enough, bind button.
-	if(!noBind && bindTime >= BIND_TIME) {
+	if (!noBind && bindTime >= BIND_TIME)
+	{
 		Bind();
 	}
 }
 
-
 void HotSwapManager::Execute(void)
 {
 	const char *binding = GetBinding();
-	if(binding) {
+	if (binding)
+	{
 		Cbuf_ExecuteText(EXEC_NOW, binding);
 	}
 }
@@ -191,11 +200,11 @@ void HotSwapManager::Execute(void)
 void HotSwapManager::ExecuteUp(void)
 {
 	const char *binding = GetBindingUp();
-	if(binding) {
+	if (binding)
+	{
 		Cbuf_ExecuteText(EXEC_NOW, binding);
 	}
 }
-
 
 void HotSwapManager::SetDown(void)
 {
@@ -203,23 +212,23 @@ void HotSwapManager::SetDown(void)
 	down = true;
 
 	//Execute the bind if the HUD isn't up. Also, prevent re-binding!
-	if(!HUDInBindState()) {
+	if (!HUDInBindState())
+	{
 		Execute();
 		noBind = true;
 	}
 }
 
-
 void HotSwapManager::SetUp(void)
 {
 	// Execute the tail of the command if the HUD isn't up.
-	if(!HUDInBindState()) {
+	if (!HUDInBindState())
+	{
 		ExecuteUp();
 	}
 
 	Reset();
 }
-
 
 void HotSwapManager::Reset(void)
 {
@@ -234,9 +243,8 @@ void HotSwapBind(int buttonID, int category, int value)
 	sprintf(uniqueID, "hotswap%d", buttonID);
 
 	// Add category as an offset for when we retrieve it
-	Cvar_SetValue( uniqueID, value+category );
-	Settings.hotswapSP[buttonID] = value+category;
+	Cvar_SetValue(uniqueID, value + category);
+	Settings.hotswapSP[buttonID] = value + category;
 
 	Settings.Save();
 }
-

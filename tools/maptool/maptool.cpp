@@ -9,7 +9,6 @@
 #include <vector>
 #include <algorithm>
 
-
 using std::string;
 
 struct MapSymbol
@@ -43,7 +42,7 @@ struct MapSymbolAddressLess
 	}
 };
 
-int _tmain(int argc, _TCHAR* argv[])
+int _tmain(int argc, _TCHAR *argv[])
 {
 	std::ifstream infile;
 	std::string oneLine;
@@ -63,13 +62,13 @@ int _tmain(int argc, _TCHAR* argv[])
 	do
 	{
 		std::getline(infile, oneLine);
-	} while(oneLine.find("Address") == string::npos);
+	} while (oneLine.find("Address") == string::npos);
 
 	// OK. Get one more blank line
 	std::getline(infile, oneLine);
 
 	// Now we have to get a whole bunch of lines, and actually do things
-	while(1)
+	while (1)
 	{
 		// Read the first token
 		infile >> oneToken;
@@ -98,8 +97,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	// (except for the actual last synmbol, which we can't figure out)
 	size_t j = 0;
 	size_t lastSym = symbols.size() - 1;
-	for ( ; j < lastSym; ++j)
-		symbols[j].size = symbols[j+1].address - symbols[j].address;
+	for (; j < lastSym; ++j)
+		symbols[j].size = symbols[j + 1].address - symbols[j].address;
 
 	// No reason to keep the last symbol around, we know nothing
 	symbols.pop_back();
@@ -114,7 +113,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::getline(infile, oneLine);
 
 	// Now we do it again, for the second batch of symbols...
-	while(!infile.eof())
+	while (!infile.eof())
 	{
 		// Read the first token
 		infile >> oneToken;
@@ -142,8 +141,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	// OK. Do it again
 	j = lastSym;
 	lastSym = symbols.size() - 1;
-	for( ; j < lastSym; ++j)
-		symbols[j].size = symbols[j+1].address - symbols[j].address;
+	for (; j < lastSym; ++j)
+		symbols[j].size = symbols[j + 1].address - symbols[j].address;
 
 	// No reason to keep the last symbol around, we know nothing
 	symbols.pop_back();
@@ -161,4 +160,3 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	return 0;
 }
-

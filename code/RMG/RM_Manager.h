@@ -9,47 +9,44 @@
 class CRMManager
 {
 private:
+	CRMMission *mMission;
+	CCMLandScape *mLandScape;
+	CRandomTerrain *mTerrain;
+	int mPreviewTimer;
+	int mCurPriority;
+	bool mUseTimeLimit;
 
-	CRMMission*			mMission;
-	CCMLandScape*		mLandScape;
-	CRandomTerrain*		mTerrain;
-	int					mPreviewTimer;
-	int					mCurPriority;
-	bool				mUseTimeLimit;
-
-	void			UpdateStatisticCvars ( void );
+	void UpdateStatisticCvars(void);
 
 public:
-
 	// Constructors
-	CRMManager (void);
-	~CRMManager (void);
+	CRMManager(void);
+	~CRMManager(void);
 
-	bool			LoadMission		( qboolean IsServer );
-	bool			SpawnMission	( qboolean IsServer );
+	bool LoadMission(qboolean IsServer);
+	bool SpawnMission(qboolean IsServer);
 
 	// Accessors
-	void			SetLandScape	(CCMLandScape *landscape);
-	void			SetCurPriority	(int priority) { mCurPriority = priority; }
+	void SetLandScape(CCMLandScape *landscape);
+	void SetCurPriority(int priority) { mCurPriority = priority; }
 
-	CRandomTerrain*	GetTerrain		(void)	{ return mTerrain; }
-	CCMLandScape*	GetLandScape	(void)	{ return mLandScape; }
-	CRMMission*		GetMission		(void)  { return mMission; }
-	int				GetCurPriority	(void) { return mCurPriority; }
+	CRandomTerrain *GetTerrain(void) { return mTerrain; }
+	CCMLandScape *GetLandScape(void) { return mLandScape; }
+	CRMMission *GetMission(void) { return mMission; }
+	int GetCurPriority(void) { return mCurPriority; }
 
-	void			Preview			( const vec3_t from );
+	void Preview(const vec3_t from);
 
-	bool			IsMissionComplete		(void);
-	bool			HasTimeExpired			(void);
-	void			CompleteObjective		( CRMObjective *obj );
-	void			CompleteMission			(void);
-	void			FailedMission			(bool TimeExpired);
+	bool IsMissionComplete(void);
+	bool HasTimeExpired(void);
+	void CompleteObjective(CRMObjective *obj);
+	void CompleteMission(void);
+	void FailedMission(bool TimeExpired);
 
 	// eek
-	static CRMObjective	*mCurObjective;
+	static CRMObjective *mCurObjective;
 };
 
-extern CRMManager*	TheRandomMissionManager;
-
+extern CRMManager *TheRandomMissionManager;
 
 #endif // RANDOMMISSION_H_INC

@@ -12,28 +12,30 @@
 
 class CSOF2NPCViewer : public CDialog
 {
-// Construction
+	// Construction
 public:
-	CSOF2NPCViewer(bool bSOF2Mode, CString *pFeedback, LPCSTR psGameDir, CWnd* pParent = NULL);   // standard constructor
+	CSOF2NPCViewer(bool bSOF2Mode, CString *pFeedback, LPCSTR psGameDir, CWnd *pParent = NULL); // standard constructor
 
-// Dialog Data
+	// Dialog Data
 	//{{AFX_DATA(CSOF2NPCViewer)
-	enum { IDD = IDD_DIALOG_NPCS };
-		// NOTE: the ClassWizard will add data members here
+	enum
+	{
+		IDD = IDD_DIALOG_NPCS
+	};
+	// NOTE: the ClassWizard will add data members here
 	//}}AFX_DATA
 
-
-// Overrides
+	// Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CSOF2NPCViewer)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+protected:
+	virtual void DoDataExchange(CDataExchange *pDX); // DDX/DDV support
+													 //}}AFX_VIRTUAL
 
-// Implementation
+	// Implementation
 protected:
 	CToolTipCtrl m_tooltip;
-	bool		m_bSOF2Mode;
+	bool m_bSOF2Mode;
 
 	// Generated message map functions
 	//{{AFX_MSG(CSOF2NPCViewer)
@@ -53,19 +55,16 @@ protected:
 	void BOT_ScanFiles(bool bForceRefresh);
 	void BOT_FillList(void);
 
-
-	BOOL PreTranslateMessage(MSG* pMsg);
+	BOOL PreTranslateMessage(MSG *pMsg);
 };
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
 
 bool Gallery_Active(void);
 void Gallery_Done(void);
 LPCSTR Gallery_GetOutputDir(void);
 LPCSTR Gallery_GetSeqToLock(void);
 int GalleryRead_ExtractEntry(CString &strCaption, CString &strScript);
-
 
 #endif // !defined(AFX_SOF2NPCVIEWER_H__8ED96028_14DD_47EE_88B9_0426D26FB683__INCLUDED_)

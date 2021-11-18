@@ -9,15 +9,11 @@
 #include <string.h>
 #include <malloc.h>
 
-
-#define trap_Z_Malloc(_size, _tag)	malloc(_size)	// dunno if GP2 need calloc or malloc, so...
-#define trap_Z_Free(_mem)			free(_mem)
+#define trap_Z_Malloc(_size, _tag) malloc(_size) // dunno if GP2 need calloc or malloc, so...
+#define trap_Z_Free(_mem) free(_mem)
 
 //#define TAG_GP2 0
 
-
-
-#endif	// #ifndef COMMON_HEADERS_H
+#endif // #ifndef COMMON_HEADERS_H
 
 /////////////////// eof //////////////
-

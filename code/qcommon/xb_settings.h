@@ -14,7 +14,7 @@ enum XBStartupState
 };
 
 // Minimum save size on Xbox. Bleh:
-#define SETTINGS_NUM_BLOCKS	4
+#define SETTINGS_NUM_BLOCKS 4
 
 struct XBSettings
 {
@@ -52,33 +52,33 @@ struct XBSettings
 	int voiceMask;
 	int appearOffline;
 
-// INTERFACE:
+	// INTERFACE:
 
-	XBSettings( void );
+	XBSettings(void);
 
-	bool Save( void );
-	bool Load( void );
-	void Delete( void );
+	bool Save(void);
+	bool Load(void);
+	void Delete(void);
 
 	// For determining why a Save/Load failed:
-	bool Missing( void );
-	bool Corrupt( void );
+	bool Missing(void);
+	bool Corrupt(void);
 
 	// This copies all settings from the Settings struct to their various cvars
-	void SetAll( void );
+	void SetAll(void);
 
 	// Turn off the settings file completely:
-	void Disable( void );
+	void Disable(void);
 
 	// Has the user turned off saving (by choosing "Continue Without Saving")?
-	bool IsDisabled( void );
+	bool IsDisabled(void);
 
 #ifdef XBOX_DEMO
-	void RestoreDefaults( void );
+	void RestoreDefaults(void);
 #endif
 
 private:
-	bool Sign( XCALCSIG_SIGNATURE *pSig );
+	bool Sign(XCALCSIG_SIGNATURE *pSig);
 };
 
 // One global copy (declared in xb_settings.cpp)

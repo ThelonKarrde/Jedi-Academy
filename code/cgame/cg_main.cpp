@@ -14,25 +14,25 @@
 #endif // _IMMERSION
 #include "../qcommon/sstring.h"
 //NOTENOTE: Be sure to change the mirrored code in g_shared.h
-typedef	map< sstring_t, unsigned char, less<sstring_t>, allocator< unsigned char >  >	namePrecache_m;
-extern namePrecache_m	*as_preCacheMap;
-extern void CG_RegisterNPCCustomSounds( clientInfo_t *ci );
-extern qboolean G_AddSexToMunroString ( char *string, qboolean qDoBoth );
+typedef map<sstring_t, unsigned char, less<sstring_t>, allocator<unsigned char>> namePrecache_m;
+extern namePrecache_m *as_preCacheMap;
+extern void CG_RegisterNPCCustomSounds(clientInfo_t *ci);
+extern qboolean G_AddSexToMunroString(char *string, qboolean qDoBoth);
 //extern void CG_RegisterNPCEffects( team_t team );
-extern int G_ParseAnimFileSet( const char *skeletonName, const char *modelName=0);
-extern void CG_DrawDataPadInventorySelect( void );
+extern int G_ParseAnimFileSet(const char *skeletonName, const char *modelName = 0);
+extern void CG_DrawDataPadInventorySelect(void);
 
-void CG_Init( int serverCommandSequence );
-qboolean CG_ConsoleCommand( void );
-void CG_Shutdown( void );
-int CG_GetCameraPos( vec3_t camerapos );
-int CG_GetCameraAng( vec3_t cameraang );
+void CG_Init(int serverCommandSequence);
+qboolean CG_ConsoleCommand(void);
+void CG_Shutdown(void);
+int CG_GetCameraPos(vec3_t camerapos);
+int CG_GetCameraAng(vec3_t cameraang);
 void UseItem(int itemNum);
-const char *CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHeight, 
+const char *CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHeight,
 								const char *psText, int iFontHandle, float fScale,
 								const vec4_t v4Color);
 
-#define NUM_CHUNKS		6
+#define NUM_CHUNKS 6
 /*
 Ghoul2 Insert Start
 */
@@ -46,42 +46,38 @@ void CG_ResizeG2TempBone(mdxaBone_v *tempBone, int newCount);
 Ghoul2 Insert End
 */
 
-
 #ifdef _XBOX
 extern bool CL_ExtendSelectTime(void);
 #endif
 
-
-
 void CG_LoadHudMenu(void);
 int inv_icons[INV_MAX];
 char *inv_names[] =
-{
-"ELECTROBINOCULARS",
-"BACTA CANISTER",
-"SEEKER",
-"LIGHT AMP GOGGLES",
-"ASSAULT SENTRY",
-"GOODIE KEY",
-"GOODIE KEY",
-"GOODIE KEY",
-"GOODIE KEY",
-"GOODIE KEY",
-"SECURITY KEY",
-"SECURITY KEY",
-"SECURITY KEY",
-"SECURITY KEY",
-"SECURITY KEY",
+	{
+		"ELECTROBINOCULARS",
+		"BACTA CANISTER",
+		"SEEKER",
+		"LIGHT AMP GOGGLES",
+		"ASSAULT SENTRY",
+		"GOODIE KEY",
+		"GOODIE KEY",
+		"GOODIE KEY",
+		"GOODIE KEY",
+		"GOODIE KEY",
+		"SECURITY KEY",
+		"SECURITY KEY",
+		"SECURITY KEY",
+		"SECURITY KEY",
+		"SECURITY KEY",
 };
 
-int	force_icons[NUM_FORCE_POWERS];
+int force_icons[NUM_FORCE_POWERS];
 
-
-void CG_DrawDataPadHUD( centity_t *cent );
-void CG_DrawDataPadObjectives(const centity_t *cent );
+void CG_DrawDataPadHUD(centity_t *cent);
+void CG_DrawDataPadObjectives(const centity_t *cent);
 void CG_DrawDataPadIconBackground(const int backgroundType);
-void CG_DrawDataPadWeaponSelect( void );
-void CG_DrawDataPadForceSelect( void );
+void CG_DrawDataPadWeaponSelect(void);
+void CG_DrawDataPadForceSelect(void);
 
 /*
 ================
@@ -91,12 +87,14 @@ This is the only way control passes into the cgame module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7 ) {
-	centity_t		*cent;
+int vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7)
+{
+	centity_t *cent;
 
-	switch ( command ) {
+	switch (command)
+	{
 	case CG_INIT:
-		CG_Init( arg0 );
+		CG_Init(arg0);
 		return 0;
 	case CG_SHUTDOWN:
 		CG_Shutdown();
@@ -104,15 +102,15 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 	case CG_CONSOLE_COMMAND:
 		return CG_ConsoleCommand();
 	case CG_DRAW_ACTIVE_FRAME:
-		CG_DrawActiveFrame( arg0, (stereoFrame_t) arg1 );
+		CG_DrawActiveFrame(arg0, (stereoFrame_t)arg1);
 		return 0;
 	case CG_CROSSHAIR_PLAYER:
 		return CG_CrosshairPlayer();
 	case CG_CAMERA_POS:
-		return CG_GetCameraPos( (float*)arg0);
+		return CG_GetCameraPos((float *)arg0);
 	case CG_CAMERA_ANG:
-		return CG_GetCameraAng( (float*)arg0);
-/*
+		return CG_GetCameraAng((float *)arg0);
+		/*
 Ghoul2 Insert Start
 */
 	case CG_RESIZE_G2:
@@ -131,7 +129,7 @@ Ghoul2 Insert Start
 		CG_ResizeG2TempBone((mdxaBone_v *)arg0, arg1);
 		return 0;
 
-/*
+		/*
 Ghoul2 Insert End
 */
 	case CG_DRAW_DATAPAD_OBJECTIVES:
@@ -199,247 +197,251 @@ void CG_ResizeG2TempBone(mdxaBone_v *tempBone, int newCount)
 Ghoul2 Insert End
 */
 
-cg_t				cg;
-cgs_t				cgs;
-centity_t			cg_entities[MAX_GENTITIES];
+cg_t cg;
+cgs_t cgs;
+centity_t cg_entities[MAX_GENTITIES];
 
-centity_t			*cg_permanents[MAX_GENTITIES];
-int					cg_numpermanents = 0;
+centity_t *cg_permanents[MAX_GENTITIES];
+int cg_numpermanents = 0;
 
-weaponInfo_t		cg_weapons[MAX_WEAPONS];
-itemInfo_t			cg_items[MAX_ITEMS];
+weaponInfo_t cg_weapons[MAX_WEAPONS];
+itemInfo_t cg_items[MAX_ITEMS];
 
-typedef struct {
-	qboolean		registered;		// Has the player picked it up
-	qboolean		active;			// Is it the chosen inventory item
-	int				count;			// Count of items.
-	char			description[128];
+typedef struct
+{
+	qboolean registered; // Has the player picked it up
+	qboolean active;	 // Is it the chosen inventory item
+	int count;			 // Count of items.
+	char description[128];
 } inventoryInfo_t;
 
-inventoryInfo_t		cg_inventory[INV_MAX];
+inventoryInfo_t cg_inventory[INV_MAX];
 
-vmCvar_t	cg_runpitch;
-vmCvar_t	cg_runroll;
-vmCvar_t	cg_bobup;
-vmCvar_t	cg_bobpitch;
-vmCvar_t	cg_bobroll;
-vmCvar_t	cg_shadows;
-vmCvar_t	cg_renderToTextureFX;
-vmCvar_t	cg_shadowCullDistance;
-vmCvar_t	cg_footsteps;
-vmCvar_t	cg_saberEntMarks;
-vmCvar_t	cg_paused;
-vmCvar_t	cg_drawTimer;
-vmCvar_t	cg_drawFPS;
-vmCvar_t	cg_drawSnapshot;
-vmCvar_t	cg_drawAmmoWarning;
-vmCvar_t	cg_drawCrosshair;
-vmCvar_t	cg_crosshairIdentifyTarget;
+vmCvar_t cg_runpitch;
+vmCvar_t cg_runroll;
+vmCvar_t cg_bobup;
+vmCvar_t cg_bobpitch;
+vmCvar_t cg_bobroll;
+vmCvar_t cg_shadows;
+vmCvar_t cg_renderToTextureFX;
+vmCvar_t cg_shadowCullDistance;
+vmCvar_t cg_footsteps;
+vmCvar_t cg_saberEntMarks;
+vmCvar_t cg_paused;
+vmCvar_t cg_drawTimer;
+vmCvar_t cg_drawFPS;
+vmCvar_t cg_drawSnapshot;
+vmCvar_t cg_drawAmmoWarning;
+vmCvar_t cg_drawCrosshair;
+vmCvar_t cg_crosshairIdentifyTarget;
 //vmCvar_t	cg_dynamicCrosshair;
-vmCvar_t	cg_crosshairForceHint;
-vmCvar_t	cg_crosshairX;
-vmCvar_t	cg_crosshairY;
-vmCvar_t	cg_crosshairSize;
-vmCvar_t	cg_draw2D;
-vmCvar_t	cg_drawStatus;
-vmCvar_t	cg_drawHUD;
-vmCvar_t	cg_debugAnim;
+vmCvar_t cg_crosshairForceHint;
+vmCvar_t cg_crosshairX;
+vmCvar_t cg_crosshairY;
+vmCvar_t cg_crosshairSize;
+vmCvar_t cg_draw2D;
+vmCvar_t cg_drawStatus;
+vmCvar_t cg_drawHUD;
+vmCvar_t cg_debugAnim;
 #ifndef FINAL_BUILD
-vmCvar_t	cg_debugAnimTarget;
-vmCvar_t	cg_gun_frame;
+vmCvar_t cg_debugAnimTarget;
+vmCvar_t cg_gun_frame;
 #endif
-vmCvar_t	cg_debugSaber;
-vmCvar_t	cg_debugEvents;
-vmCvar_t	cg_errorDecay;
-vmCvar_t	cg_addMarks;
-vmCvar_t	cg_drawGun;
-vmCvar_t	cg_autoswitch;
-vmCvar_t	cg_simpleItems;
-vmCvar_t	cg_fov;
-vmCvar_t	cg_endcredits;
-vmCvar_t	cg_updatedDataPadForcePower1;
-vmCvar_t	cg_updatedDataPadForcePower2;
-vmCvar_t	cg_updatedDataPadForcePower3;
-vmCvar_t	cg_updatedDataPadObjective;
-vmCvar_t	cg_drawBreath;
-vmCvar_t	cg_roffdebug;
+vmCvar_t cg_debugSaber;
+vmCvar_t cg_debugEvents;
+vmCvar_t cg_errorDecay;
+vmCvar_t cg_addMarks;
+vmCvar_t cg_drawGun;
+vmCvar_t cg_autoswitch;
+vmCvar_t cg_simpleItems;
+vmCvar_t cg_fov;
+vmCvar_t cg_endcredits;
+vmCvar_t cg_updatedDataPadForcePower1;
+vmCvar_t cg_updatedDataPadForcePower2;
+vmCvar_t cg_updatedDataPadForcePower3;
+vmCvar_t cg_updatedDataPadObjective;
+vmCvar_t cg_drawBreath;
+vmCvar_t cg_roffdebug;
 #ifndef FINAL_BUILD
-vmCvar_t	cg_roffval1;
-vmCvar_t	cg_roffval2;
-vmCvar_t	cg_roffval3;
-vmCvar_t	cg_roffval4;
+vmCvar_t cg_roffval1;
+vmCvar_t cg_roffval2;
+vmCvar_t cg_roffval3;
+vmCvar_t cg_roffval4;
 #endif
-vmCvar_t	cg_thirdPerson;
-vmCvar_t	cg_thirdPersonRange;
-vmCvar_t	cg_thirdPersonMaxRange;
-vmCvar_t	cg_thirdPersonAngle;
-vmCvar_t	cg_thirdPersonPitchOffset;
-vmCvar_t	cg_thirdPersonVertOffset;
-vmCvar_t	cg_thirdPersonCameraDamp;
-vmCvar_t	cg_thirdPersonTargetDamp;
-vmCvar_t	cg_gunAutoFirst;
+vmCvar_t cg_thirdPerson;
+vmCvar_t cg_thirdPersonRange;
+vmCvar_t cg_thirdPersonMaxRange;
+vmCvar_t cg_thirdPersonAngle;
+vmCvar_t cg_thirdPersonPitchOffset;
+vmCvar_t cg_thirdPersonVertOffset;
+vmCvar_t cg_thirdPersonCameraDamp;
+vmCvar_t cg_thirdPersonTargetDamp;
+vmCvar_t cg_gunAutoFirst;
 
-vmCvar_t	cg_thirdPersonAlpha;
-vmCvar_t	cg_thirdPersonAutoAlpha;
-vmCvar_t	cg_thirdPersonHorzOffset;
+vmCvar_t cg_thirdPersonAlpha;
+vmCvar_t cg_thirdPersonAutoAlpha;
+vmCvar_t cg_thirdPersonHorzOffset;
 
-vmCvar_t	cg_stereoSeparation;
-vmCvar_t 	cg_developer;
-vmCvar_t 	cg_timescale;
-vmCvar_t	cg_skippingcin;
+vmCvar_t cg_stereoSeparation;
+vmCvar_t cg_developer;
+vmCvar_t cg_timescale;
+vmCvar_t cg_skippingcin;
 
-vmCvar_t	cg_pano;
-vmCvar_t	cg_panoNumShots;
+vmCvar_t cg_pano;
+vmCvar_t cg_panoNumShots;
 
-vmCvar_t	fx_freeze;
-vmCvar_t	fx_debug;
+vmCvar_t fx_freeze;
+vmCvar_t fx_debug;
 
-vmCvar_t	cg_missionInfoFlashTime;
-vmCvar_t	cg_hudFiles;
+vmCvar_t cg_missionInfoFlashTime;
+vmCvar_t cg_hudFiles;
 
-vmCvar_t	cg_neverHearThatDumbBeepingSoundAgain;
+vmCvar_t cg_neverHearThatDumbBeepingSoundAgain;
 
-vmCvar_t	cg_VariantSoundCap;	// 0 = no capping, else cap to (n) max (typically just 1, but allows more)
-vmCvar_t	cg_turnAnims;
-vmCvar_t	cg_motionBoneComp;
-vmCvar_t	cg_distributeMBCorrection;
-vmCvar_t	cg_reliableAnimEvents;
+vmCvar_t cg_VariantSoundCap; // 0 = no capping, else cap to (n) max (typically just 1, but allows more)
+vmCvar_t cg_turnAnims;
+vmCvar_t cg_motionBoneComp;
+vmCvar_t cg_distributeMBCorrection;
+vmCvar_t cg_reliableAnimEvents;
 
-vmCvar_t	cg_smoothPlayerPos;
-vmCvar_t	cg_smoothPlayerPlat;
-vmCvar_t	cg_smoothPlayerPlatAccel;
-vmCvar_t	cg_g2Marks;
-vmCvar_t	fx_expensivePhysics;
-vmCvar_t	cg_debugHealthBars;
+vmCvar_t cg_smoothPlayerPos;
+vmCvar_t cg_smoothPlayerPlat;
+vmCvar_t cg_smoothPlayerPlatAccel;
+vmCvar_t cg_g2Marks;
+vmCvar_t fx_expensivePhysics;
+vmCvar_t cg_debugHealthBars;
 
-typedef struct {
-	vmCvar_t	*vmCvar;
-	char		*cvarName;
-	char		*defaultString;
-	int			cvarFlags;
+typedef struct
+{
+	vmCvar_t *vmCvar;
+	char *cvarName;
+	char *defaultString;
+	int cvarFlags;
 } cvarTable_t;
 
 static cvarTable_t cvarTable[] = {
-	{ &cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE },
-	{ &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
-	{ &cg_fov, "cg_fov", "80", 0 },//must be 80
-	{ &cg_stereoSeparation, "cg_stereoSeparation", "0.4", CVAR_ARCHIVE  },
-	{ &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE  },
-	{ &cg_renderToTextureFX, "cg_renderToTextureFX", "1", CVAR_ARCHIVE  },
-	{ &cg_shadowCullDistance, "r_shadowRange", "1000", CVAR_ARCHIVE },
-	{ &cg_footsteps, "cg_footsteps", "3", CVAR_ARCHIVE  },//1 = sounds, 2 = sounds & effects, 3 = sounds, effects & marks, 4 = always
-	{ &cg_saberEntMarks, "cg_saberEntMarks", "1", CVAR_ARCHIVE  },
+	{&cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE},
+	{&cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE},
+	{&cg_fov, "cg_fov", "80", 0}, //must be 80
+	{&cg_stereoSeparation, "cg_stereoSeparation", "0.4", CVAR_ARCHIVE},
+	{&cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE},
+	{&cg_renderToTextureFX, "cg_renderToTextureFX", "1", CVAR_ARCHIVE},
+	{&cg_shadowCullDistance, "r_shadowRange", "1000", CVAR_ARCHIVE},
+	{&cg_footsteps, "cg_footsteps", "3", CVAR_ARCHIVE}, //1 = sounds, 2 = sounds & effects, 3 = sounds, effects & marks, 4 = always
+	{&cg_saberEntMarks, "cg_saberEntMarks", "1", CVAR_ARCHIVE},
 
-	{ &cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE  },
-	{ &cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE  },
-	{ &cg_drawHUD, "cg_drawHUD", "1", 0  },
-	{ &cg_drawTimer, "cg_drawTimer", "0", CVAR_ARCHIVE  },
-	{ &cg_drawFPS, "cg_drawFPS", "0", CVAR_ARCHIVE  },
-	{ &cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE  },
-	{ &cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE  },
-	{ &cg_drawCrosshair, "cg_drawCrosshair", "1", CVAR_ARCHIVE },
-//	{ &cg_dynamicCrosshair, "cg_dynamicCrosshair", "1", CVAR_ARCHIVE },
+	{&cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE},
+	{&cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE},
+	{&cg_drawHUD, "cg_drawHUD", "1", 0},
+	{&cg_drawTimer, "cg_drawTimer", "0", CVAR_ARCHIVE},
+	{&cg_drawFPS, "cg_drawFPS", "0", CVAR_ARCHIVE},
+	{&cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE},
+	{&cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE},
+	{&cg_drawCrosshair, "cg_drawCrosshair", "1", CVAR_ARCHIVE},
+	//	{ &cg_dynamicCrosshair, "cg_dynamicCrosshair", "1", CVAR_ARCHIVE },
 	// NOTE : I also create this in UI_Init()
-	{ &cg_crosshairIdentifyTarget, "cg_crosshairIdentifyTarget", "1", CVAR_ARCHIVE },
-	{ &cg_crosshairForceHint, "cg_crosshairForceHint", "1", CVAR_ARCHIVE },
-	{ &cg_endcredits, "cg_endcredits", "0", 0},
-	{ &cg_updatedDataPadForcePower1, "cg_updatedDataPadForcePower1", "0", 0},
-	{ &cg_updatedDataPadForcePower2, "cg_updatedDataPadForcePower2", "0", 0},
-	{ &cg_updatedDataPadForcePower3, "cg_updatedDataPadForcePower3", "0", 0},
-	{ &cg_updatedDataPadObjective, "cg_updatedDataPadObjective", "0", 0},
+	{&cg_crosshairIdentifyTarget, "cg_crosshairIdentifyTarget", "1", CVAR_ARCHIVE},
+	{&cg_crosshairForceHint, "cg_crosshairForceHint", "1", CVAR_ARCHIVE},
+	{&cg_endcredits, "cg_endcredits", "0", 0},
+	{&cg_updatedDataPadForcePower1, "cg_updatedDataPadForcePower1", "0", 0},
+	{&cg_updatedDataPadForcePower2, "cg_updatedDataPadForcePower2", "0", 0},
+	{&cg_updatedDataPadForcePower3, "cg_updatedDataPadForcePower3", "0", 0},
+	{&cg_updatedDataPadObjective, "cg_updatedDataPadObjective", "0", 0},
 
-	{ &cg_crosshairSize, "cg_crosshairSize", "24", CVAR_ARCHIVE },
-	{ &cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE },
-	{ &cg_crosshairY, "cg_crosshairY", "0", CVAR_ARCHIVE },
-	{ &cg_simpleItems, "cg_simpleItems", "0", CVAR_ARCHIVE },
+	{&cg_crosshairSize, "cg_crosshairSize", "24", CVAR_ARCHIVE},
+	{&cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE},
+	{&cg_crosshairY, "cg_crosshairY", "0", CVAR_ARCHIVE},
+	{&cg_simpleItems, "cg_simpleItems", "0", CVAR_ARCHIVE},
 	// NOTE : I also create this in UI_Init()
-	{ &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },
+	{&cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE},
 	// NOTE : I also create these weapon sway cvars in UI_Init()
-	{ &cg_runpitch, "cg_runpitch", "0.002", CVAR_ARCHIVE},
-	{ &cg_runroll, "cg_runroll", "0.005", CVAR_ARCHIVE },
-	{ &cg_bobup , "cg_bobup", "0.005", CVAR_ARCHIVE },
-	{ &cg_bobpitch, "cg_bobpitch", "0.002", CVAR_ARCHIVE },
-	{ &cg_bobroll, "cg_bobroll", "0.002", CVAR_ARCHIVE },
+	{&cg_runpitch, "cg_runpitch", "0.002", CVAR_ARCHIVE},
+	{&cg_runroll, "cg_runroll", "0.005", CVAR_ARCHIVE},
+	{&cg_bobup, "cg_bobup", "0.005", CVAR_ARCHIVE},
+	{&cg_bobpitch, "cg_bobpitch", "0.002", CVAR_ARCHIVE},
+	{&cg_bobroll, "cg_bobroll", "0.002", CVAR_ARCHIVE},
 
-	{ &cg_debugAnim, "cg_debuganim", "0", CVAR_CHEAT },
+	{&cg_debugAnim, "cg_debuganim", "0", CVAR_CHEAT},
 #ifndef FINAL_BUILD
-	{ &cg_gun_frame, "gun_frame", "0", CVAR_CHEAT },
-	{ &cg_debugAnimTarget, "cg_debugAnimTarget", "0", CVAR_CHEAT },
-#endif	
-	{ &cg_debugSaber, "cg_debugsaber", "0", CVAR_CHEAT },
-	{ &cg_debugEvents, "cg_debugevents", "0", CVAR_CHEAT },
-	{ &cg_errorDecay, "cg_errordecay", "100", 0 },
-
-	{ &cg_drawBreath, "cg_drawBreath", "0", CVAR_ARCHIVE },		// Added 11/07/02
-	{ &cg_roffdebug, "cg_roffdebug", "0" },
-#ifndef FINAL_BUILD
-	{ &cg_roffval1, "cg_roffval1", "0" },
-	{ &cg_roffval2, "cg_roffval2", "0" },
-	{ &cg_roffval3, "cg_roffval3", "0" },
-	{ &cg_roffval4, "cg_roffval4", "0" },
+	{&cg_gun_frame, "gun_frame", "0", CVAR_CHEAT},
+	{&cg_debugAnimTarget, "cg_debugAnimTarget", "0", CVAR_CHEAT},
 #endif
-	{ &cg_thirdPerson, "cg_thirdPerson", "1", CVAR_SAVEGAME },
-//	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "80", 0 },	// Pulled back for Xbox
-	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "90", 0 },
-	{ &cg_thirdPersonMaxRange, "cg_thirdPersonMaxRange", "150", 0 },
-	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", 0 },
-	{ &cg_thirdPersonPitchOffset, "cg_thirdPersonPitchOffset", "0", 0 },
-	{ &cg_thirdPersonVertOffset, "cg_thirdPersonVertOffset", "16", 0},
-	{ &cg_thirdPersonCameraDamp, "cg_thirdPersonCameraDamp", "0.3", 0},
-	{ &cg_thirdPersonTargetDamp, "cg_thirdPersonTargetDamp", "0.5", 0},
-	
-	{ &cg_thirdPersonHorzOffset, "cg_thirdPersonHorzOffset", "0", 0},
-	{ &cg_thirdPersonAlpha,	"cg_thirdPersonAlpha",	"1.0", CVAR_CHEAT },
-	{ &cg_thirdPersonAutoAlpha,	"cg_thirdPersonAutoAlpha",	"0", 0 },
+	{&cg_debugSaber, "cg_debugsaber", "0", CVAR_CHEAT},
+	{&cg_debugEvents, "cg_debugevents", "0", CVAR_CHEAT},
+	{&cg_errorDecay, "cg_errordecay", "100", 0},
+
+	{&cg_drawBreath, "cg_drawBreath", "0", CVAR_ARCHIVE}, // Added 11/07/02
+	{&cg_roffdebug, "cg_roffdebug", "0"},
+#ifndef FINAL_BUILD
+	{&cg_roffval1, "cg_roffval1", "0"},
+	{&cg_roffval2, "cg_roffval2", "0"},
+	{&cg_roffval3, "cg_roffval3", "0"},
+	{&cg_roffval4, "cg_roffval4", "0"},
+#endif
+	{&cg_thirdPerson, "cg_thirdPerson", "1", CVAR_SAVEGAME},
+	//	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "80", 0 },	// Pulled back for Xbox
+	{&cg_thirdPersonRange, "cg_thirdPersonRange", "90", 0},
+	{&cg_thirdPersonMaxRange, "cg_thirdPersonMaxRange", "150", 0},
+	{&cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", 0},
+	{&cg_thirdPersonPitchOffset, "cg_thirdPersonPitchOffset", "0", 0},
+	{&cg_thirdPersonVertOffset, "cg_thirdPersonVertOffset", "16", 0},
+	{&cg_thirdPersonCameraDamp, "cg_thirdPersonCameraDamp", "0.3", 0},
+	{&cg_thirdPersonTargetDamp, "cg_thirdPersonTargetDamp", "0.5", 0},
+
+	{&cg_thirdPersonHorzOffset, "cg_thirdPersonHorzOffset", "0", 0},
+	{&cg_thirdPersonAlpha, "cg_thirdPersonAlpha", "1.0", CVAR_CHEAT},
+	{&cg_thirdPersonAutoAlpha, "cg_thirdPersonAutoAlpha", "0", 0},
 	// NOTE: also declare this in UI_Init
-	{ &cg_gunAutoFirst, "cg_gunAutoFirst", "1", CVAR_ARCHIVE },
+	{&cg_gunAutoFirst, "cg_gunAutoFirst", "1", CVAR_ARCHIVE},
 
-	{ &cg_pano, "pano", "0", 0 },
-	{ &cg_panoNumShots, "panoNumShots", "10", 0 },
+	{&cg_pano, "pano", "0", 0},
+	{&cg_panoNumShots, "panoNumShots", "10", 0},
 
-	{ &fx_freeze, "fx_freeze", "0", 0 },
-	{ &fx_debug, "fx_debug", "0", 0 },
+	{&fx_freeze, "fx_freeze", "0", 0},
+	{&fx_debug, "fx_debug", "0", 0},
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
 
-	{ &cg_paused, "cl_paused", "0", CVAR_ROM },
-	{ &cg_developer, "developer", "", 0 }, 
-	{ &cg_timescale, "timescale", "1", 0 }, 	
-	{ &cg_skippingcin, "skippingCinematic", "0", CVAR_ROM},
-	{ &cg_missionInfoFlashTime, "cg_missionInfoFlashTime", "10000", 0  },
-	{ &cg_hudFiles, "cg_hudFiles", "ui/jahud.txt", CVAR_ARCHIVE},
+	{&cg_paused, "cl_paused", "0", CVAR_ROM},
+	{&cg_developer, "developer", "", 0},
+	{&cg_timescale, "timescale", "1", 0},
+	{&cg_skippingcin, "skippingCinematic", "0", CVAR_ROM},
+	{&cg_missionInfoFlashTime, "cg_missionInfoFlashTime", "10000", 0},
+	{&cg_hudFiles, "cg_hudFiles", "ui/jahud.txt", CVAR_ARCHIVE},
 
-	{ &cg_VariantSoundCap, "cg_VariantSoundCap", "0", 0 },
-	{ &cg_turnAnims, "cg_turnAnims", "0", 0 },
-	{ &cg_motionBoneComp, "cg_motionBoneComp", "2", 0 },
-	{ &cg_distributeMBCorrection, "cg_distributeMBCorrection", "1", 0 },
-	{ &cg_reliableAnimEvents, "cg_reliableAnimEvents", "1", CVAR_ARCHIVE },
-	{ &cg_smoothPlayerPos, "cg_smoothPlayerPos", "0.5", 0},
-	{ &cg_smoothPlayerPlat, "cg_smoothPlayerPlat", "0.75", 0},
-	{ &cg_smoothPlayerPlatAccel, "cg_smoothPlayerPlatAccel", "3.25", 0},
-	{ &cg_g2Marks, "cg_g2Marks", "1", CVAR_ARCHIVE },
-#ifdef _XBOX	// Turn off expensive physics in FX system:
-	{ &fx_expensivePhysics, "fx_expensivePhysics", "0", CVAR_ARCHIVE },
+	{&cg_VariantSoundCap, "cg_VariantSoundCap", "0", 0},
+	{&cg_turnAnims, "cg_turnAnims", "0", 0},
+	{&cg_motionBoneComp, "cg_motionBoneComp", "2", 0},
+	{&cg_distributeMBCorrection, "cg_distributeMBCorrection", "1", 0},
+	{&cg_reliableAnimEvents, "cg_reliableAnimEvents", "1", CVAR_ARCHIVE},
+	{&cg_smoothPlayerPos, "cg_smoothPlayerPos", "0.5", 0},
+	{&cg_smoothPlayerPlat, "cg_smoothPlayerPlat", "0.75", 0},
+	{&cg_smoothPlayerPlatAccel, "cg_smoothPlayerPlatAccel", "3.25", 0},
+	{&cg_g2Marks, "cg_g2Marks", "1", CVAR_ARCHIVE},
+#ifdef _XBOX // Turn off expensive physics in FX system:
+	{&fx_expensivePhysics, "fx_expensivePhysics", "0", CVAR_ARCHIVE},
 #else
-	{ &fx_expensivePhysics, "fx_expensivePhysics", "1", CVAR_ARCHIVE },
+	{&fx_expensivePhysics, "fx_expensivePhysics", "1", CVAR_ARCHIVE},
 #endif
-	{ &cg_debugHealthBars,	"cg_debugHealthBars",	"0", CVAR_CHEAT },
+	{&cg_debugHealthBars, "cg_debugHealthBars", "0", CVAR_CHEAT},
 };
 
-static int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
+static int cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
 
 /*
 =================
 CG_RegisterCvars
 =================
 */
-void CG_RegisterCvars( void ) {
-	int			i;
-	cvarTable_t	*cv;
+void CG_RegisterCvars(void)
+{
+	int i;
+	cvarTable_t *cv;
 
-	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
-		cgi_Cvar_Register( cv->vmCvar, cv->cvarName,
-			cv->defaultString, cv->cvarFlags );
+	for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++)
+	{
+		cgi_Cvar_Register(cv->vmCvar, cv->cvarName,
+						  cv->defaultString, cv->cvarFlags);
 	}
 }
 
@@ -448,41 +450,43 @@ void CG_RegisterCvars( void ) {
 CG_UpdateCvars
 =================
 */
-void CG_UpdateCvars( void ) {
-	int			i;
-	cvarTable_t	*cv;
+void CG_UpdateCvars(void)
+{
+	int i;
+	cvarTable_t *cv;
 
-	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
-		cgi_Cvar_Update( cv->vmCvar );
+	for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++)
+	{
+		cgi_Cvar_Update(cv->vmCvar);
 	}
 }
 
-
-int CG_CrosshairPlayer( void ) 
+int CG_CrosshairPlayer(void)
 {
-	if ( cg.time > ( cg.crosshairClientTime + 1000 ) ) 
+	if (cg.time > (cg.crosshairClientTime + 1000))
 	{
 		return -1;
 	}
 	return cg.crosshairClientNum;
 }
 
-
-int CG_GetCameraPos( vec3_t camerapos ) {
-	if ( in_camera) {
+int CG_GetCameraPos(vec3_t camerapos)
+{
+	if (in_camera)
+	{
 		VectorCopy(client_camera.origin, camerapos);
 		return 1;
 	}
-	else if ( cg_entities[0].gent && cg_entities[0].gent->client && cg_entities[0].gent->client->ps.viewEntity > 0 && cg_entities[0].gent->client->ps.viewEntity < ENTITYNUM_WORLD )
+	else if (cg_entities[0].gent && cg_entities[0].gent->client && cg_entities[0].gent->client->ps.viewEntity > 0 && cg_entities[0].gent->client->ps.viewEntity < ENTITYNUM_WORLD)
 	//else if ( cg.snap && cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD )
-	{//in an entity camera view
-		if ( g_entities[cg_entities[0].gent->client->ps.viewEntity].client && cg.renderingThirdPerson )
+	{ //in an entity camera view
+		if (g_entities[cg_entities[0].gent->client->ps.viewEntity].client && cg.renderingThirdPerson)
 		{
-			VectorCopy( g_entities[cg_entities[0].gent->client->ps.viewEntity].client->renderInfo.eyePoint, camerapos );
+			VectorCopy(g_entities[cg_entities[0].gent->client->ps.viewEntity].client->renderInfo.eyePoint, camerapos);
 		}
 		else
 		{
-			VectorCopy( g_entities[cg_entities[0].gent->client->ps.viewEntity].currentOrigin, camerapos );
+			VectorCopy(g_entities[cg_entities[0].gent->client->ps.viewEntity].currentOrigin, camerapos);
 		}
 		//VectorCopy( cg_entities[cg_entities[0].gent->client->ps.viewEntity].lerpOrigin, camerapos );
 		/*
@@ -497,85 +501,86 @@ int CG_GetCameraPos( vec3_t camerapos ) {
 		*/
 		return 1;
 	}
-	else if ( cg.renderingThirdPerson )
-	{//in third person
+	else if (cg.renderingThirdPerson)
+	{ //in third person
 		//FIXME: what about hacks that render in third person regardless of this value?
-		VectorCopy( cg.refdef.vieworg, camerapos );
+		VectorCopy(cg.refdef.vieworg, camerapos);
 		return 1;
 	}
-	else if (cg.snap && (cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE) )//implied: !cg.renderingThirdPerson 
-	{//first person saber hack
-		VectorCopy( cg.refdef.vieworg, camerapos );
+	else if (cg.snap && (cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE)) //implied: !cg.renderingThirdPerson
+	{																						//first person saber hack
+		VectorCopy(cg.refdef.vieworg, camerapos);
 		return 1;
 	}
 	return 0;
 }
 
-int CG_GetCameraAng( vec3_t cameraang ) 
+int CG_GetCameraAng(vec3_t cameraang)
 {
-	if ( in_camera) 
+	if (in_camera)
 	{
 		VectorCopy(client_camera.angles, cameraang);
 		return 1;
 	}
 	else
 	{
-		VectorCopy( cg.refdefViewAngles, cameraang );
+		VectorCopy(cg.refdefViewAngles, cameraang);
 		return 1;
 	}
 }
 
-void CG_TargetCommand_f( void ) {
-	int		targetNum;
-	char	test[4];
+void CG_TargetCommand_f(void)
+{
+	int targetNum;
+	char test[4];
 
 	targetNum = CG_CrosshairPlayer();
-	if (targetNum <= 0) {
+	if (targetNum <= 0)
+	{
 		return;
 	}
 
-	cgi_Argv( 1, test, 4 );	//FIXME: this is now an exec_now command - in case we start using it... JFM
-	cgi_SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
+	cgi_Argv(1, test, 4); //FIXME: this is now an exec_now command - in case we start using it... JFM
+	cgi_SendConsoleCommand(va("gc %i %i", targetNum, atoi(test)));
 }
 
+void CG_Printf(const char *msg, ...)
+{
+	va_list argptr;
+	char text[1024];
 
+	va_start(argptr, msg);
+	vsprintf(text, msg, argptr);
+	va_end(argptr);
 
-void CG_Printf( const char *msg, ... ) {
-	va_list		argptr;
-	char		text[1024];
-
-	va_start (argptr, msg);
-	vsprintf (text, msg, argptr);
-	va_end (argptr);
-
-	cgi_Printf( text );
+	cgi_Printf(text);
 }
 
-void CG_Error( const char *msg, ... ) {
-	va_list		argptr;
-	char		text[1024];
+void CG_Error(const char *msg, ...)
+{
+	va_list argptr;
+	char text[1024];
 
-	va_start (argptr, msg);
-	vsprintf (text, msg, argptr);
-	va_end (argptr);
+	va_start(argptr, msg);
+	vsprintf(text, msg, argptr);
+	va_end(argptr);
 
-	cgi_Error( text );
+	cgi_Error(text);
 }
-
 
 /*
 ================
 CG_Argv
 ================
 */
-const char *CG_Argv( int arg ) {
-	static char	buffer[MAX_STRING_CHARS];
+const char *CG_Argv(int arg)
+{
+	static char buffer[MAX_STRING_CHARS];
 
-	cgi_Argv( arg, buffer, sizeof( buffer ) );
+	cgi_Argv(arg, buffer, sizeof(buffer));
 
 	return buffer;
 }
-
 
 //========================================================================
 
@@ -586,17 +591,18 @@ CG_RegisterItemSounds
 The server says this item is used on this level
 =================
 */
-void CG_RegisterItemSounds( int itemNum ) {
-	gitem_t			*item;
-	char			data[MAX_QPATH];
-	char			*s, *start;
-	int				len;
+void CG_RegisterItemSounds(int itemNum)
+{
+	gitem_t *item;
+	char data[MAX_QPATH];
+	char *s, *start;
+	int len;
 
-	item = &bg_itemlist[ itemNum ];
+	item = &bg_itemlist[itemNum];
 
 	if (item->pickup_sound)
 	{
-		cgi_S_RegisterSound( item->pickup_sound );
+		cgi_S_RegisterSound(item->pickup_sound);
 	}
 
 	// parse the space seperated precache string for other media
@@ -604,26 +610,31 @@ void CG_RegisterItemSounds( int itemNum ) {
 	if (!s || !s[0])
 		return;
 
-	while (*s) {
+	while (*s)
+	{
 		start = s;
-		while (*s && *s != ' ') {
+		while (*s && *s != ' ')
+		{
 			s++;
 		}
 
-		len = s-start;
-		if (len >= MAX_QPATH || len < 5) {
-			CG_Error( "PrecacheItem: %s has bad precache string", 
-				item->classname);
+		len = s - start;
+		if (len >= MAX_QPATH || len < 5)
+		{
+			CG_Error("PrecacheItem: %s has bad precache string",
+					 item->classname);
 			return;
 		}
-		memcpy (data, start, len);
+		memcpy(data, start, len);
 		data[len] = 0;
-		if ( *s ) {
+		if (*s)
+		{
 			s++;
 		}
 
-		if ( !strcmp(data+len-3, "wav" )) {
-			cgi_S_RegisterSound( data );
+		if (!strcmp(data + len - 3, "wav"))
+		{
+			cgi_S_RegisterSound(data);
 		}
 	}
 }
@@ -636,17 +647,18 @@ CG_RegisterItemForces
 The server says this item is used on this level
 =================
 */
-void CG_RegisterItemForces( int itemNum ) {
-	gitem_t			*item;
-	char			data[MAX_QPATH];
-	char			*s, *start;
-	int				len;
+void CG_RegisterItemForces(int itemNum)
+{
+	gitem_t *item;
+	char data[MAX_QPATH];
+	char *s, *start;
+	int len;
 
-	item = &bg_itemlist[ itemNum ];
+	item = &bg_itemlist[itemNum];
 
 	if (item->pickup_force)
 	{
-		cgi_FF_Register( item->pickup_force, FF_CHANNEL_TOUCH );
+		cgi_FF_Register(item->pickup_force, FF_CHANNEL_TOUCH);
 	}
 
 	// parse the space seperated precache string for other media
@@ -654,25 +666,29 @@ void CG_RegisterItemForces( int itemNum ) {
 	if (!s || !s[0])
 		return;
 
-	while (*s) {
+	while (*s)
+	{
 		start = s;
-		while (*s && *s != ' ') {
+		while (*s && *s != ' ')
+		{
 			s++;
 		}
 
-		len = s-start;
-		if (len >= MAX_QPATH) {
-			CG_Error( "PrecacheItem: %s has bad precache string", 
-				item->classname);
+		len = s - start;
+		if (len >= MAX_QPATH)
+		{
+			CG_Error("PrecacheItem: %s has bad precache string",
+					 item->classname);
 			return;
 		}
-		memcpy (data, start, len);
+		memcpy(data, start, len);
 		data[len] = 0;
-		if ( *s ) {
+		if (*s)
+		{
 			s++;
 		}
 
-		cgi_FF_Register( data, FF_CHANNEL_TOUCH );
+		cgi_FF_Register(data, FF_CHANNEL_TOUCH);
 	}
 }
 #endif // _IMMERSION
@@ -683,34 +699,35 @@ CG_LoadingString
 
 ======================
 */
-void CG_LoadingString( const char *s ) {
-	Q_strncpyz( cg.infoScreenText, s, sizeof( cg.infoScreenText ) );
+void CG_LoadingString(const char *s)
+{
+	Q_strncpyz(cg.infoScreenText, s, sizeof(cg.infoScreenText));
 	cgi_UpdateScreen();
 }
 
-void CG_LoadingStringNoUpdate( const char *s ) {
-	Q_strncpyz( cg.infoScreenText, s, sizeof( cg.infoScreenText ) );
+void CG_LoadingStringNoUpdate(const char *s)
+{
+	Q_strncpyz(cg.infoScreenText, s, sizeof(cg.infoScreenText));
 }
 
 static inline void CG_AS_Register(void)
 {
-	CG_LoadingString( "ambient sound sets" );
+	CG_LoadingString("ambient sound sets");
 
 	assert(as_preCacheMap);
 
 	//Load the ambient sets
 
-	cgi_AS_AddPrecacheEntry( "#clear" );	// ;-)
+	cgi_AS_AddPrecacheEntry("#clear"); // ;-)
 	//FIXME: Don't ask... I had to get around a really nasty MS error in the templates with this...
-	namePrecache_m::iterator	pi;
-	STL_ITERATE( pi, (*as_preCacheMap) )
+	namePrecache_m::iterator pi;
+	STL_ITERATE(pi, (*as_preCacheMap))
 	{
-		cgi_AS_AddPrecacheEntry( ((*pi).first).c_str() );
+		cgi_AS_AddPrecacheEntry(((*pi).first).c_str());
 	}
 
 	cgi_AS_ParseSets();
 }
-
 
 /*
 =================
@@ -719,164 +736,171 @@ CG_RegisterSounds
 called during a precache command
 =================
 */
-static void CG_RegisterSounds( void ) {
-	int		i;
-	char	name[MAX_QPATH];
-	const char	*soundName;
+static void CG_RegisterSounds(void)
+{
+	int i;
+	char name[MAX_QPATH];
+	const char *soundName;
 
 	CG_AS_Register();
 
-	CG_LoadingString( "general sounds" );
+	CG_LoadingString("general sounds");
 
 	//FIXME: add to cg.media?
-	cgi_S_RegisterSound( "sound/player/fallsplat.wav" );
+	cgi_S_RegisterSound("sound/player/fallsplat.wav");
 
-	cgs.media.selectSound = cgi_S_RegisterSound( "sound/weapons/change.wav" );
-	cgs.media.selectSound2 = cgi_S_RegisterSound( "sound/interface/sub_select.wav" );
-//	cgs.media.useNothingSound = cgi_S_RegisterSound( "sound/items/use_nothing.wav" );
+	cgs.media.selectSound = cgi_S_RegisterSound("sound/weapons/change.wav");
+	cgs.media.selectSound2 = cgi_S_RegisterSound("sound/interface/sub_select.wav");
+	//	cgs.media.useNothingSound = cgi_S_RegisterSound( "sound/items/use_nothing.wav" );
 
-	cgs.media.noAmmoSound = cgi_S_RegisterSound( "sound/weapons/noammo.wav" );
-//	cgs.media.talkSound = 	cgi_S_RegisterSound( "sound/interface/communicator.wav" );
-	cgs.media.landSound =	cgi_S_RegisterSound( "sound/player/land1.wav");
-	cgs.media.rollSound =	cgi_S_RegisterSound( "sound/player/roll1.wav");
-	theFxScheduler.RegisterEffect( "env/slide_dust" );
+	cgs.media.noAmmoSound = cgi_S_RegisterSound("sound/weapons/noammo.wav");
+	//	cgs.media.talkSound = 	cgi_S_RegisterSound( "sound/interface/communicator.wav" );
+	cgs.media.landSound = cgi_S_RegisterSound("sound/player/land1.wav");
+	cgs.media.rollSound = cgi_S_RegisterSound("sound/player/roll1.wav");
+	theFxScheduler.RegisterEffect("env/slide_dust");
 
-	cgs.media.overchargeFastSound	= cgi_S_RegisterSound("sound/weapons/overchargeFast.wav" );
-	cgs.media.overchargeSlowSound	= cgi_S_RegisterSound("sound/weapons/overchargeSlow.wav" );
-	cgs.media.overchargeLoopSound	= cgi_S_RegisterSound("sound/weapons/overchargeLoop.wav");
-	cgs.media.overchargeEndSound	= cgi_S_RegisterSound("sound/weapons/overchargeEnd.wav");
+	cgs.media.overchargeFastSound = cgi_S_RegisterSound("sound/weapons/overchargeFast.wav");
+	cgs.media.overchargeSlowSound = cgi_S_RegisterSound("sound/weapons/overchargeSlow.wav");
+	cgs.media.overchargeLoopSound = cgi_S_RegisterSound("sound/weapons/overchargeLoop.wav");
+	cgs.media.overchargeEndSound = cgi_S_RegisterSound("sound/weapons/overchargeEnd.wav");
 
-	cgs.media.batteryChargeSound	= cgi_S_RegisterSound( "sound/interface/pickup_battery.wav" );
+	cgs.media.batteryChargeSound = cgi_S_RegisterSound("sound/interface/pickup_battery.wav");
 
-//	cgs.media.tedTextSound = cgi_S_RegisterSound( "sound/interface/tedtext.wav" );
-	cgs.media.messageLitSound = cgi_S_RegisterSound( "sound/interface/update" );
+	//	cgs.media.tedTextSound = cgi_S_RegisterSound( "sound/interface/tedtext.wav" );
+	cgs.media.messageLitSound = cgi_S_RegisterSound("sound/interface/update");
 
-	cgs.media.noforceSound = cgi_S_RegisterSound( "sound/weapons/force/noforce" );
-	
-	cgs.media.watrInSound = cgi_S_RegisterSound ("sound/player/watr_in.wav");
-	cgs.media.watrOutSound = cgi_S_RegisterSound ("sound/player/watr_out.wav");
-	cgs.media.watrUnSound = cgi_S_RegisterSound ("sound/player/watr_un.wav");
+	cgs.media.noforceSound = cgi_S_RegisterSound("sound/weapons/force/noforce");
 
-	if ( (gi.totalMapContents()&CONTENTS_LAVA) )
+	cgs.media.watrInSound = cgi_S_RegisterSound("sound/player/watr_in.wav");
+	cgs.media.watrOutSound = cgi_S_RegisterSound("sound/player/watr_out.wav");
+	cgs.media.watrUnSound = cgi_S_RegisterSound("sound/player/watr_un.wav");
+
+	if ((gi.totalMapContents() & CONTENTS_LAVA))
 	{
-		cgs.media.lavaInSound = cgi_S_RegisterSound ("sound/player/inlava.wav");
-		cgs.media.lavaOutSound = cgi_S_RegisterSound ("sound/player/watr_out.wav");
-		cgs.media.lavaUnSound = cgi_S_RegisterSound ("sound/player/muckexit.wav");
+		cgs.media.lavaInSound = cgi_S_RegisterSound("sound/player/inlava.wav");
+		cgs.media.lavaOutSound = cgi_S_RegisterSound("sound/player/watr_out.wav");
+		cgs.media.lavaUnSound = cgi_S_RegisterSound("sound/player/muckexit.wav");
 	}
 	// Zoom
-	cgs.media.zoomStart = cgi_S_RegisterSound( "sound/interface/zoomstart.wav" );
-	cgs.media.zoomLoop = cgi_S_RegisterSound( "sound/interface/zoomloop.wav" );
-	cgs.media.zoomEnd = cgi_S_RegisterSound( "sound/interface/zoomend.wav" );
+	cgs.media.zoomStart = cgi_S_RegisterSound("sound/interface/zoomstart.wav");
+	cgs.media.zoomLoop = cgi_S_RegisterSound("sound/interface/zoomloop.wav");
+	cgs.media.zoomEnd = cgi_S_RegisterSound("sound/interface/zoomend.wav");
 
-	cgi_S_RegisterSound( "sound/chars/turret/startup.wav" );
-	cgi_S_RegisterSound( "sound/chars/turret/shutdown.wav" );
-	cgi_S_RegisterSound( "sound/chars/turret/ping.wav" );
-	cgi_S_RegisterSound( "sound/chars/turret/move.wav" );
-	cgi_S_RegisterSound( "sound/player/use_sentry" );
-	cgi_R_RegisterModel( "models/items/psgun.glm" );
-	theFxScheduler.RegisterEffect( "turret/explode" );
-	theFxScheduler.RegisterEffect( "sparks/spark_exp_nosnd" );
+	cgi_S_RegisterSound("sound/chars/turret/startup.wav");
+	cgi_S_RegisterSound("sound/chars/turret/shutdown.wav");
+	cgi_S_RegisterSound("sound/chars/turret/ping.wav");
+	cgi_S_RegisterSound("sound/chars/turret/move.wav");
+	cgi_S_RegisterSound("sound/player/use_sentry");
+	cgi_R_RegisterModel("models/items/psgun.glm");
+	theFxScheduler.RegisterEffect("turret/explode");
+	theFxScheduler.RegisterEffect("sparks/spark_exp_nosnd");
 
-	for (i=0 ; i<4 ; i++) {
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/stone_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_STONEWALK][i] = cgi_S_RegisterSound (name);
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/stone_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_STONERUN][i] = cgi_S_RegisterSound (name);
+	for (i = 0; i < 4; i++)
+	{
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/stone_step%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_STONEWALK][i] = cgi_S_RegisterSound(name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/stone_run%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_STONERUN][i] = cgi_S_RegisterSound(name);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/metal_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_METALWALK][i] = cgi_S_RegisterSound (name);
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/metal_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_METALRUN][i] = cgi_S_RegisterSound (name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/metal_step%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_METALWALK][i] = cgi_S_RegisterSound(name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/metal_run%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_METALRUN][i] = cgi_S_RegisterSound(name);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/pipe_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_PIPEWALK][i] = cgi_S_RegisterSound (name);
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/pipe_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_PIPERUN][i] = cgi_S_RegisterSound (name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/pipe_step%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_PIPEWALK][i] = cgi_S_RegisterSound(name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/pipe_run%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_PIPERUN][i] = cgi_S_RegisterSound(name);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/water_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SPLASH][i] = cgi_S_RegisterSound (name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/water_run%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_SPLASH][i] = cgi_S_RegisterSound(name);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/water_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_WADE][i] = cgi_S_RegisterSound (name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/water_walk%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_WADE][i] = cgi_S_RegisterSound(name);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/water_wade_0%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SWIM][i] = cgi_S_RegisterSound (name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/water_wade_0%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_SWIM][i] = cgi_S_RegisterSound(name);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/snow_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SNOWWALK][i] = cgi_S_RegisterSound (name);
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/snow_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SNOWRUN][i] = cgi_S_RegisterSound (name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/snow_step%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_SNOWWALK][i] = cgi_S_RegisterSound(name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/snow_run%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_SNOWRUN][i] = cgi_S_RegisterSound(name);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/sand_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SANDWALK][i] = cgi_S_RegisterSound (name);
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/sand_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SANDRUN][i] = cgi_S_RegisterSound (name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/sand_walk%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_SANDWALK][i] = cgi_S_RegisterSound(name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/sand_run%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_SANDRUN][i] = cgi_S_RegisterSound(name);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/grass_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_GRASSWALK][i] = cgi_S_RegisterSound (name);
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/grass_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_GRASSRUN][i] = cgi_S_RegisterSound (name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/grass_step%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_GRASSWALK][i] = cgi_S_RegisterSound(name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/grass_run%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_GRASSRUN][i] = cgi_S_RegisterSound(name);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/dirt_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_DIRTWALK][i] = cgi_S_RegisterSound (name);
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/dirt_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_DIRTRUN][i] = cgi_S_RegisterSound (name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/dirt_step%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_DIRTWALK][i] = cgi_S_RegisterSound(name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/dirt_run%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_DIRTRUN][i] = cgi_S_RegisterSound(name);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/mud_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_MUDWALK][i] = cgi_S_RegisterSound (name);
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/mud_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_MUDRUN][i] = cgi_S_RegisterSound (name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/mud_walk%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_MUDWALK][i] = cgi_S_RegisterSound(name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/mud_run%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_MUDRUN][i] = cgi_S_RegisterSound(name);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/gravel_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_GRAVELWALK][i] = cgi_S_RegisterSound (name);
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/gravel_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_GRAVELRUN][i] = cgi_S_RegisterSound (name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/gravel_walk%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_GRAVELWALK][i] = cgi_S_RegisterSound(name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/gravel_run%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_GRAVELRUN][i] = cgi_S_RegisterSound(name);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/rug_step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_RUGWALK][i] = cgi_S_RegisterSound (name);
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/rug_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_RUGRUN][i] = cgi_S_RegisterSound (name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/rug_step%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_RUGWALK][i] = cgi_S_RegisterSound(name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/rug_run%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_RUGRUN][i] = cgi_S_RegisterSound(name);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/wood_walk%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_WOODWALK][i] = cgi_S_RegisterSound (name);
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/wood_run%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_WOODRUN][i] = cgi_S_RegisterSound (name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/wood_walk%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_WOODWALK][i] = cgi_S_RegisterSound(name);
+		Com_sprintf(name, sizeof(name), "sound/player/footsteps/wood_run%i.wav", i + 1);
+		cgs.media.footsteps[FOOTSTEP_WOODRUN][i] = cgi_S_RegisterSound(name);
 	}
 
 	cg.loadLCARSStage = 1;
-	CG_LoadingString( "item sounds" );
+	CG_LoadingString("item sounds");
 
 	// only register the items that the server says we need
-	char	items[MAX_ITEMS+1];
-	strcpy( items, CG_ConfigString( CS_ITEMS ) );
+	char items[MAX_ITEMS + 1];
+	strcpy(items, CG_ConfigString(CS_ITEMS));
 
-	for ( i = 1 ; i < bg_numItems ; i++ ) {
-		if ( items[ i ] == '1' )	//even with sound pooling, don't clutter it for low end machines
+	for (i = 1; i < bg_numItems; i++)
+	{
+		if (items[i] == '1') //even with sound pooling, don't clutter it for low end machines
 		{
-			CG_RegisterItemSounds( i );
+			CG_RegisterItemSounds(i);
 		}
 	}
 
 	cg.loadLCARSStage = 2;
-	CG_LoadingString( "preregistered sounds" );
+	CG_LoadingString("preregistered sounds");
 
-	for ( i = 1 ; i < MAX_SOUNDS ; i++ ) {
-		soundName = CG_ConfigString( CS_SOUNDS+i );
-		if ( !soundName[0] ) {
+	for (i = 1; i < MAX_SOUNDS; i++)
+	{
+		soundName = CG_ConfigString(CS_SOUNDS + i);
+		if (!soundName[0])
+		{
 			break;
 		}
-		if ( soundName[0] == '*' ) {
-			continue;	// custom sound
+		if (soundName[0] == '*')
+		{
+			continue; // custom sound
 		}
-		if (!(i&7)) {
-			CG_LoadingString( soundName );
+		if (!(i & 7))
+		{
+			CG_LoadingString(soundName);
 		}
-		cgs.sound_precache[i] = cgi_S_RegisterSound( soundName );
+		cgs.sound_precache[i] = cgi_S_RegisterSound(soundName);
 	}
 }
 
 #ifdef _IMMERSION
-extern qboolean CG_ConfigForce( int index, const char *&name, int &channel );
+extern qboolean CG_ConfigForce(int index, const char *&name, int &channel);
 /*
 =================
 CG_RegisterForces
@@ -884,57 +908,60 @@ CG_RegisterForces
 called during a precache command
 =================
 */
-static void CG_RegisterForces( void )
+static void CG_RegisterForces(void)
 {
 	char name[512];
 	int i, channel;
 	const char *forceName;
 
-	cgs.media.selectForce = cgi_FF_Register( "fffx/weapons/change", FF_CHANNEL_WEAPON );
+	cgs.media.selectForce = cgi_FF_Register("fffx/weapons/change", FF_CHANNEL_WEAPON);
 
-	for (i=0 ; i<4 ; i++) {
-		Com_sprintf (name, sizeof(name), "fffx/player/footsteps/step%i", i+1);
-		cgs.media.footstepForces[FOOTSTEP_STONEWALK][i] = cgi_FF_Register( name, FF_CHANNEL_FOOT );
+	for (i = 0; i < 4; i++)
+	{
+		Com_sprintf(name, sizeof(name), "fffx/player/footsteps/step%i", i + 1);
+		cgs.media.footstepForces[FOOTSTEP_STONEWALK][i] = cgi_FF_Register(name, FF_CHANNEL_FOOT);
 
-		Com_sprintf (name, sizeof(name), "fffx/player/footsteps/splash%i", i+1);
-		cgs.media.footstepForces[FOOTSTEP_SPLASH][i] = cgi_FF_Register( name, FF_CHANNEL_FOOT );
+		Com_sprintf(name, sizeof(name), "fffx/player/footsteps/splash%i", i + 1);
+		cgs.media.footstepForces[FOOTSTEP_SPLASH][i] = cgi_FF_Register(name, FF_CHANNEL_FOOT);
 
-		Com_sprintf (name, sizeof(name), "fffx/player/footsteps/clank%i", i+1);
-		cgs.media.footstepForces[FOOTSTEP_METALWALK][i] = cgi_FF_Register( name, FF_CHANNEL_FOOT );
+		Com_sprintf(name, sizeof(name), "fffx/player/footsteps/clank%i", i + 1);
+		cgs.media.footstepForces[FOOTSTEP_METALWALK][i] = cgi_FF_Register(name, FF_CHANNEL_FOOT);
 	}
 
-	cgs.media.noAmmoForce = cgi_FF_Register( "fffx/weapons/noammo", FF_CHANNEL_WEAPON );
-	cgs.media.landForce = cgi_FF_Register( "fffx/player/land1", FF_CHANNEL_BODY );
+	cgs.media.noAmmoForce = cgi_FF_Register("fffx/weapons/noammo", FF_CHANNEL_WEAPON);
+	cgs.media.landForce = cgi_FF_Register("fffx/player/land1", FF_CHANNEL_BODY);
 
-	cgs.media.watrInForce = cgi_FF_Register( "fffx/player/watr_in", FF_CHANNEL_BODY );
-	cgs.media.watrOutForce = cgi_FF_Register( "fffx/player/watr_out", FF_CHANNEL_BODY );
-	cgs.media.watrUnForce = cgi_FF_Register( "fffx/player/watr_un", FF_CHANNEL_BODY );
+	cgs.media.watrInForce = cgi_FF_Register("fffx/player/watr_in", FF_CHANNEL_BODY);
+	cgs.media.watrOutForce = cgi_FF_Register("fffx/player/watr_out", FF_CHANNEL_BODY);
+	cgs.media.watrUnForce = cgi_FF_Register("fffx/player/watr_un", FF_CHANNEL_BODY);
 
-	cgs.media.zoomStartForce = cgi_FF_Register( "fffx/interface/zoomstart", FF_CHANNEL_WEAPON );
-	cgs.media.zoomLoopForce = cgi_FF_Register( "fffx/interface/zoomloop", FF_CHANNEL_WEAPON );
-	cgs.media.zoomEndForce = cgi_FF_Register( "fffx/interface/zoomend", FF_CHANNEL_WEAPON );
+	cgs.media.zoomStartForce = cgi_FF_Register("fffx/interface/zoomstart", FF_CHANNEL_WEAPON);
+	cgs.media.zoomLoopForce = cgi_FF_Register("fffx/interface/zoomloop", FF_CHANNEL_WEAPON);
+	cgs.media.zoomEndForce = cgi_FF_Register("fffx/interface/zoomend", FF_CHANNEL_WEAPON);
 
-	cgs.media.grenadeBounce1Force = cgi_FF_Register( "fffx/weapons/thermal/bounce1", FF_CHANNEL_WEAPON );
-	cgs.media.grenadeBounce2Force = cgi_FF_Register( "fffx/weapons/thermal/bounce2", FF_CHANNEL_WEAPON );
+	cgs.media.grenadeBounce1Force = cgi_FF_Register("fffx/weapons/thermal/bounce1", FF_CHANNEL_WEAPON);
+	cgs.media.grenadeBounce2Force = cgi_FF_Register("fffx/weapons/thermal/bounce2", FF_CHANNEL_WEAPON);
 
-	for ( i = 1 ; i < bg_numItems ; i++ )
+	for (i = 1; i < bg_numItems; i++)
 	{
-		CG_RegisterItemForces( i );
+		CG_RegisterItemForces(i);
 	}
 
-	for ( i = 1 ; i < MAX_FORCES ; i++ )
+	for (i = 1; i < MAX_FORCES; i++)
 	{
-		if ( !CG_ConfigForce( i, forceName, channel ) )
+		if (!CG_ConfigForce(i, forceName, channel))
 			break;
 
-		if ( forceName[0] == '*' ) {
-			continue;	// custom force???
+		if (forceName[0] == '*')
+		{
+			continue; // custom force???
 		}
-		if (!(i&7)) {
-			CG_LoadingString( forceName );
+		if (!(i & 7))
+		{
+			CG_LoadingString(forceName);
 		}
 
-		cgs.force_precache[i] = cgi_FF_Register( forceName, channel );
+		cgs.force_precache[i] = cgi_FF_Register(forceName, channel);
 	}
 }
 #endif // _IMMERSION
@@ -946,26 +973,26 @@ CLIENT INFO
 =============================================================================
 */
 
-qhandle_t CG_RegisterHeadSkin( const char *headModelName, const char *headSkinName, qboolean *extensions )
+qhandle_t CG_RegisterHeadSkin(const char *headModelName, const char *headSkinName, qboolean *extensions)
 {
-	char		hfilename[MAX_QPATH];
-	qhandle_t	headSkin;
+	char hfilename[MAX_QPATH];
+	qhandle_t headSkin;
 
-	Com_sprintf( hfilename, sizeof( hfilename ), "models/players/%s/head_%s.skin", headModelName, headSkinName );
-	headSkin = cgi_R_RegisterSkin( hfilename );
-	if ( headSkin < 0 ) 
-	{	//have extensions
+	Com_sprintf(hfilename, sizeof(hfilename), "models/players/%s/head_%s.skin", headModelName, headSkinName);
+	headSkin = cgi_R_RegisterSkin(hfilename);
+	if (headSkin < 0)
+	{ //have extensions
 		*extensions = qtrue;
 		headSkin = -headSkin;
-	} 
-	else 
+	}
+	else
 	{
-		*extensions = qfalse;	//just to be sure.
+		*extensions = qfalse; //just to be sure.
 	}
 
-	if ( !headSkin )
+	if (!headSkin)
 	{
-		Com_Printf( "Failed to load skin file: %s : %s\n", headModelName, headSkinName );
+		Com_Printf("Failed to load skin file: %s : %s\n", headModelName, headSkinName);
 	}
 	return headSkin;
 }
@@ -975,44 +1002,44 @@ qhandle_t CG_RegisterHeadSkin( const char *headModelName, const char *headSkinNa
 CG_RegisterClientSkin
 ==========================
 */
-qboolean	CG_RegisterClientSkin( clientInfo_t *ci,
-								  const char *headModelName, const char *headSkinName,
-								  const char *torsoModelName, const char *torsoSkinName,
-								  const char *legsModelName, const char *legsSkinName) 
+qboolean CG_RegisterClientSkin(clientInfo_t *ci,
+							   const char *headModelName, const char *headSkinName,
+							   const char *torsoModelName, const char *torsoSkinName,
+							   const char *legsModelName, const char *legsSkinName)
 {
-	char		hfilename[MAX_QPATH];
-	char		tfilename[MAX_QPATH];
-	char		lfilename[MAX_QPATH];
+	char hfilename[MAX_QPATH];
+	char tfilename[MAX_QPATH];
+	char lfilename[MAX_QPATH];
 
-	Com_sprintf( lfilename, sizeof( lfilename ), "models/players/%s/lower_%s.skin", legsModelName, legsSkinName );
-	ci->legsSkin = cgi_R_RegisterSkin( lfilename );
+	Com_sprintf(lfilename, sizeof(lfilename), "models/players/%s/lower_%s.skin", legsModelName, legsSkinName);
+	ci->legsSkin = cgi_R_RegisterSkin(lfilename);
 
-	if ( !ci->legsSkin )
+	if (!ci->legsSkin)
 	{
-//		Com_Printf( "Failed to load skin file: %s : %s\n", legsModelName, legsSkinName );
+		//		Com_Printf( "Failed to load skin file: %s : %s\n", legsModelName, legsSkinName );
 		//return qfalse;
 	}
 
-	if(torsoModelName && torsoSkinName && torsoModelName[0] && torsoSkinName[0])
+	if (torsoModelName && torsoSkinName && torsoModelName[0] && torsoSkinName[0])
 	{
-		Com_sprintf( tfilename, sizeof( tfilename ), "models/players/%s/upper_%s.skin", torsoModelName, torsoSkinName );
-		ci->torsoSkin = cgi_R_RegisterSkin( tfilename );
+		Com_sprintf(tfilename, sizeof(tfilename), "models/players/%s/upper_%s.skin", torsoModelName, torsoSkinName);
+		ci->torsoSkin = cgi_R_RegisterSkin(tfilename);
 
-		if ( !ci->torsoSkin )
+		if (!ci->torsoSkin)
 		{
-			Com_Printf( "Failed to load skin file: %s : %s\n", torsoModelName, torsoSkinName );
+			Com_Printf("Failed to load skin file: %s : %s\n", torsoModelName, torsoSkinName);
 			return qfalse;
 		}
 	}
 
-	if(headModelName && headSkinName && headModelName[0] && headSkinName[0])
+	if (headModelName && headSkinName && headModelName[0] && headSkinName[0])
 	{
-		Com_sprintf( hfilename, sizeof( hfilename ), "models/players/%s/head_%s.skin", headModelName, headSkinName );
-		ci->headSkin = cgi_R_RegisterSkin( hfilename );
+		Com_sprintf(hfilename, sizeof(hfilename), "models/players/%s/head_%s.skin", headModelName, headSkinName);
+		ci->headSkin = cgi_R_RegisterSkin(hfilename);
 
-		if ( !ci->headSkin )
+		if (!ci->headSkin)
 		{
-			Com_Printf( "Failed to load skin file: %s : %s\n", headModelName, headSkinName );
+			Com_Printf("Failed to load skin file: %s : %s\n", headModelName, headSkinName);
 			return qfalse;
 		}
 	}
@@ -1025,46 +1052,45 @@ qboolean	CG_RegisterClientSkin( clientInfo_t *ci,
 CG_RegisterClientModelname
 ==========================
 */
-qboolean CG_RegisterClientModelname( clientInfo_t *ci,
+qboolean CG_RegisterClientModelname(clientInfo_t *ci,
 									const char *headModelName, const char *headSkinName,
 									const char *torsoModelName, const char *torsoSkinName,
-									const char *legsModelName, const char *legsSkinName ) 
+									const char *legsModelName, const char *legsSkinName)
 {
 /*
 Ghoul2 Insert Start
 */
 #if 1
-	char		filename[MAX_QPATH];
+	char filename[MAX_QPATH];
 
-
-	if ( !legsModelName || !legsModelName[0] )
+	if (!legsModelName || !legsModelName[0])
 	{
 		return qtrue;
 	}
-	Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower.mdr", legsModelName );
-	ci->legsModel = cgi_R_RegisterModel( filename );
-	if ( !ci->legsModel ) 
-	{//he's not skeletal, try the old way
-		Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower.md3", legsModelName );
-		ci->legsModel = cgi_R_RegisterModel( filename );
-		if ( !ci->legsModel )
+	Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.mdr", legsModelName);
+	ci->legsModel = cgi_R_RegisterModel(filename);
+	if (!ci->legsModel)
+	{ //he's not skeletal, try the old way
+		Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.md3", legsModelName);
+		ci->legsModel = cgi_R_RegisterModel(filename);
+		if (!ci->legsModel)
 		{
-			Com_Printf( S_COLOR_RED"Failed to load model file %s\n", filename );
+			Com_Printf(S_COLOR_RED "Failed to load model file %s\n", filename);
 			return qfalse;
 		}
 	}
 
-	if(torsoModelName && torsoModelName[0])
-	{//You are trying to set one
-		Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper.mdr", torsoModelName );
-		ci->torsoModel = cgi_R_RegisterModel( filename );
-		if ( !ci->torsoModel ) 
-		{//he's not skeletal, try the old way
-			Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper.md3", torsoModelName );
-			ci->torsoModel = cgi_R_RegisterModel( filename );
-			if ( !ci->torsoModel ) 
+	if (torsoModelName && torsoModelName[0])
+	{ //You are trying to set one
+		Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.mdr", torsoModelName);
+		ci->torsoModel = cgi_R_RegisterModel(filename);
+		if (!ci->torsoModel)
+		{ //he's not skeletal, try the old way
+			Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.md3", torsoModelName);
+			ci->torsoModel = cgi_R_RegisterModel(filename);
+			if (!ci->torsoModel)
 			{
-				Com_Printf( S_COLOR_RED"Failed to load model file %s\n", filename );
+				Com_Printf(S_COLOR_RED "Failed to load model file %s\n", filename);
 				return qfalse;
 			}
 		}
@@ -1074,13 +1100,13 @@ Ghoul2 Insert Start
 		ci->torsoModel = 0;
 	}
 
-	if(headModelName && headModelName[0])
-	{//You are trying to set one
-		Com_sprintf( filename, sizeof( filename ), "models/players/%s/head.md3", headModelName );
-		ci->headModel = cgi_R_RegisterModel( filename );
-		if ( !ci->headModel ) 
+	if (headModelName && headModelName[0])
+	{ //You are trying to set one
+		Com_sprintf(filename, sizeof(filename), "models/players/%s/head.md3", headModelName);
+		ci->headModel = cgi_R_RegisterModel(filename);
+		if (!ci->headModel)
 		{
-			Com_Printf( S_COLOR_RED"Failed to load model file %s\n", filename );
+			Com_Printf(S_COLOR_RED "Failed to load model file %s\n", filename);
 			return qfalse;
 		}
 	}
@@ -1089,9 +1115,8 @@ Ghoul2 Insert Start
 		ci->headModel = 0;
 	}
 
-
 	// if any skins failed to load, return failure
-	if ( !CG_RegisterClientSkin( ci, headModelName, headSkinName, torsoModelName, torsoSkinName, legsModelName, legsSkinName ) ) 
+	if (!CG_RegisterClientSkin(ci, headModelName, headSkinName, torsoModelName, torsoSkinName, legsModelName, legsSkinName))
 	{
 		//Com_Printf( "Failed to load skin file: %s : %s/%s : %s/%s : %s\n", headModelName, headSkinName, torsoModelName, torsoSkinName, legsModelName, legsSkinName );
 		return qfalse;
@@ -1100,62 +1125,61 @@ Ghoul2 Insert Start
 	//FIXME: for now, uses the legs model dir for anim cfg, but should we set this in some sort of NPCs.cfg?
 	// load the animation file set
 	ci->animFileIndex = G_ParseAnimFileSet(legsModelName);
-	if (ci->animFileIndex<0) 
+	if (ci->animFileIndex < 0)
 	{
-		Com_Printf( S_COLOR_RED"Failed to load animation file set models/players/%s\n", legsModelName );
+		Com_Printf(S_COLOR_RED "Failed to load animation file set models/players/%s\n", legsModelName);
 		return qfalse;
 	}
 #endif
-/*
+	/*
 Ghoul2 Insert End
 */
 	return qtrue;
 }
 
-
 void CG_RegisterClientRenderInfo(clientInfo_t *ci, renderInfo_t *ri)
 {
-	char			*slash;
-	char			headModelName[MAX_QPATH];
-	char			torsoModelName[MAX_QPATH];
-	char			legsModelName[MAX_QPATH];
-	char			headSkinName[MAX_QPATH];
-	char			torsoSkinName[MAX_QPATH];
-	char			legsSkinName[MAX_QPATH];
+	char *slash;
+	char headModelName[MAX_QPATH];
+	char torsoModelName[MAX_QPATH];
+	char legsModelName[MAX_QPATH];
+	char headSkinName[MAX_QPATH];
+	char torsoSkinName[MAX_QPATH];
+	char legsSkinName[MAX_QPATH];
 
-	if(!ri->legsModelName || !ri->legsModelName[0])
-	{//Must have at LEAST a legs model
+	if (!ri->legsModelName || !ri->legsModelName[0])
+	{ //Must have at LEAST a legs model
 		return;
 	}
 
-	Q_strncpyz( legsModelName, ri->legsModelName, sizeof( legsModelName ) );
+	Q_strncpyz(legsModelName, ri->legsModelName, sizeof(legsModelName));
 	//Legs skin
-	slash = strchr( legsModelName, '/' );
-	if ( !slash ) 
+	slash = strchr(legsModelName, '/');
+	if (!slash)
 	{
 		// modelName didn not include a skin name
-		Q_strncpyz( legsSkinName, "default", sizeof( legsSkinName ) );
-	} 
-	else 
+		Q_strncpyz(legsSkinName, "default", sizeof(legsSkinName));
+	}
+	else
 	{
-		Q_strncpyz( legsSkinName, slash + 1, sizeof( legsSkinName ) );
+		Q_strncpyz(legsSkinName, slash + 1, sizeof(legsSkinName));
 		// truncate modelName
 		*slash = 0;
 	}
 
-	if(ri->torsoModelName && ri->torsoModelName[0])
+	if (ri->torsoModelName && ri->torsoModelName[0])
 	{
-		Q_strncpyz( torsoModelName, ri->torsoModelName, sizeof( torsoModelName ) );
+		Q_strncpyz(torsoModelName, ri->torsoModelName, sizeof(torsoModelName));
 		//Torso skin
-		slash = strchr( torsoModelName, '/' );
-		if ( !slash ) 
+		slash = strchr(torsoModelName, '/');
+		if (!slash)
 		{
 			// modelName didn't include a skin name
-			Q_strncpyz( torsoSkinName, "default", sizeof( torsoSkinName ) );
-		} 
-		else 
+			Q_strncpyz(torsoSkinName, "default", sizeof(torsoSkinName));
+		}
+		else
 		{
-			Q_strncpyz( torsoSkinName, slash + 1, sizeof( torsoSkinName ) );
+			Q_strncpyz(torsoSkinName, slash + 1, sizeof(torsoSkinName));
 			// truncate modelName
 			*slash = 0;
 		}
@@ -1166,19 +1190,19 @@ void CG_RegisterClientRenderInfo(clientInfo_t *ci, renderInfo_t *ri)
 	}
 
 	//Head
-	if(ri->headModelName && ri->headModelName[0])
+	if (ri->headModelName && ri->headModelName[0])
 	{
-		Q_strncpyz( headModelName, ri->headModelName, sizeof( headModelName ) );
+		Q_strncpyz(headModelName, ri->headModelName, sizeof(headModelName));
 		//Head skin
-		slash = strchr( headModelName, '/' );
-		if ( !slash ) 
+		slash = strchr(headModelName, '/');
+		if (!slash)
 		{
 			// modelName didn not include a skin name
-			Q_strncpyz( headSkinName, "default", sizeof( headSkinName ) );
-		} 
-		else 
+			Q_strncpyz(headSkinName, "default", sizeof(headSkinName));
+		}
+		else
 		{
-			Q_strncpyz( headSkinName, slash + 1, sizeof( headSkinName ) );
+			Q_strncpyz(headSkinName, slash + 1, sizeof(headSkinName));
 			// truncate modelName
 			*slash = 0;
 		}
@@ -1188,42 +1212,42 @@ void CG_RegisterClientRenderInfo(clientInfo_t *ci, renderInfo_t *ri)
 		headModelName[0] = 0;
 	}
 
-	if ( !CG_RegisterClientModelname( ci, headModelName, headSkinName, torsoModelName, torsoSkinName, legsModelName, legsSkinName) ) 
+	if (!CG_RegisterClientModelname(ci, headModelName, headSkinName, torsoModelName, torsoSkinName, legsModelName, legsSkinName))
 	{
-		if ( !CG_RegisterClientModelname( ci, DEFAULT_HEADMODEL, "default", DEFAULT_TORSOMODEL, "default", DEFAULT_LEGSMODEL, "default" ) ) 
+		if (!CG_RegisterClientModelname(ci, DEFAULT_HEADMODEL, "default", DEFAULT_TORSOMODEL, "default", DEFAULT_LEGSMODEL, "default"))
 		{
-			CG_Error( "DEFAULT_MODELS failed to register");
+			CG_Error("DEFAULT_MODELS failed to register");
 		}
 	}
 }
 
 //-------------------------------------
 // CG_RegisterEffects
-// 
+//
 // Handles precaching all effect files
 //	and any shader, model, or sound
 //	files an effect may use.
 //-------------------------------------
-extern void CG_InitGlass( void );
-extern void	cgi_R_WorldEffectCommand( const char *command );
+extern void CG_InitGlass(void);
+extern void cgi_R_WorldEffectCommand(const char *command);
 
 extern cvar_t *g_delayedShutdown;
-static void CG_RegisterEffects( void )
+static void CG_RegisterEffects(void)
 {
-	char	*effectName;
-	int		i, numFailed=0;
+	char *effectName;
+	int i, numFailed = 0;
 
 	// Register external effects
-	for ( i = 1 ; i < MAX_FX ; i++ ) 
+	for (i = 1; i < MAX_FX; i++)
 	{
-		effectName = ( char *)CG_ConfigString( CS_EFFECTS + i );
+		effectName = (char *)CG_ConfigString(CS_EFFECTS + i);
 
-		if ( !effectName[0] ) 
+		if (!effectName[0])
 		{
 			break;
 		}
 
-		if (!theFxScheduler.RegisterEffect( (const char*)effectName ))
+		if (!theFxScheduler.RegisterEffect((const char *)effectName))
 		{
 			assert(0);
 			numFailed++;
@@ -1232,51 +1256,51 @@ static void CG_RegisterEffects( void )
 	if (numFailed && g_delayedShutdown->integer)
 	{
 		assert(0);
-		CG_Error( "CG_RegisterEffects: %i Effects failed to load.  Please fix, or ask Aurelio.", numFailed );
+		CG_Error("CG_RegisterEffects: %i Effects failed to load.  Please fix, or ask Aurelio.", numFailed);
 	}
 
 	// Start world effects
-	for ( i = 1 ; i < MAX_WORLD_FX ; i++ ) 
+	for (i = 1; i < MAX_WORLD_FX; i++)
 	{
-		effectName = ( char *)CG_ConfigString( CS_WORLD_FX + i );
+		effectName = (char *)CG_ConfigString(CS_WORLD_FX + i);
 
-		if ( !effectName[0] ) 
+		if (!effectName[0])
 		{
 			break;
 		}
 
-		cgi_R_WorldEffectCommand( effectName );
+		cgi_R_WorldEffectCommand(effectName);
 	}
 
 	// Set up the glass effects mini-system.
 	CG_InitGlass();
 
 	//footstep effects
-	cgs.effects.footstepMud = theFxScheduler.RegisterEffect( "materials/mud" );
-	cgs.effects.footstepSand = theFxScheduler.RegisterEffect( "materials/sand" );
-	cgs.effects.footstepSnow = theFxScheduler.RegisterEffect( "materials/snow" );
-	cgs.effects.footstepGravel = theFxScheduler.RegisterEffect( "materials/gravel" );
+	cgs.effects.footstepMud = theFxScheduler.RegisterEffect("materials/mud");
+	cgs.effects.footstepSand = theFxScheduler.RegisterEffect("materials/sand");
+	cgs.effects.footstepSnow = theFxScheduler.RegisterEffect("materials/snow");
+	cgs.effects.footstepGravel = theFxScheduler.RegisterEffect("materials/gravel");
 	//landing effects
-	cgs.effects.landingMud = theFxScheduler.RegisterEffect( "materials/mud_large" );
-	cgs.effects.landingSand = theFxScheduler.RegisterEffect( "materials/sand_large" );
-	cgs.effects.landingDirt = theFxScheduler.RegisterEffect( "materials/dirt_large" );
-	cgs.effects.landingSnow = theFxScheduler.RegisterEffect( "materials/snow_large" );
-	cgs.effects.landingGravel = theFxScheduler.RegisterEffect( "materials/gravel_large" );
+	cgs.effects.landingMud = theFxScheduler.RegisterEffect("materials/mud_large");
+	cgs.effects.landingSand = theFxScheduler.RegisterEffect("materials/sand_large");
+	cgs.effects.landingDirt = theFxScheduler.RegisterEffect("materials/dirt_large");
+	cgs.effects.landingSnow = theFxScheduler.RegisterEffect("materials/snow_large");
+	cgs.effects.landingGravel = theFxScheduler.RegisterEffect("materials/gravel_large");
 	//splashes
-	if ( (gi.totalMapContents()&CONTENTS_WATER) )
+	if ((gi.totalMapContents() & CONTENTS_WATER))
 	{
-		theFxScheduler.RegisterEffect( "env/water_impact" );
-		theFxScheduler.RegisterEffect( "misc/waterbreath" );
+		theFxScheduler.RegisterEffect("env/water_impact");
+		theFxScheduler.RegisterEffect("misc/waterbreath");
 	}
-	if ( (gi.totalMapContents()&CONTENTS_LAVA) )
+	if ((gi.totalMapContents() & CONTENTS_LAVA))
 	{
-		theFxScheduler.RegisterEffect( "env/lava_splash" );
+		theFxScheduler.RegisterEffect("env/lava_splash");
 	}
-	if ( (gi.totalMapContents()&CONTENTS_SLIME) )
+	if ((gi.totalMapContents() & CONTENTS_SLIME))
 	{
-		theFxScheduler.RegisterEffect( "env/acid_splash" );
+		theFxScheduler.RegisterEffect("env/acid_splash");
 	}
-	theFxScheduler.RegisterEffect( "misc/breath" );
+	theFxScheduler.RegisterEffect("misc/breath");
 }
 
 /*
@@ -1286,32 +1310,32 @@ Only call if clientInfo->infoValid is not true
 
 For players and NPCs to register their models
 */
-void CG_RegisterClientModels (int entityNum)
+void CG_RegisterClientModels(int entityNum)
 {
-	gentity_t		*ent;
+	gentity_t *ent;
 
-	if(entityNum < 0 || entityNum > ENTITYNUM_WORLD)
+	if (entityNum < 0 || entityNum > ENTITYNUM_WORLD)
 	{
 		return;
 	}
 
 	ent = &g_entities[entityNum];
 
-	if(!ent->client)
+	if (!ent->client)
 	{
 		return;
 	}
 
 	ent->client->clientInfo.infoValid = qtrue;
 
-	if ( ent->playerModel != -1 && ent->ghoul2.size() )
+	if (ent->playerModel != -1 && ent->ghoul2.size())
 	{
 		return;
 	}
 
 	CG_RegisterClientRenderInfo(&ent->client->clientInfo, &ent->client->renderInfo);
 
-	if(entityNum < MAX_CLIENTS)
+	if (entityNum < MAX_CLIENTS)
 	{
 		memcpy(&cgs.clientinfo[entityNum], &ent->client->clientInfo, sizeof(clientInfo_t));
 	}
@@ -1319,53 +1343,91 @@ void CG_RegisterClientModels (int entityNum)
 
 //===================================================================================
 
-
-HUDMenuItem_t forceTics[] = 
-{
-"rightHUD", "force_tic1", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, 	// Top 
-"rightHUD", "force_tic2", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, 	// Top 
-"rightHUD", "force_tic3", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, 	// Top 
-"rightHUD", "force_tic4", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, 	// Top 
+HUDMenuItem_t forceTics[] =
+	{
+		"rightHUD", "force_tic1", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, // Top
+		"rightHUD", "force_tic2", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, // Top
+		"rightHUD", "force_tic3", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, // Top
+		"rightHUD", "force_tic4", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, // Top
 };
 
-HUDMenuItem_t ammoTics[] = 
-{
-"rightHUD", "ammo_tic1", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, 	// Top 
-"rightHUD", "ammo_tic2", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, 	// Top 
-"rightHUD", "ammo_tic3", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, 	// Top 
-"rightHUD", "ammo_tic4", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, 	// Top 
+HUDMenuItem_t ammoTics[] =
+	{
+		"rightHUD", "ammo_tic1", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, // Top
+		"rightHUD", "ammo_tic2", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, // Top
+		"rightHUD", "ammo_tic3", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, // Top
+		"rightHUD", "ammo_tic4", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, // Top
 };
 
-HUDMenuItem_t armorTics[] = 
-{
-"leftHUD", "armor_tic1", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, 	// Top 
-"leftHUD", "armor_tic2", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, 	
-"leftHUD", "armor_tic3", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, 	
-"leftHUD", "armor_tic4", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, 	
+HUDMenuItem_t armorTics[] =
+	{
+		"leftHUD",
+		"armor_tic1",
+		0,
+		0,
+		0,
+		0,
+		0.0f,
+		0.0f,
+		0.0f,
+		0.0f,
+		NULL, // Top
+		"leftHUD",
+		"armor_tic2",
+		0,
+		0,
+		0,
+		0,
+		0.0f,
+		0.0f,
+		0.0f,
+		0.0f,
+		NULL,
+		"leftHUD",
+		"armor_tic3",
+		0,
+		0,
+		0,
+		0,
+		0.0f,
+		0.0f,
+		0.0f,
+		0.0f,
+		NULL,
+		"leftHUD",
+		"armor_tic4",
+		0,
+		0,
+		0,
+		0,
+		0.0f,
+		0.0f,
+		0.0f,
+		0.0f,
+		NULL,
 };
 
-HUDMenuItem_t healthTics[] = 
-{
-"leftHUD", "health_tic1", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, 	// Top 
-"leftHUD", "health_tic2", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// 
-"leftHUD", "health_tic3", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// 
-"leftHUD", "health_tic4", 0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// Bottom
+HUDMenuItem_t healthTics[] =
+	{
+		"leftHUD", "health_tic1", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, // Top
+		"leftHUD", "health_tic2", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, //
+		"leftHUD", "health_tic3", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, //
+		"leftHUD", "health_tic4", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, // Bottom
 };
 
-
-HUDMenuItem_t otherHUDBits[] = 
-{
-"lefthud", "healthamount",			0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// OHB_HEALTHAMOUNT
-"lefthud", "armoramount",			0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// OHB_ARMORAMOUNT
-"righthud", "forceamount",			0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// OHB_FORCEAMOUNT 
-"righthud", "ammoamount",			0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// OHB_AMMOAMOUNT
-"righthud", "saberstyle_strong",	0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// OHB_SABERSTYLE_STRONG
-"righthud", "saberstyle_medium",	0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// OHB_SABERSTYLE_MEDIUM
-"righthud", "saberstyle_fast",		0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// OHB_SABERSTYLE_FAST
-"lefthud",	"scanline",				0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// OHB_SCANLINE_LEFT
-"righthud",	"scanline",				0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// OHB_SCANLINE_RIGHT
-"lefthud",	"frame",				0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// OHB_FRAME_LEFT
-"righthud",	"frame",				0,  0,  0,  0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	// OHB_FRAME_RIGHT
+HUDMenuItem_t otherHUDBits[] =
+	{
+		"lefthud", "healthamount", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	   // OHB_HEALTHAMOUNT
+		"lefthud", "armoramount", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,		   // OHB_ARMORAMOUNT
+		"righthud", "forceamount", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,	   // OHB_FORCEAMOUNT
+		"righthud", "ammoamount", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,		   // OHB_AMMOAMOUNT
+		"righthud", "saberstyle_strong", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, // OHB_SABERSTYLE_STRONG
+		"righthud", "saberstyle_medium", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL, // OHB_SABERSTYLE_MEDIUM
+		"righthud", "saberstyle_fast", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,   // OHB_SABERSTYLE_FAST
+		"lefthud", "scanline", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,		   // OHB_SCANLINE_LEFT
+		"righthud", "scanline", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,		   // OHB_SCANLINE_RIGHT
+		"lefthud", "frame", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,			   // OHB_FRAME_LEFT
+		"righthud", "frame", 0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, NULL,			   // OHB_FRAME_RIGHT
 };
 
 /*const char *HolocronIcons[] = {
@@ -1389,7 +1451,7 @@ HUDMenuItem_t otherHUDBits[] =
 	"gfx/mp/f_icon_saber_throw"		//FP_SABERTHROW
 };
 */
-extern void NPC_Precache ( gentity_t *spawner );
+extern void NPC_Precache(gentity_t *spawner);
 qboolean NPCsPrecached = qfalse;
 /*
 =================
@@ -1400,11 +1462,12 @@ This function may execute for a couple of minutes with a slow disk.
 =================
 */
 void CG_CreateMiscEnts(void);
-static void CG_RegisterGraphics( void ) {
-	int			i;
-	char		items[MAX_ITEMS+1];
-	int			breakPoint = 0;
-/*
+static void CG_RegisterGraphics(void)
+{
+	int i;
+	char items[MAX_ITEMS + 1];
+	int breakPoint = 0;
+	/*
 	const char		*sb_nums[11] = {
 		"gfx/2d/numbers/zero",
 		"gfx/2d/numbers/one",
@@ -1420,7 +1483,7 @@ static void CG_RegisterGraphics( void ) {
 	};
 */
 
-	const char		*sb_t_nums[11] = {
+	const char *sb_t_nums[11] = {
 		"gfx/2d/numbers/t_zero",
 		"gfx/2d/numbers/t_one",
 		"gfx/2d/numbers/t_two",
@@ -1434,7 +1497,7 @@ static void CG_RegisterGraphics( void ) {
 		"gfx/2d/numbers/t_minus",
 	};
 
-/*
+	/*
 	const char		*sb_c_nums[11] = {
 		"gfx/2d/numbers/c_zero",
 		"gfx/2d/numbers/c_one",
@@ -1451,119 +1514,120 @@ static void CG_RegisterGraphics( void ) {
 */
 
 	// Clean, then register...rinse...repeat...
-	CG_LoadingString( "effects" );
+	CG_LoadingString("effects");
 	FX_Init();
 	CG_RegisterEffects();
 
 	// clear any references to old media
-	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
+	memset(&cg.refdef, 0, sizeof(cg.refdef));
 	cgi_R_ClearScene();
 
 	cg.loadLCARSStage = 3;
-	CG_LoadingString( cgs.mapname );
+	CG_LoadingString(cgs.mapname);
 
 #ifndef _XBOX // this gets handled elsewhere on Xbox
-	cgi_R_LoadWorldMap( cgs.mapname );
+	cgi_R_LoadWorldMap(cgs.mapname);
 #endif
 
 	cg.loadLCARSStage = 4;
-	CG_LoadingString( "game media shaders" );
+	CG_LoadingString("game media shaders");
 
-	for ( i=0; i < 11; i++ )
+	for (i = 0; i < 11; i++)
 	{
-//		cgs.media.numberShaders[i]			= cgi_R_RegisterShaderNoMip( sb_nums[i] );
-		cgs.media.smallnumberShaders[i]		= cgi_R_RegisterShaderNoMip( sb_t_nums[i] );
-//		cgs.media.chunkyNumberShaders[i]	= cgi_R_RegisterShaderNoMip( sb_c_nums[i] );
+		//		cgs.media.numberShaders[i]			= cgi_R_RegisterShaderNoMip( sb_nums[i] );
+		cgs.media.smallnumberShaders[i] = cgi_R_RegisterShaderNoMip(sb_t_nums[i]);
+		//		cgs.media.chunkyNumberShaders[i]	= cgi_R_RegisterShaderNoMip( sb_c_nums[i] );
 	}
 
 	// FIXME: conditionally do this??  Something must be wrong with inventory item caching..?
-	cgi_R_RegisterModel( "models/items/remote.md3" );
+	cgi_R_RegisterModel("models/items/remote.md3");
 
-	cgs.media.explosionModel				= cgi_R_RegisterModel ( "models/weaphits/explosion.md3" );
-	cgs.media.surfaceExplosionShader		= cgi_R_RegisterShader( "surfaceExplosion" );
+	cgs.media.explosionModel = cgi_R_RegisterModel("models/weaphits/explosion.md3");
+	cgs.media.surfaceExplosionShader = cgi_R_RegisterShader("surfaceExplosion");
 
-	cgs.media.halfShieldModel				= cgi_R_RegisterModel( "models/weaphits/testboom.md3" );
+	cgs.media.halfShieldModel = cgi_R_RegisterModel("models/weaphits/testboom.md3");
 
-	cgs.media.solidWhiteShader			= cgi_R_RegisterShader( "gfx/effects/solidWhite" );
-	cgs.media.refractShader				= cgi_R_RegisterShader( "effects/refraction" );
+	cgs.media.solidWhiteShader = cgi_R_RegisterShader("gfx/effects/solidWhite");
+	cgs.media.refractShader = cgi_R_RegisterShader("effects/refraction");
 
 	//on players
-	cgs.media.personalShieldShader		= cgi_R_RegisterShader( "gfx/misc/personalshield" );
-	cgs.media.cloakedShader				= cgi_R_RegisterShader( "gfx/effects/cloakedShader" );
-											cgi_R_RegisterShader( "gfx/misc/ion_shield" );
+	cgs.media.personalShieldShader = cgi_R_RegisterShader("gfx/misc/personalshield");
+	cgs.media.cloakedShader = cgi_R_RegisterShader("gfx/effects/cloakedShader");
+	cgi_R_RegisterShader("gfx/misc/ion_shield");
 
-	cgs.media.boltShader				= cgi_R_RegisterShader( "gfx/misc/blueLine" );
+	cgs.media.boltShader = cgi_R_RegisterShader("gfx/misc/blueLine");
 
 	// FIXME: do these conditionally
-	cgi_R_RegisterShader( "gfx/2d/workingCamera" );
-	cgi_R_RegisterShader( "gfx/2d/brokenCamera" );
+	cgi_R_RegisterShader("gfx/2d/workingCamera");
+	cgi_R_RegisterShader("gfx/2d/brokenCamera");
 	//cgi_R_RegisterShader( "gfx/effects/irid_shield" ); // for galak, but he doesn't have his own weapon so I can't register the shader there.
 
 	//interface
-	for ( i = 0 ; i < NUM_CROSSHAIRS ; i++ ) {
-		cgs.media.crosshairShader[i] = cgi_R_RegisterShaderNoMip( va("gfx/2d/crosshair%c", 'a'+i) );
+	for (i = 0; i < NUM_CROSSHAIRS; i++)
+	{
+		cgs.media.crosshairShader[i] = cgi_R_RegisterShaderNoMip(va("gfx/2d/crosshair%c", 'a' + i));
 	}
-	cgs.media.backTileShader		= cgi_R_RegisterShader( "gfx/2d/backtile" );
-//	cgs.media.noammoShader			= cgi_R_RegisterShaderNoMip( "gfx/hud/noammo");
-//	cgs.media.weaponIconBackground	= cgi_R_RegisterShaderNoMip( "gfx/hud/background");
-//	cgs.media.forceIconBackground	= cgi_R_RegisterShaderNoMip( "gfx/hud/background_f");
-//	cgs.media.inventoryIconBackground= cgi_R_RegisterShaderNoMip( "gfx/hud/background_i");
+	cgs.media.backTileShader = cgi_R_RegisterShader("gfx/2d/backtile");
+	//	cgs.media.noammoShader			= cgi_R_RegisterShaderNoMip( "gfx/hud/noammo");
+	//	cgs.media.weaponIconBackground	= cgi_R_RegisterShaderNoMip( "gfx/hud/background");
+	//	cgs.media.forceIconBackground	= cgi_R_RegisterShaderNoMip( "gfx/hud/background_f");
+	//	cgs.media.inventoryIconBackground= cgi_R_RegisterShaderNoMip( "gfx/hud/background_i");
 
 	//gore decal shaders -rww
-	cgs.media.bdecal_burnmark1		= cgi_R_RegisterShader( "gfx/damage/burnmark1" );
-	cgs.media.bdecal_saberglowmark	= cgi_R_RegisterShader( "gfx/damage/saberglowmark" );
+	cgs.media.bdecal_burnmark1 = cgi_R_RegisterShader("gfx/damage/burnmark1");
+	cgs.media.bdecal_saberglowmark = cgi_R_RegisterShader("gfx/damage/saberglowmark");
 
 	cg.loadLCARSStage = 5;
-	CG_LoadingString( "game media models" );
-	
+	CG_LoadingString("game media models");
+
 	// Chunk models
 	//FIXME: jfm:? bother to conditionally load these if an ent has this material type?
-	for ( i = 0; i < NUM_CHUNK_MODELS; i++ )
+	for (i = 0; i < NUM_CHUNK_MODELS; i++)
 	{
-		cgs.media.chunkModels[CHUNK_METAL2][i]	= cgi_R_RegisterModel( va( "models/chunks/metal/metal1_%i.md3", i+1 ) ); //_ /switched\ _
-		cgs.media.chunkModels[CHUNK_METAL1][i]	= cgi_R_RegisterModel( va( "models/chunks/metal/metal2_%i.md3", i+1 ) ); //  \switched/
-		cgs.media.chunkModels[CHUNK_ROCK1][i]	= cgi_R_RegisterModel( va( "models/chunks/rock/rock1_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_ROCK2][i]	= cgi_R_RegisterModel( va( "models/chunks/rock/rock2_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_ROCK3][i]	= cgi_R_RegisterModel( va( "models/chunks/rock/rock3_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_CRATE1][i]	= cgi_R_RegisterModel( va( "models/chunks/crate/crate1_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_CRATE2][i]	= cgi_R_RegisterModel( va( "models/chunks/crate/crate2_%i.md3", i+1 ) );
-		cgs.media.chunkModels[CHUNK_WHITE_METAL][i]	= cgi_R_RegisterModel( va( "models/chunks/metal/wmetal1_%i.md3", i+1 ) );
+		cgs.media.chunkModels[CHUNK_METAL2][i] = cgi_R_RegisterModel(va("models/chunks/metal/metal1_%i.md3", i + 1)); //_ /switched\ _
+		cgs.media.chunkModels[CHUNK_METAL1][i] = cgi_R_RegisterModel(va("models/chunks/metal/metal2_%i.md3", i + 1)); //  \switched/
+		cgs.media.chunkModels[CHUNK_ROCK1][i] = cgi_R_RegisterModel(va("models/chunks/rock/rock1_%i.md3", i + 1));
+		cgs.media.chunkModels[CHUNK_ROCK2][i] = cgi_R_RegisterModel(va("models/chunks/rock/rock2_%i.md3", i + 1));
+		cgs.media.chunkModels[CHUNK_ROCK3][i] = cgi_R_RegisterModel(va("models/chunks/rock/rock3_%i.md3", i + 1));
+		cgs.media.chunkModels[CHUNK_CRATE1][i] = cgi_R_RegisterModel(va("models/chunks/crate/crate1_%i.md3", i + 1));
+		cgs.media.chunkModels[CHUNK_CRATE2][i] = cgi_R_RegisterModel(va("models/chunks/crate/crate2_%i.md3", i + 1));
+		cgs.media.chunkModels[CHUNK_WHITE_METAL][i] = cgi_R_RegisterModel(va("models/chunks/metal/wmetal1_%i.md3", i + 1));
 	}
 
-	cgs.media.chunkSound			= cgi_S_RegisterSound("sound/weapons/explosions/glasslcar");
-	cgs.media.grateSound			= cgi_S_RegisterSound( "sound/effects/grate_destroy" );
-	cgs.media.rockBreakSound		= cgi_S_RegisterSound("sound/effects/wall_smash");
-	cgs.media.rockBounceSound[0]	= cgi_S_RegisterSound("sound/effects/stone_bounce");
-	cgs.media.rockBounceSound[1]	= cgi_S_RegisterSound("sound/effects/stone_bounce2");
-	cgs.media.metalBounceSound[0]	= cgi_S_RegisterSound("sound/effects/metal_bounce");
-	cgs.media.metalBounceSound[1]	= cgi_S_RegisterSound("sound/effects/metal_bounce2");
-	cgs.media.glassChunkSound		= cgi_S_RegisterSound("sound/weapons/explosions/glassbreak1");
-	cgs.media.crateBreakSound[0]	= cgi_S_RegisterSound("sound/weapons/explosions/crateBust1" );
-	cgs.media.crateBreakSound[1]	= cgi_S_RegisterSound("sound/weapons/explosions/crateBust2" );
+	cgs.media.chunkSound = cgi_S_RegisterSound("sound/weapons/explosions/glasslcar");
+	cgs.media.grateSound = cgi_S_RegisterSound("sound/effects/grate_destroy");
+	cgs.media.rockBreakSound = cgi_S_RegisterSound("sound/effects/wall_smash");
+	cgs.media.rockBounceSound[0] = cgi_S_RegisterSound("sound/effects/stone_bounce");
+	cgs.media.rockBounceSound[1] = cgi_S_RegisterSound("sound/effects/stone_bounce2");
+	cgs.media.metalBounceSound[0] = cgi_S_RegisterSound("sound/effects/metal_bounce");
+	cgs.media.metalBounceSound[1] = cgi_S_RegisterSound("sound/effects/metal_bounce2");
+	cgs.media.glassChunkSound = cgi_S_RegisterSound("sound/weapons/explosions/glassbreak1");
+	cgs.media.crateBreakSound[0] = cgi_S_RegisterSound("sound/weapons/explosions/crateBust1");
+	cgs.media.crateBreakSound[1] = cgi_S_RegisterSound("sound/weapons/explosions/crateBust2");
 
-//	cgs.media.weaponbox	 = cgi_R_RegisterShaderNoMip( "gfx/interface/weapon_box");
+	//	cgs.media.weaponbox	 = cgi_R_RegisterShaderNoMip( "gfx/interface/weapon_box");
 
 	//Models & Shaders
-	cgs.media.damageBlendBlobShader	= cgi_R_RegisterShader( "gfx/misc/borgeyeflare" );
+	cgs.media.damageBlendBlobShader = cgi_R_RegisterShader("gfx/misc/borgeyeflare");
 
 	cg.loadLCARSStage = 6;
 
-	cgs.media.messageLitOn = cgi_R_RegisterShaderNoMip( "gfx/hud/message_on" );
-	cgs.media.messageLitOff = cgi_R_RegisterShaderNoMip( "gfx/hud/message_off" );
-	cgs.media.messageObjCircle = cgi_R_RegisterShaderNoMip( "gfx/hud/objective_circle" );
+	cgs.media.messageLitOn = cgi_R_RegisterShaderNoMip("gfx/hud/message_on");
+	cgs.media.messageLitOff = cgi_R_RegisterShaderNoMip("gfx/hud/message_off");
+	cgs.media.messageObjCircle = cgi_R_RegisterShaderNoMip("gfx/hud/objective_circle");
 
-	cgs.media.DPForcePowerOverlay = cgi_R_RegisterShader( "gfx/hud/force_swirl" );
+	cgs.media.DPForcePowerOverlay = cgi_R_RegisterShader("gfx/hud/force_swirl");
 
 	//NOTE: we should only cache this if there is a vehicle or emplaced gun somewhere on the map
-//	cgs.media.emplacedHealthBarShader = cgi_R_RegisterShaderNoMip( "gfx/hud/health_frame" );
+	//	cgs.media.emplacedHealthBarShader = cgi_R_RegisterShaderNoMip( "gfx/hud/health_frame" );
 
 	// battery charge shader when using a gonk
-//	cgs.media.batteryChargeShader = cgi_R_RegisterShader( "gfx/2d/battery" );
-	cgi_R_RegisterShader( "gfx/2d/droid_view" );
+	//	cgs.media.batteryChargeShader = cgi_R_RegisterShader( "gfx/2d/battery" );
+	cgi_R_RegisterShader("gfx/2d/droid_view");
 	cgs.media.useableHint = cgi_R_RegisterShader("gfx/hud/useableHint");
 
 	// Load up other HUD bits
-	for (i=0;i<OHB_MAX;i++)
+	for (i = 0; i < OHB_MAX; i++)
 	{
 		cgi_UI_GetMenuItemInfo(
 			otherHUDBits[i].menuName,
@@ -1577,7 +1641,7 @@ static void CG_RegisterGraphics( void ) {
 	}
 
 	// Get all the info for each HUD piece
-	for (i=0;i<MAX_HUD_TICS;i++)
+	for (i = 0; i < MAX_HUD_TICS; i++)
 	{
 		cgi_UI_GetMenuItemInfo(
 			healthTics[i].menuName,
@@ -1618,36 +1682,35 @@ static void CG_RegisterGraphics( void ) {
 			&ammoTics[i].height,
 			ammoTics[i].color,
 			&ammoTics[i].background);
-
 	}
 
-
-	memset( cg_items, 0, sizeof( cg_items ) );
-	memset( cg_weapons, 0, sizeof( cg_weapons ) );
+	memset(cg_items, 0, sizeof(cg_items));
+	memset(cg_weapons, 0, sizeof(cg_weapons));
 
 	// only register the items that the server says we need
-	strcpy( items, CG_ConfigString( CS_ITEMS) );
+	strcpy(items, CG_ConfigString(CS_ITEMS));
 
-	for ( i = 1 ; i < bg_numItems ; i++ ) {
-		if ( items[ i ] == '1' ) 
+	for (i = 1; i < bg_numItems; i++)
+	{
+		if (items[i] == '1')
 		{
 			if (bg_itemlist[i].classname)
 			{
-				CG_LoadingString( bg_itemlist[i].classname );
-				CG_RegisterItemVisuals( i );
+				CG_LoadingString(bg_itemlist[i].classname);
+				CG_RegisterItemVisuals(i);
 			}
 		}
 		if (bg_itemlist[i].giType == IT_HOLDABLE)
 		{
 			if (bg_itemlist[i].giTag < INV_MAX)
 			{
-				inv_icons[bg_itemlist[i].giTag] = cgi_R_RegisterShaderNoMip( bg_itemlist[i].icon );
+				inv_icons[bg_itemlist[i].giTag] = cgi_R_RegisterShaderNoMip(bg_itemlist[i].icon);
 			}
 		}
 	}
 
 	//precache force power icons here
-/*	i = 0;
+	/*	i = 0;
 	while (i < NUM_FORCE_POWERS)
 	{
 		cgs.media.forcePowerIcons[i] = cgi_R_RegisterShaderNoMip(HolocronIcons[i]);
@@ -1656,35 +1719,36 @@ static void CG_RegisterGraphics( void ) {
 */
 	cgs.media.rageRecShader = cgi_R_RegisterShaderNoMip("gfx/mp/f_icon_ragerec");
 	//etc.
-	cgi_R_RegisterShader( "gfx/misc/test_crackle" );	//CG_DoGlassQuad
+	cgi_R_RegisterShader("gfx/misc/test_crackle"); //CG_DoGlassQuad
 
 	// wall marks
-	cgs.media.scavMarkShader				= cgi_R_RegisterShader( "gfx/damage/burnmark4" );
-	cgs.media.rivetMarkShader				= cgi_R_RegisterShader( "gfx/damage/rivetmark" );
+	cgs.media.scavMarkShader = cgi_R_RegisterShader("gfx/damage/burnmark4");
+	cgs.media.rivetMarkShader = cgi_R_RegisterShader("gfx/damage/rivetmark");
 
 	// doing one shader just makes it look like a shell.  By using two shaders with different bulge offsets and different texture scales, it has a much more chaotic look
-	cgs.media.electricBodyShader			= cgi_R_RegisterShader( "gfx/misc/electric" );
-	cgs.media.electricBody2Shader			= cgi_R_RegisterShader( "gfx/misc/fullbodyelectric2" );
+	cgs.media.electricBodyShader = cgi_R_RegisterShader("gfx/misc/electric");
+	cgs.media.electricBody2Shader = cgi_R_RegisterShader("gfx/misc/fullbodyelectric2");
 
-	cgs.media.shadowMarkShader	= cgi_R_RegisterShader( "markShadow" );
-	cgs.media.wakeMarkShader	= cgi_R_RegisterShader( "wake" );
-	cgs.media.fsrMarkShader	= cgi_R_RegisterShader( "footstep_r" );
-	cgs.media.fslMarkShader	= cgi_R_RegisterShader( "footstep_l" );
-	cgs.media.fshrMarkShader	= cgi_R_RegisterShader( "footstep_heavy_r" );
-	cgs.media.fshlMarkShader	= cgi_R_RegisterShader( "footstep_heavy_l" );
-	cgi_S_RegisterSound( "sound/effects/energy_crackle.wav" );
+	cgs.media.shadowMarkShader = cgi_R_RegisterShader("markShadow");
+	cgs.media.wakeMarkShader = cgi_R_RegisterShader("wake");
+	cgs.media.fsrMarkShader = cgi_R_RegisterShader("footstep_r");
+	cgs.media.fslMarkShader = cgi_R_RegisterShader("footstep_l");
+	cgs.media.fshrMarkShader = cgi_R_RegisterShader("footstep_heavy_r");
+	cgs.media.fshlMarkShader = cgi_R_RegisterShader("footstep_heavy_l");
+	cgi_S_RegisterSound("sound/effects/energy_crackle.wav");
 
 	CG_LoadingString("map brushes");
 	// register the inline models
 	breakPoint = cgs.numInlineModels = cgi_CM_NumInlineModels();
-	assert (cgs.numInlineModels < sizeof(cgs.inlineDrawModel)/sizeof(cgs.inlineDrawModel[0]) );
-	for ( i = 1 ; i < cgs.numInlineModels ; i++ ) {
-		char	name[10];
-		vec3_t			mins, maxs;
-		int				j;
+	assert(cgs.numInlineModels < sizeof(cgs.inlineDrawModel) / sizeof(cgs.inlineDrawModel[0]));
+	for (i = 1; i < cgs.numInlineModels; i++)
+	{
+		char name[10];
+		vec3_t mins, maxs;
+		int j;
 
-		Com_sprintf( name, sizeof(name), "*%i", i );
-		cgs.inlineDrawModel[i] = cgi_R_RegisterModel( name );
+		Com_sprintf(name, sizeof(name), "*%i", i);
+		cgs.inlineDrawModel[i] = cgi_R_RegisterModel(name);
 
 		if (!cgs.inlineDrawModel[i])
 		{
@@ -1692,76 +1756,81 @@ static void CG_RegisterGraphics( void ) {
 			break;
 		}
 
-		cgi_R_ModelBounds( cgs.inlineDrawModel[i], mins, maxs );
-		for ( j = 0 ; j < 3 ; j++ ) {
-			cgs.inlineModelMidpoints[i][j] = mins[j] + 0.5 * ( maxs[j] - mins[j] );
+		cgi_R_ModelBounds(cgs.inlineDrawModel[i], mins, maxs);
+		for (j = 0; j < 3; j++)
+		{
+			cgs.inlineModelMidpoints[i][j] = mins[j] + 0.5 * (maxs[j] - mins[j]);
 		}
 	}
 
 	cg.loadLCARSStage = 7;
 	CG_LoadingString("map models");
 	// register all the server specified models
-	for (i=1 ; i<MAX_MODELS ; i++) {
-		const char		*modelName;
+	for (i = 1; i < MAX_MODELS; i++)
+	{
+		const char *modelName;
 
-		modelName = CG_ConfigString( CS_MODELS+i );
-		if ( !modelName[0] ) {
+		modelName = CG_ConfigString(CS_MODELS + i);
+		if (!modelName[0])
+		{
 			break;
 		}
-		cgs.model_draw[i] = cgi_R_RegisterModel( modelName );
-//		OutputDebugString(va("### CG_RegisterGraphics(): cgs.model_draw[%d] = \"%s\"\n",i,modelName));
+		cgs.model_draw[i] = cgi_R_RegisterModel(modelName);
+		//		OutputDebugString(va("### CG_RegisterGraphics(): cgs.model_draw[%d] = \"%s\"\n",i,modelName));
 	}
 
 	cg.loadLCARSStage = 8;
 
-/*
+	/*
 Ghoul2 Insert Start
 */
 	CG_LoadingString("skins");
 	// register all the server specified models
-	for (i=1 ; i<MAX_CHARSKINS ; i++) {
-		const char		*modelName;
+	for (i = 1; i < MAX_CHARSKINS; i++)
+	{
+		const char *modelName;
 
-		modelName = CG_ConfigString( CS_CHARSKINS+i );
-		if ( !modelName[0] ) {
+		modelName = CG_ConfigString(CS_CHARSKINS + i);
+		if (!modelName[0])
+		{
 			break;
 		}
-		cgs.skins[i] = cgi_R_RegisterSkin( modelName );
+		cgs.skins[i] = cgi_R_RegisterSkin(modelName);
 	}
 
-/*
+	/*
 Ghoul2 Insert End
 */
 
-	for (i=0 ; i<MAX_CLIENTS ; i++) 
+	for (i = 0; i < MAX_CLIENTS; i++)
 	{
 		//feedback( va("client %i", i ) );
-		CG_NewClientinfo( i );
+		CG_NewClientinfo(i);
 	}
 
-	for (i=0 ; i < ENTITYNUM_WORLD ; i++)
+	for (i = 0; i < ENTITYNUM_WORLD; i++)
 	{
-		if(&g_entities[i])
+		if (&g_entities[i])
 		{
-			if(g_entities[i].client)
+			if (g_entities[i].client)
 			{
 				//if(!g_entities[i].client->clientInfo.infoValid)
 				//We presume this
 				{
-					CG_LoadingString( va("client %s", g_entities[i].client->clientInfo.name ) );
+					CG_LoadingString(va("client %s", g_entities[i].client->clientInfo.name));
 					CG_RegisterClientModels(i);
-					if ( i != 0 )
-					{//Client weapons already precached
-						CG_RegisterWeapon( g_entities[i].client->ps.weapon );
-						CG_RegisterNPCCustomSounds( &g_entities[i].client->clientInfo );
+					if (i != 0)
+					{ //Client weapons already precached
+						CG_RegisterWeapon(g_entities[i].client->ps.weapon);
+						CG_RegisterNPCCustomSounds(&g_entities[i].client->clientInfo);
 						//CG_RegisterNPCEffects( g_entities[i].client->playerTeam );
 					}
 				}
 			}
-			else if ( g_entities[i].svFlags & SVF_NPC_PRECACHE && g_entities[i].NPC_type && g_entities[i].NPC_type[0] )
-			{//Precache the NPC_type
+			else if (g_entities[i].svFlags & SVF_NPC_PRECACHE && g_entities[i].NPC_type && g_entities[i].NPC_type[0])
+			{ //Precache the NPC_type
 				//FIXME: make sure we didn't precache this NPC_type already
-				CG_LoadingString( va("NPC %s", g_entities[i].NPC_type ) );
+				CG_LoadingString(va("NPC %s", g_entities[i].NPC_type));
 				/*
 				if (g_entities[i].classname && g_entities[i].classname[0] && Q_stricmp( g_entities[i].classname, "NPC_Vehicle" ) == 0)
 				{
@@ -1771,75 +1840,76 @@ Ghoul2 Insert End
 				else
 				*/
 				{
-					NPC_Precache( &g_entities[i] );
+					NPC_Precache(&g_entities[i]);
 				}
 			}
 		}
 	}
 
-	CG_LoadingString( "static models" );
+	CG_LoadingString("static models");
 	CG_CreateMiscEnts();
 
 	cg.loadLCARSStage = 9;
 
 	NPCsPrecached = qtrue;
 
-	extern	cvar_t	*com_buildScript;
+	extern cvar_t *com_buildScript;
 
-	if (com_buildScript->integer) {
-		cgi_R_RegisterShader( "gfx/misc/nav_cpoint" );
-		cgi_R_RegisterShader( "gfx/misc/nav_line" );
-		cgi_R_RegisterShader( "gfx/misc/nav_arrow" );
-		cgi_R_RegisterShader( "gfx/misc/nav_node" );
+	if (com_buildScript->integer)
+	{
+		cgi_R_RegisterShader("gfx/misc/nav_cpoint");
+		cgi_R_RegisterShader("gfx/misc/nav_line");
+		cgi_R_RegisterShader("gfx/misc/nav_arrow");
+		cgi_R_RegisterShader("gfx/misc/nav_node");
 	}
 
-	for(i = 1; i < MAX_SUB_BSP; i++)
+	for (i = 1; i < MAX_SUB_BSP; i++)
 	{
-		const char		*bspName = 0;
-		vec3_t			mins, maxs;
-		int				j = 0;
-		int				sub = 0;
-		char			temp[MAX_QPATH];
+		const char *bspName = 0;
+		vec3_t mins, maxs;
+		int j = 0;
+		int sub = 0;
+		char temp[MAX_QPATH];
 
-		bspName = CG_ConfigString( CS_BSP_MODELS+i );
-		if ( !bspName[0] ) 
+		bspName = CG_ConfigString(CS_BSP_MODELS + i);
+		if (!bspName[0])
 		{
 			break;
 		}
-		CG_LoadingString( "BSP instances" );
+		CG_LoadingString("BSP instances");
 
-		cgi_CM_LoadMap( bspName, qtrue );
-		cgs.inlineDrawModel[breakPoint] = cgi_R_RegisterModel( bspName );
-		cgi_R_ModelBounds( cgs.inlineDrawModel[breakPoint], mins, maxs );
-		for ( j = 0 ; j < 3 ; j++ ) 
+		cgi_CM_LoadMap(bspName, qtrue);
+		cgs.inlineDrawModel[breakPoint] = cgi_R_RegisterModel(bspName);
+		cgi_R_ModelBounds(cgs.inlineDrawModel[breakPoint], mins, maxs);
+		for (j = 0; j < 3; j++)
 		{
-			cgs.inlineModelMidpoints[breakPoint][j] = mins[j] + 0.5 * ( maxs[j] - mins[j] );
+			cgs.inlineModelMidpoints[breakPoint][j] = mins[j] + 0.5 * (maxs[j] - mins[j]);
 		}
 		breakPoint++;
-		for(sub=1;sub<MAX_MODELS;sub++)
+		for (sub = 1; sub < MAX_MODELS; sub++)
 		{
 			Com_sprintf(temp, MAX_QPATH, "*%d-%d", i, sub);
-			cgs.inlineDrawModel[breakPoint] = cgi_R_RegisterModel( temp );
+			cgs.inlineDrawModel[breakPoint] = cgi_R_RegisterModel(temp);
 			if (!cgs.inlineDrawModel[breakPoint])
 			{
 				break;
 			}
-			cgi_R_ModelBounds( cgs.inlineDrawModel[breakPoint], mins, maxs );
-			for ( j = 0 ; j < 3 ; j++ ) 
+			cgi_R_ModelBounds(cgs.inlineDrawModel[breakPoint], mins, maxs);
+			for (j = 0; j < 3; j++)
 			{
-				cgs.inlineModelMidpoints[breakPoint][j] = mins[j] + 0.5 * ( maxs[j] - mins[j] );
+				cgs.inlineModelMidpoints[breakPoint][j] = mins[j] + 0.5 * (maxs[j] - mins[j]);
 			}
 			breakPoint++;
 		}
 	}
 
-	const char	*terrainInfo;
-	int			terrainID;
+	const char *terrainInfo;
+	int terrainID;
 
-	for(i = 1; i < MAX_TERRAINS; i++)
+	for (i = 1; i < MAX_TERRAINS; i++)
 	{
-		terrainInfo = CG_ConfigString( CS_TERRAINS + i );
-		if ( !terrainInfo[0] )
+		terrainInfo = CG_ConfigString(CS_TERRAINS + i);
+		if (!terrainInfo[0])
 		{
 			break;
 		}
@@ -1850,7 +1920,7 @@ Ghoul2 Insert End
 		cgi_RMG_Init(terrainID, terrainInfo);
 
 		// Send off the terrainInfo to the renderer
-		cgi_RE_InitRendererTerrain( terrainInfo );
+		cgi_RE_InitRendererTerrain(terrainInfo);
 	}
 }
 
@@ -1861,20 +1931,22 @@ Ghoul2 Insert End
 CG_ConfigString
 =================
 */
-const char *CG_ConfigString( int index ) {
-	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		CG_Error( "CG_ConfigString: bad index: %i", index );
+const char *CG_ConfigString(int index)
+{
+	if (index < 0 || index >= MAX_CONFIGSTRINGS)
+	{
+		CG_Error("CG_ConfigString: bad index: %i", index);
 	}
-	return cgs.gameState.stringData + cgs.gameState.stringOffsets[ index ];
+	return cgs.gameState.stringData + cgs.gameState.stringOffsets[index];
 }
 
 //==================================================================
 
 void CG_LinkCentsToGents(void)
 {
-	int	i;
+	int i;
 
-	for(i = 0; i < MAX_GENTITIES; i++)
+	for (i = 0; i < MAX_GENTITIES; i++)
 	{
 		cg_entities[i].gent = &g_entities[i];
 	}
@@ -1886,16 +1958,17 @@ CG_StartMusic
 
 ======================
 */
-void CG_StartMusic( qboolean bForceStart ) {
-	const char	*s;
-	char	parm1[MAX_QPATH], parm2[MAX_QPATH];
+void CG_StartMusic(qboolean bForceStart)
+{
+	const char *s;
+	char parm1[MAX_QPATH], parm2[MAX_QPATH];
 
 	// start the background music
-	s = (char *)CG_ConfigString( CS_MUSIC );
-	Q_strncpyz( parm1, COM_Parse( &s ), sizeof( parm1 ) );
-	Q_strncpyz( parm2, COM_Parse( &s ), sizeof( parm2 ) );
+	s = (char *)CG_ConfigString(CS_MUSIC);
+	Q_strncpyz(parm1, COM_Parse(&s), sizeof(parm1));
+	Q_strncpyz(parm2, COM_Parse(&s), sizeof(parm2));
 
-	cgi_S_StartBackgroundTrack( parm1, parm2, !bForceStart );
+	cgi_S_StartBackgroundTrack(parm1, parm2, !bForceStart);
 }
 
 /*
@@ -1906,27 +1979,27 @@ Displays the info screen while loading media
 ======================
 */
 
-int iCGResetCount=0;
+int iCGResetCount = 0;
 qboolean qbVidRestartOccured = qfalse;
 
 //===================
-qboolean gbUseTheseValuesFromLoadSave = qfalse;	// MUST default to this
+qboolean gbUseTheseValuesFromLoadSave = qfalse; // MUST default to this
 int gi_cg_forcepowerSelect;
 int gi_cg_inventorySelect;
 //===================
 
-
-static void CG_GameStateReceived( void ) {
+static void CG_GameStateReceived(void)
+{
 	// clear everything
-	
-	extern void CG_ClearAnimEvtCache( void );
-	CG_ClearAnimEvtCache();	// else sound handles wrong after vid_restart
+
+	extern void CG_ClearAnimEvtCache(void);
+	CG_ClearAnimEvtCache(); // else sound handles wrong after vid_restart
 
 	qbVidRestartOccured = qtrue;
 	iCGResetCount++;
-	if (iCGResetCount == 1)	// this will only equal 1 first time, after each vid_restart it just gets higher.
+	if (iCGResetCount == 1) // this will only equal 1 first time, after each vid_restart it just gets higher.
 	{						//	This non-clear is so the user can vid_restart during scrolling text without losing it.
-		qbVidRestartOccured = qfalse;		
+		qbVidRestartOccured = qfalse;
 	}
 
 	if (!qbVidRestartOccured)
@@ -1936,23 +2009,22 @@ static void CG_GameStateReceived( void ) {
 		cg.forcepowerSelect = FP_HEAL;
 	}
 
-	memset( cg_weapons, 0, sizeof(cg_weapons) );
-	memset( cg_items, 0, sizeof(cg_items) );
-	
+	memset(cg_weapons, 0, sizeof(cg_weapons));
+	memset(cg_items, 0, sizeof(cg_items));
+
 	CG_LinkCentsToGents();
 
 	if (gbUseTheseValuesFromLoadSave)
 	{
-		gbUseTheseValuesFromLoadSave = qfalse;	// ack
+		gbUseTheseValuesFromLoadSave = qfalse; // ack
 		cg.forcepowerSelect = gi_cg_forcepowerSelect;
-		cg.inventorySelect	= gi_cg_inventorySelect;
+		cg.inventorySelect = gi_cg_inventorySelect;
 	}
 
-
 	// get the rendering configuration from the client system
-	cgi_GetGlconfig( &cgs.glconfig );
+	cgi_GetGlconfig(&cgs.glconfig);
 
-/*	cgs.charScale = cgs.glconfig.vidHeight * (1.0/480.0);
+	/*	cgs.charScale = cgs.glconfig.vidHeight * (1.0/480.0);
 	if ( cgs.glconfig.vidWidth * 480 > cgs.glconfig.vidHeight * 640 ) {
 		// wide screen
 		cgs.bias = 0.5 * ( cgs.glconfig.vidWidth - ( cgs.glconfig.vidHeight * (640.0/480.0) ) );
@@ -1963,20 +2035,20 @@ static void CG_GameStateReceived( void ) {
 	}
 */
 	// get the gamestate from the client system
-	cgi_GetGameState( &cgs.gameState );
+	cgi_GetGameState(&cgs.gameState);
 
 	CG_ParseServerinfo();
 
 	// load the new map
-	cgs.media.levelLoad = cgi_R_RegisterShaderNoMip( "gfx/menus/newFront/SaberLoad" );
-	CG_LoadingString( "collision map" );
+	cgs.media.levelLoad = cgi_R_RegisterShaderNoMip("gfx/menus/newFront/SaberLoad");
+	CG_LoadingString("collision map");
 
-	cgi_CM_LoadMap( cgs.mapname, qfalse );
+	cgi_CM_LoadMap(cgs.mapname, qfalse);
 
 	CG_RegisterSounds();
 
 	// Xbox hack: Start a huge pile of sound loads right now:
-	extern void S_LoadCommonSounds( void );
+	extern void S_LoadCommonSounds(void);
 	S_LoadCommonSounds();
 
 #ifdef _IMMERSION
@@ -1985,11 +2057,11 @@ static void CG_GameStateReceived( void ) {
 	CG_RegisterGraphics();
 
 	//jfm: moved down to preinit
-//	CG_InitLocalEntities();
-//	CG_InitMarkPolys();
+	//	CG_InitLocalEntities();
+	//	CG_InitMarkPolys();
 
-	CG_LoadingString( "music" );
-	CG_StartMusic( qfalse );
+	CG_LoadingString("music");
+	CG_StartMusic(qfalse);
 
 	// remove the last loading update
 	cg.infoScreenText[0] = 0;
@@ -2008,13 +2080,12 @@ static void CG_GameStateReceived( void ) {
 void CG_WriteTheEvilCGHackStuff(void)
 {
 	gi.AppendToSaveGame('FPSL', &cg.forcepowerSelect, sizeof(cg.forcepowerSelect));
-	gi.AppendToSaveGame('IVSL', &cg.inventorySelect,  sizeof(cg.inventorySelect));
-
+	gi.AppendToSaveGame('IVSL', &cg.inventorySelect, sizeof(cg.inventorySelect));
 }
 void CG_ReadTheEvilCGHackStuff(void)
 {
 	gi.ReadFromSaveGame('FPSL', (void *)&gi_cg_forcepowerSelect, sizeof(gi_cg_forcepowerSelect));
-	gi.ReadFromSaveGame('IVSL', (void *)&gi_cg_inventorySelect,  sizeof(gi_cg_inventorySelect));
+	gi.ReadFromSaveGame('IVSL', (void *)&gi_cg_inventorySelect, sizeof(gi_cg_inventorySelect));
 	gbUseTheseValuesFromLoadSave = qtrue;
 }
 
@@ -2028,38 +2099,37 @@ void CG_Init_CG(void)
 #ifdef _XBOX
 	qboolean widescreen = cg.widescreen;
 #endif
-	memset( &cg, 0, sizeof(cg));
+	memset(&cg, 0, sizeof(cg));
 #ifdef _XBOX
 	cg.widescreen = widescreen;
 #endif
 }
 
-
-#ifdef _XBOX	// Enough for all maps right now
-#define MAX_MISC_ENTS	1000
+#ifdef _XBOX // Enough for all maps right now
+#define MAX_MISC_ENTS 1000
 #else
-#define MAX_MISC_ENTS	2000
+#define MAX_MISC_ENTS 2000
 #endif
 
 typedef struct cgMiscEntData_s
 {
-	char		model[MAX_QPATH];
-	qhandle_t	hModel;
-	vec3_t		origin;
-	vec3_t		angles;
-	vec3_t		scale;
-	float		radius;
-	float		zOffset; //some models need a z offset for culling, because of stupid wrong model origins
+	char model[MAX_QPATH];
+	qhandle_t hModel;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t scale;
+	float radius;
+	float zOffset; //some models need a z offset for culling, because of stupid wrong model origins
 } cgMiscEntData_t;
 
-static cgMiscEntData_t	MiscEnts[MAX_MISC_ENTS]; //statically allocated for now.
-static int				NumMiscEnts=0;
+static cgMiscEntData_t MiscEnts[MAX_MISC_ENTS]; //statically allocated for now.
+static int NumMiscEnts = 0;
 
 void CG_CreateMiscEntFromGent(gentity_t *ent, const vec3_t scale, float zOff)
 { //store the model data
 	if (NumMiscEnts == MAX_MISC_ENTS)
 	{
-		Com_Error(ERR_DROP,"Maximum misc_model_static reached (%d)\n",MAX_MISC_ENTS);
+		Com_Error(ERR_DROP, "Maximum misc_model_static reached (%d)\n", MAX_MISC_ENTS);
 		return;
 	}
 
@@ -2069,36 +2139,36 @@ void CG_CreateMiscEntFromGent(gentity_t *ent, const vec3_t scale, float zOff)
 		return;
 	}
 	const int len = strlen(ent->model);
-	if (len < 4 || stricmp(&ent->model[len-4],".md3")!=0)
+	if (len < 4 || stricmp(&ent->model[len - 4], ".md3") != 0)
 	{
-		Com_Error(ERR_DROP, "misc_model_static model(%s) is not an md3.",ent->model);
+		Com_Error(ERR_DROP, "misc_model_static model(%s) is not an md3.", ent->model);
 		return;
 	}
-	cgMiscEntData_t	*MiscEnt = &MiscEnts[NumMiscEnts++];
+	cgMiscEntData_t *MiscEnt = &MiscEnts[NumMiscEnts++];
 	memset(MiscEnt, 0, sizeof(*MiscEnt));
 
 	strcpy(MiscEnt->model, ent->model);
-	VectorCopy(ent->s.angles,	MiscEnt->angles);
-	VectorCopy(scale,			MiscEnt->scale);
-	VectorCopy(ent->s.origin,	MiscEnt->origin);
+	VectorCopy(ent->s.angles, MiscEnt->angles);
+	VectorCopy(scale, MiscEnt->scale);
+	VectorCopy(ent->s.origin, MiscEnt->origin);
 	MiscEnt->zOffset = zOff;
 }
 
-#define VectorScaleVector(a,b,c)		(((c)[0]=(a)[0]*(b)[0]),((c)[1]=(a)[1]*(b)[1]),((c)[2]=(a)[2]*(b)[2]))
+#define VectorScaleVector(a, b, c) (((c)[0] = (a)[0] * (b)[0]), ((c)[1] = (a)[1] * (b)[1]), ((c)[2] = (a)[2] * (b)[2]))
 //call on standard model load to spawn the queued stuff
 void CG_CreateMiscEnts(void)
 {
-	vec3_t		mins, maxs;
+	vec3_t mins, maxs;
 
 	int i;
-	for (i=0; i < NumMiscEnts; i++)
+	for (i = 0; i < NumMiscEnts; i++)
 	{
-		cgMiscEntData_t	*MiscEnt = &MiscEnts[i];
+		cgMiscEntData_t *MiscEnt = &MiscEnts[i];
 
 		MiscEnt->hModel = cgi_R_RegisterModel(MiscEnt->model);
 		if (MiscEnt->hModel == 0)
 		{
-			Com_Error(ERR_DROP, "misc_model_static failed to load model '%s'",MiscEnt->model);
+			Com_Error(ERR_DROP, "misc_model_static failed to load model '%s'", MiscEnt->model);
 			continue;
 		}
 
@@ -2112,28 +2182,28 @@ void CG_CreateMiscEnts(void)
 
 void CG_DrawMiscEnts(void)
 {
-	int			i;
-	cgMiscEntData_t	*MiscEnt = MiscEnts;
-	refEntity_t	refEnt; 
-	vec3_t		difference;
-	vec3_t		cullOrigin;
+	int i;
+	cgMiscEntData_t *MiscEnt = MiscEnts;
+	refEntity_t refEnt;
+	vec3_t difference;
+	vec3_t cullOrigin;
 
-	memset (&refEnt, 0, sizeof(refEnt));
+	memset(&refEnt, 0, sizeof(refEnt));
 	refEnt.reType = RT_MODEL;
 	refEnt.frame = 0;
 	refEnt.renderfx = RF_LIGHTING_ORIGIN;
-	for(i=0;i<NumMiscEnts;i++)
+	for (i = 0; i < NumMiscEnts; i++)
 	{
 		VectorCopy(MiscEnt->origin, cullOrigin);
-		cullOrigin[2] += MiscEnt->zOffset+1.0f;
+		cullOrigin[2] += MiscEnt->zOffset + 1.0f;
 
 		if (gi.inPVS(cg.refdef.vieworg, cullOrigin))
 		{
 			VectorSubtract(MiscEnt->origin, cg.refdef.vieworg, difference);
-			if (VectorLengthSquared(difference)-(MiscEnt->radius) <= 8192*8192/*RMG_distancecull.value*/)
+			if (VectorLengthSquared(difference) - (MiscEnt->radius) <= 8192 * 8192 /*RMG_distancecull.value*/)
 			{ //fixme: need access to the real cull dist here
 				refEnt.hModel = MiscEnt->hModel;
-				AnglesToAxis( MiscEnt->angles, refEnt.axis );
+				AnglesToAxis(MiscEnt->angles, refEnt.axis);
 				VectorCopy(MiscEnt->scale, refEnt.modelScale);
 				VectorCopy(MiscEnt->origin, refEnt.origin);
 				VectorCopy(cullOrigin, refEnt.lightingOrigin);
@@ -2150,17 +2220,17 @@ void CG_DrawMiscEnts(void)
 
 void CG_TransitionPermanent(void)
 {
-	centity_t	*cent = cg_entities;
-	int			i;
+	centity_t *cent = cg_entities;
+	int i;
 
 	cg_numpermanents = 0;
-	for(i=0;i<MAX_GENTITIES;i++,cent++)
+	for (i = 0; i < MAX_GENTITIES; i++, cent++)
 	{
 		if (cgi_GetDefaultState(i, &cent->currentState))
 		{
 			cent->nextState = &cent->currentState;
-			VectorCopy (cent->currentState.origin, cent->lerpOrigin);
-			VectorCopy (cent->currentState.angles, cent->lerpAngles);
+			VectorCopy(cent->currentState.origin, cent->lerpOrigin);
+			VectorCopy(cent->currentState.angles, cent->lerpAngles);
 			cent->currentValid = qtrue;
 
 			cg_permanents[cg_numpermanents++] = cent;
@@ -2172,7 +2242,6 @@ void CG_TransitionPermanent(void)
 Ghoul2 Insert End
 */
 
-
 /*
 =================
 CG_PreInit
@@ -2180,25 +2249,24 @@ CG_PreInit
 Called when DLL loads (after subsystem restart, but before gamestate is received)
 =================
 */
-void CG_PreInit() {
+void CG_PreInit()
+{
 	CG_Init_CG();
 
-	memset( &cgs, 0, sizeof( cgs ) );
+	memset(&cgs, 0, sizeof(cgs));
 	iCGResetCount = 0;
 
 	CG_RegisterCvars();
 
-//moved from CG_GameStateReceived because it's loaded sooner now
+	//moved from CG_GameStateReceived because it's loaded sooner now
 	CG_InitLocalEntities();
 
-#ifdef _XBOX	// I can't believe that this isn't necessary on PC, but I'll hold off
+#ifdef _XBOX // I can't believe that this isn't necessary on PC, but I'll hold off
 	NumMiscEnts = 0;
-	memset( MiscEnts, 0, sizeof(MiscEnts) );
+	memset(MiscEnts, 0, sizeof(MiscEnts));
 #endif
 
 	CG_InitMarkPolys();
-
-
 }
 
 /*
@@ -2208,62 +2276,64 @@ CG_Init
 Called after every level change or subsystem restart
 =================
 */
-void CG_Init( int serverCommandSequence ) {
+void CG_Init(int serverCommandSequence)
+{
 	cgs.serverCommandSequence = serverCommandSequence;
 
-	cgi_Cvar_Set( "cg_drawHUD", "1" );
+	cgi_Cvar_Set("cg_drawHUD", "1");
 
 	// fonts...
 	//
 	cgs.media.charsetShader = cgi_R_RegisterShaderNoMip("gfx/2d/charsgrid_med");
 
-//	cgs.media.qhFontSmall = cgi_R_RegisterFont("ocr_a");
+	//	cgs.media.qhFontSmall = cgi_R_RegisterFont("ocr_a");
 	cgs.media.qhFontSmall = cgi_R_RegisterFont("ergoec");
-	cgs.media.qhFontMedium= cgi_R_RegisterFont("ergoec");
+	cgs.media.qhFontMedium = cgi_R_RegisterFont("ergoec");
 
-	cgs.media.whiteShader   = cgi_R_RegisterShader( "white" );
-	cgs.media.loadTick		= cgi_R_RegisterShaderNoMip( "gfx/menus/newFront/GlowLoad" );
-//	cgs.media.loadTickCap	= cgi_R_RegisterShaderNoMip( "gfx/hud/load_tick_cap" );
-	
-	const char	*force_icon_files[NUM_FORCE_POWERS] = 
-	{//icons matching enums forcePowers_t
-		"gfx/mp/f_icon_lt_heal",		//FP_HEAL,
-		"gfx/mp/f_icon_levitation",		//FP_LEVITATION,
-		"gfx/mp/f_icon_speed",			//FP_SPEED,
-		"gfx/mp/f_icon_push",			//FP_PUSH,
-		"gfx/mp/f_icon_pull",			//FP_PULL,
-		"gfx/mp/f_icon_lt_telepathy",	//FP_TELEPATHY,
-		"gfx/mp/f_icon_dk_grip",		//FP_GRIP,
-		"gfx/mp/f_icon_dk_l1",			//FP_LIGHTNING,
-		"gfx/mp/f_icon_saber_throw",	//FP_SABERTHROW
-		"gfx/mp/f_icon_saber_defend",	//FP_SABERDEFEND,
-		"gfx/mp/f_icon_saber_attack",	//FP_SABERATTACK,
-		"gfx/mp/f_icon_dk_rage",		//FP_RAGE,
-		"gfx/mp/f_icon_lt_protect",		//FP_PROTECT,
-		"gfx/mp/f_icon_lt_absorb",		//FP_ABSORB,
-		"gfx/mp/f_icon_dk_drain",		//FP_DRAIN,
-		"gfx/mp/f_icon_sight",			//FP_SEE,
-	};
+	cgs.media.whiteShader = cgi_R_RegisterShader("white");
+	cgs.media.loadTick = cgi_R_RegisterShaderNoMip("gfx/menus/newFront/GlowLoad");
+	//	cgs.media.loadTickCap	= cgi_R_RegisterShaderNoMip( "gfx/hud/load_tick_cap" );
+
+	const char *force_icon_files[NUM_FORCE_POWERS] =
+		{
+			//icons matching enums forcePowers_t
+			"gfx/mp/f_icon_lt_heal",	  //FP_HEAL,
+			"gfx/mp/f_icon_levitation",	  //FP_LEVITATION,
+			"gfx/mp/f_icon_speed",		  //FP_SPEED,
+			"gfx/mp/f_icon_push",		  //FP_PUSH,
+			"gfx/mp/f_icon_pull",		  //FP_PULL,
+			"gfx/mp/f_icon_lt_telepathy", //FP_TELEPATHY,
+			"gfx/mp/f_icon_dk_grip",	  //FP_GRIP,
+			"gfx/mp/f_icon_dk_l1",		  //FP_LIGHTNING,
+			"gfx/mp/f_icon_saber_throw",  //FP_SABERTHROW
+			"gfx/mp/f_icon_saber_defend", //FP_SABERDEFEND,
+			"gfx/mp/f_icon_saber_attack", //FP_SABERATTACK,
+			"gfx/mp/f_icon_dk_rage",	  //FP_RAGE,
+			"gfx/mp/f_icon_lt_protect",	  //FP_PROTECT,
+			"gfx/mp/f_icon_lt_absorb",	  //FP_ABSORB,
+			"gfx/mp/f_icon_dk_drain",	  //FP_DRAIN,
+			"gfx/mp/f_icon_sight",		  //FP_SEE,
+		};
 
 	// Precache inventory icons
-	for ( int i=0;i<NUM_FORCE_POWERS;i++)
+	for (int i = 0; i < NUM_FORCE_POWERS; i++)
 	{
 		if (force_icon_files[i])
 		{
-			force_icons[i] = cgi_R_RegisterShaderNoMip( force_icon_files[i] );
+			force_icons[i] = cgi_R_RegisterShaderNoMip(force_icon_files[i]);
 		}
 	}
 
-	CG_LoadHudMenu();      // load new hud stuff
+	CG_LoadHudMenu(); // load new hud stuff
 
 	cgi_UI_Menu_OpenByName("loadscreen");
 
 	//rww - Moved from CG_GameStateReceived (we don't want to clear perm ents)
-	memset( cg_entities, 0, sizeof(cg_entities) );
+	memset(cg_entities, 0, sizeof(cg_entities));
 
 	CG_TransitionPermanent();
 
-	cg.loadLCARSStage		= 0;
+	cg.loadLCARSStage = 0;
 
 	CG_GameStateReceived();
 
@@ -2273,40 +2343,39 @@ void CG_Init( int serverCommandSequence ) {
 	// the game server will interpret these commands, which will be automatically
 	// forwarded to the server after they are not recognized locally
 	//
-	cgi_AddCommand ("kill");
-	cgi_AddCommand ("give");
-	cgi_AddCommand ("god");
-	cgi_AddCommand ("notarget");
-	cgi_AddCommand ("noclip");
-	cgi_AddCommand ("undying");
-	cgi_AddCommand ("setviewpos");
-	cgi_AddCommand ("setobjective");
-	cgi_AddCommand ("viewobjective");
+	cgi_AddCommand("kill");
+	cgi_AddCommand("give");
+	cgi_AddCommand("god");
+	cgi_AddCommand("notarget");
+	cgi_AddCommand("noclip");
+	cgi_AddCommand("undying");
+	cgi_AddCommand("setviewpos");
+	cgi_AddCommand("setobjective");
+	cgi_AddCommand("viewobjective");
 
+	//ConsoleCommand in g_svcmds.cpp
+	cgi_AddCommand("entitylist");
+	cgi_AddCommand("nav");
+	cgi_AddCommand("npc");
 
-//ConsoleCommand in g_svcmds.cpp
-	cgi_AddCommand ("entitylist");
-	cgi_AddCommand ("nav");
-	cgi_AddCommand ("npc");
+	cgi_AddCommand("saberColor");
+	cgi_AddCommand("saber");
+	cgi_AddCommand("saberblade");
 
-	cgi_AddCommand ("saberColor");
-	cgi_AddCommand ("saber");
-	cgi_AddCommand ("saberblade");
+	cgi_AddCommand("runscript");
 
-	cgi_AddCommand ("runscript");
+	cgi_AddCommand("playerteam");
+	cgi_AddCommand("playermodel");
 
-	cgi_AddCommand ("playerteam");
-	cgi_AddCommand ("playermodel");
-
-	cgi_AddCommand ("saberAttackCycle");
+	cgi_AddCommand("saberAttackCycle");
 
 	cg.weaponPickupTextTime = 0;
 
 	cg.missionInfoFlashTime = 0;
 	cg.missionStatusShow = qfalse;
 
-	cg.missionFailedScreen = qfalse;	// Screen hasn't been opened.
-	cgi_UI_MenuCloseAll();	// So the loadscreen menu will turn off just after the opening snapshot
+	cg.missionFailedScreen = qfalse; // Screen hasn't been opened.
+	cgi_UI_MenuCloseAll();			 // So the loadscreen menu will turn off just after the opening snapshot
 }
 
 /*
@@ -2316,7 +2385,7 @@ CG_Shutdown
 Called before every level change or subsystem restart
 =================
 */
-void CG_Shutdown( void ) 
+void CG_Shutdown(void)
 {
 	in_camera = false;
 	FX_Free();
@@ -2328,22 +2397,22 @@ void CG_Shutdown( void )
 CG_DrawNode
 -------------------------
 */
-void CG_DrawNode( vec3_t origin, int type )
+void CG_DrawNode(vec3_t origin, int type)
 {
-	localEntity_t	*ex;
+	localEntity_t *ex;
 
 	ex = CG_AllocLocalEntity();
 
 	ex->leType = LE_SPRITE;
 	ex->startTime = cg.time;
 	ex->endTime = ex->startTime + 51;
-	VectorCopy( origin, ex->refEntity.origin );
-		
-	ex->refEntity.customShader = cgi_R_RegisterShader( "gfx/misc/nav_node" );
+	VectorCopy(origin, ex->refEntity.origin);
 
-	float	scale = 16.0f;
+	ex->refEntity.customShader = cgi_R_RegisterShader("gfx/misc/nav_node");
 
-	switch ( type )
+	float scale = 16.0f;
+
+	switch (type)
 	{
 	case NODE_NORMAL:
 		ex->color[0] = 255;
@@ -2371,7 +2440,7 @@ void CG_DrawNode( vec3_t origin, int type )
 		ex->color[2] = 0;
 		break;
 	}
-	
+
 	ex->radius = scale;
 }
 
@@ -2381,9 +2450,9 @@ CG_DrawRadius
 -------------------------
 */
 
-void CG_DrawRadius( vec3_t origin, unsigned int radius, int type )
+void CG_DrawRadius(vec3_t origin, unsigned int radius, int type)
 {
-	localEntity_t	*ex;
+	localEntity_t *ex;
 
 	ex = CG_AllocLocalEntity();
 
@@ -2391,11 +2460,11 @@ void CG_DrawRadius( vec3_t origin, unsigned int radius, int type )
 	ex->radius = radius;
 	ex->startTime = cg.time;
 	ex->endTime = ex->startTime + 51;
-	VectorCopy( origin, ex->refEntity.origin );
-		
-	ex->refEntity.customShader = cgi_R_RegisterShader( "gfx/misc/nav_radius" );
+	VectorCopy(origin, ex->refEntity.origin);
 
-	switch ( type )
+	ex->refEntity.customShader = cgi_R_RegisterShader("gfx/misc/nav_radius");
+
+	switch (type)
 	{
 	case NODE_NORMAL:
 		ex->color[0] = 255;
@@ -2429,184 +2498,175 @@ CG_DrawEdge
 -------------------------
 */
 
-void CG_DrawEdge( vec3_t start, vec3_t end, int type )
+void CG_DrawEdge(vec3_t start, vec3_t end, int type)
 {
-	switch ( type )
-	{	
+	switch (type)
+	{
 		// NAVIGATION EDGES BETWEEN POINTS
 		//=====================================
 	case EDGE_NORMAL:
-		{
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
-		}
-		break;
+	{
+		FX_AddLine(start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader("gfx/misc/nav_line"), 0);
+	}
+	break;
 	case EDGE_LARGE:
-		{
-			FX_AddLine( start, end, 8.0f, 15.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
-		}
-		break;	
+	{
+		FX_AddLine(start, end, 8.0f, 15.0f, 0.0f, 0.5f, 0.5f, 51, cgi_R_RegisterShader("gfx/misc/nav_line"), 0);
+	}
+	break;
 	case EDGE_BLOCKED:
-		{
-			vec3_t	color = { 255, 0, 0 };	// RED
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {255, 0, 0}; // RED
+		FX_AddLine(start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader("gfx/misc/nav_line"), 0);
+	}
+	break;
 	case EDGE_FLY:
-		{
-			vec3_t	color = { 0, 255, 255 };// GREEN
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {0, 255, 255}; // GREEN
+		FX_AddLine(start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader("gfx/misc/nav_line"), 0);
+	}
+	break;
 	case EDGE_JUMP:
-		{
-			vec3_t	color = { 0, 0, 255 };	// BLUE
-			FX_AddLine( start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader( "gfx/misc/nav_line" ), 0 );
-		}
-		break;
-
-
+	{
+		vec3_t color = {0, 0, 255}; // BLUE
+		FX_AddLine(start, end, 8.0f, 4.0f, 0.0f, 0.5f, 0.5f, color, color, 51, cgi_R_RegisterShader("gfx/misc/nav_line"), 0);
+	}
+	break;
 
 		// EDGE NODES
 		//=====================================
 	case EDGE_NODE_NORMAL:
-		{
-			vec3_t	color = { 155, 155, 155 };
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {155, 155, 155};
+		FX_AddLine(start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0);
+	}
+	break;
 	case EDGE_NODE_FLOATING:
-		{
-			vec3_t	color = { 155, 155, 0 };
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {155, 155, 0};
+		FX_AddLine(start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0);
+	}
+	break;
 	case EDGE_NODE_GOAL:
-		{
-			vec3_t	color = { 0, 0, 155 };
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {0, 0, 155};
+		FX_AddLine(start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0);
+	}
+	break;
 	case EDGE_NODE_COMBAT:
-		{
-			vec3_t	color = { 155, 0, 0 };
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {155, 0, 0};
+		FX_AddLine(start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0);
+	}
+	break;
 
-
-
-
-		// NEAREST NAV 
+		// NEAREST NAV
 		//=====================================
 	case EDGE_NEARESTVALID:
-		{
-			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, FX_ALPHA_LINEAR, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, 0 );
-		}
-		break;
+	{
+		vec3_t color = {155, 155, 155}; // WHITE
+		FX_AddLine(-1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, FX_ALPHA_LINEAR, color, color, 0, 51, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0, 0);
+	}
+	break;
 
 	case EDGE_NEARESTINVALID:
-		{
-			vec3_t	color = { 155, 0, 0 };	// WHITE
-			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, FX_ALPHA_LINEAR, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, 0 );
-		}
-		break;
-
+	{
+		vec3_t color = {155, 0, 0}; // WHITE
+		FX_AddLine(-1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, FX_ALPHA_LINEAR, color, color, 0, 51, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0, 0);
+	}
+	break;
 
 		// NEAREST NAV CELLS
 		//=====================================
 	case EDGE_CELL:
-		{
-			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, FX_ALPHA_LINEAR, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, 0 );
-		}
-		break;
+	{
+		vec3_t color = {155, 155, 155}; // WHITE
+		FX_AddLine(-1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, FX_ALPHA_LINEAR, color, color, 0, 51, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0, 0);
+	}
+	break;
 	case EDGE_CELL_EMPTY:
-		{	
-			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( -1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, FX_ALPHA_LINEAR, color, color, 0, 51, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0, 0 );
-		}
-		break;
-
+	{
+		vec3_t color = {255, 0, 0}; // RED
+		FX_AddLine(-1, start, end, 1.0f, 1.0f, 0, 1.0f, 1.0f, FX_ALPHA_LINEAR, color, color, 0, 51, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0, 0);
+	}
+	break;
 
 		// ACTOR PATHS
 		//=============
 	case EDGE_PATH:
-		{
-  			vec3_t	color = { 0, 0, 155 };		// WHITE
- 			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {0, 0, 155}; // WHITE
+		FX_AddLine(start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader("gfx/misc/nav_arrow_new"), 0);
+	}
+	break;
 
 	case EDGE_PATHBLOCKED:
-		{
- 			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), 0 );
-			break;
-		}
+	{
+		vec3_t color = {255, 0, 0}; // RED
+		FX_AddLine(start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader("gfx/misc/nav_arrow_new"), 0);
+		break;
+	}
 
 	case EDGE_FOLLOWPOS:
-		{
-			vec3_t	color = { 0, 255, 0 };		// GREEN
-			FX_AddLine( start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/nav_arrow_new" ), 0 );
-			break;
-		}
-
+	{
+		vec3_t color = {0, 255, 0}; // GREEN
+		FX_AddLine(start, end, 5.0f, 5.0f, 0.0f, 0.5f, 0.5f, color, color, 151, cgi_R_RegisterShader("gfx/misc/nav_arrow_new"), 0);
+		break;
+	}
 
 		// STEERING
 		//=====================================
 	case EDGE_IMPACT_SAFE:
-		{
-			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {155, 155, 155}; // WHITE
+		FX_AddLine(start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0);
+	}
+	break;
 	case EDGE_IMPACT_POSSIBLE:
-		{
-			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {255, 0, 0}; // RED
+		FX_AddLine(start, end, 2.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0);
+	}
+	break;
 	case EDGE_VELOCITY:
-		{
-			vec3_t	color = { 0, 255, 0 };		// GREEN
-			FX_AddLine( start, end, 4.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {0, 255, 0}; // GREEN
+		FX_AddLine(start, end, 4.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0);
+	}
+	break;
 	case EDGE_THRUST:
-		{
-			vec3_t	color = { 0, 0, 255 };		// BLUE
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
-		}
-		break;
-
+	{
+		vec3_t color = {0, 0, 255}; // BLUE
+		FX_AddLine(start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 151, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0);
+	}
+	break;
 
 		// MISC Colored Lines
 		//=====================================
 	case EDGE_WHITE_ONESECOND:
-		{
-			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 1051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {155, 155, 155}; // WHITE
+		FX_AddLine(start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 1051, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0);
+	}
+	break;
 	case EDGE_WHITE_TWOSECOND:
-		{
-			vec3_t	color = { 155, 155, 155 };	// WHITE
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 1051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {155, 155, 155}; // WHITE
+		FX_AddLine(start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 1051, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0);
+	}
+	break;
 	case EDGE_RED_ONESECOND:
-		{
-			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 2051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {255, 0, 0}; // RED
+		FX_AddLine(start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 2051, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0);
+	}
+	break;
 	case EDGE_RED_TWOSECOND:
-		{
-			vec3_t	color = { 255, 0, 0 };		// RED
-			FX_AddLine( start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 2051, cgi_R_RegisterShader( "gfx/misc/whiteline2" ), 0 );
-		}
-		break;
+	{
+		vec3_t color = {255, 0, 0}; // RED
+		FX_AddLine(start, end, 3.0f, 1.0f, 0.0f, 1.0f, 1.0f, color, color, 2051, cgi_R_RegisterShader("gfx/misc/whiteline2"), 0);
+	}
+	break;
 
 	default:
 		break;
@@ -2619,9 +2679,9 @@ CG_DrawCombatPoint
 -------------------------
 */
 
-void CG_DrawCombatPoint( vec3_t origin, int type )
+void CG_DrawCombatPoint(vec3_t origin, int type)
 {
-	localEntity_t	*ex;
+	localEntity_t *ex;
 
 	ex = CG_AllocLocalEntity();
 
@@ -2629,15 +2689,15 @@ void CG_DrawCombatPoint( vec3_t origin, int type )
 	ex->startTime = cg.time;
 	ex->radius = 8;
 	ex->endTime = ex->startTime + 51;
-	VectorCopy( origin, ex->refEntity.origin );
-		
-	ex->refEntity.customShader = cgi_R_RegisterShader( "gfx/misc/nav_cpoint" );
+	VectorCopy(origin, ex->refEntity.origin);
+
+	ex->refEntity.customShader = cgi_R_RegisterShader("gfx/misc/nav_cpoint");
 
 	ex->color[0] = 255;
 	ex->color[1] = 0;
 	ex->color[2] = 255;
 
-/*
+	/*
 	switch( type )
 	{
 	case 0:	//FIXME: To shut up the compiler warning (more will be added here later of course)
@@ -2654,32 +2714,31 @@ CG_DrawAlert
 -------------------------
 */
 
-void CG_DrawAlert( vec3_t origin, float rating )
+void CG_DrawAlert(vec3_t origin, float rating)
 {
-	vec3_t	drawPos;
+	vec3_t drawPos;
 
-	VectorCopy( origin, drawPos );
+	VectorCopy(origin, drawPos);
 	drawPos[2] += 48;
 
-	vec3_t	startRGB;
+	vec3_t startRGB;
 
 	//Fades from green at 0, to red at 1
 	startRGB[0] = rating;
 	startRGB[1] = 1 - rating;
 	startRGB[2] = 0;
 
-	FX_AddSprite( drawPos, NULL, NULL, 16, 0.0f, 1.0f, 1.0f, startRGB, startRGB, 0, 0, 50, cgs.media.whiteShader );
+	FX_AddSprite(drawPos, NULL, NULL, 16, 0.0f, 1.0f, 1.0f, startRGB, startRGB, 0, 0, 50, cgs.media.whiteShader);
 }
 
-
-#define MAX_MENUDEFFILE				4096
+#define MAX_MENUDEFFILE 4096
 
 //
 // ==============================
 // new hud stuff ( mission pack )
 // ==============================
 //
-qboolean CG_Asset_Parse(const char **p) 
+qboolean CG_Asset_Parse(const char **p)
 {
 	const char *token;
 	const char *tempStr;
@@ -2692,12 +2751,12 @@ qboolean CG_Asset_Parse(const char **p)
 		return qfalse;
 	}
 
-	if (Q_stricmp(token, "{") != 0) 
+	if (Q_stricmp(token, "{") != 0)
 	{
 		return qfalse;
 	}
-    
-	while ( 1 ) 
+
+	while (1)
 	{
 		token = COM_ParseExt(p, qtrue);
 		if (!token)
@@ -2705,15 +2764,15 @@ qboolean CG_Asset_Parse(const char **p)
 			return qfalse;
 		}
 
-		if (Q_stricmp(token, "}") == 0) 
+		if (Q_stricmp(token, "}") == 0)
 		{
 			return qtrue;
 		}
 
 		// font
-		if (Q_stricmp(token, "font") == 0) 
+		if (Q_stricmp(token, "font") == 0)
 		{
-/*
+			/*
 			int pointSize;
 
 			cgi_UI_Parse_String(tempStr);
@@ -2724,155 +2783,155 @@ qboolean CG_Asset_Parse(const char **p)
 				return qfalse;
 			}
 */
-//			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.textFont);
+			//			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.textFont);
 			continue;
 		}
 
 		// smallFont
-		if (Q_stricmp(token, "smallFont") == 0) 
+		if (Q_stricmp(token, "smallFont") == 0)
 		{
-			if (!COM_ParseString(p, &tempStr) || !COM_ParseInt(p, &pointSize)) 
+			if (!COM_ParseString(p, &tempStr) || !COM_ParseInt(p, &pointSize))
 			{
 				return qfalse;
 			}
-//			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.smallFont);
+			//			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.smallFont);
 			continue;
 		}
 
 		// smallFont - because the HUD file needs it for MP.
-		if (Q_stricmp(token, "small2Font") == 0) 
+		if (Q_stricmp(token, "small2Font") == 0)
 		{
-			if (!COM_ParseString(p, &tempStr) || !COM_ParseInt(p, &pointSize)) 
+			if (!COM_ParseString(p, &tempStr) || !COM_ParseInt(p, &pointSize))
 			{
 				return qfalse;
 			}
-//			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.smallFont);
+			//			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.smallFont);
 			continue;
 		}
 
 		// font
-		if (Q_stricmp(token, "bigfont") == 0) 
+		if (Q_stricmp(token, "bigfont") == 0)
 		{
 			int pointSize;
-			if (!COM_ParseString(p, &tempStr) || !COM_ParseInt(p, &pointSize)) 
+			if (!COM_ParseString(p, &tempStr) || !COM_ParseInt(p, &pointSize))
 			{
 				return qfalse;
 			}
-//			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.bigFont);
+			//			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.bigFont);
 			continue;
 		}
 
 		// gradientbar
-		if (Q_stricmp(token, "gradientbar") == 0) 
+		if (Q_stricmp(token, "gradientbar") == 0)
 		{
-			if (!COM_ParseString(p, &tempStr)) 
+			if (!COM_ParseString(p, &tempStr))
 			{
 				return qfalse;
 			}
-//			cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip(tempStr);
+			//			cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip(tempStr);
 			continue;
 		}
 
 		// enterMenuSound
-		if (Q_stricmp(token, "menuEnterSound") == 0) 
+		if (Q_stricmp(token, "menuEnterSound") == 0)
 		{
-			if (!COM_ParseString(p, &tempStr)) 
+			if (!COM_ParseString(p, &tempStr))
 			{
 				return qfalse;
 			}
-//			cgDC.Assets.menuEnterSound = trap_S_RegisterSound( tempStr );
+			//			cgDC.Assets.menuEnterSound = trap_S_RegisterSound( tempStr );
 			continue;
 		}
 
 		// exitMenuSound
-		if (Q_stricmp(token, "menuExitSound") == 0) 
+		if (Q_stricmp(token, "menuExitSound") == 0)
 		{
-			if (!COM_ParseString(p, &tempStr)) 
+			if (!COM_ParseString(p, &tempStr))
 			{
 				return qfalse;
 			}
-//			cgDC.Assets.menuExitSound = trap_S_RegisterSound( tempStr );
+			//			cgDC.Assets.menuExitSound = trap_S_RegisterSound( tempStr );
 			continue;
 		}
 
 		// itemFocusSound
-		if (Q_stricmp(token, "itemFocusSound") == 0) 
+		if (Q_stricmp(token, "itemFocusSound") == 0)
 		{
-			if (!COM_ParseString(p, &tempStr)) 
+			if (!COM_ParseString(p, &tempStr))
 			{
 				return qfalse;
 			}
-//			cgDC.Assets.itemFocusSound = trap_S_RegisterSound( tempStr );
+			//			cgDC.Assets.itemFocusSound = trap_S_RegisterSound( tempStr );
 			continue;
 		}
 
 		// menuBuzzSound
-		if (Q_stricmp(token, "menuBuzzSound") == 0) 
+		if (Q_stricmp(token, "menuBuzzSound") == 0)
 		{
-			if (!COM_ParseString(p, &tempStr)) 
+			if (!COM_ParseString(p, &tempStr))
 			{
 				return qfalse;
 			}
-//			cgDC.Assets.menuBuzzSound = trap_S_RegisterSound( tempStr );
+			//			cgDC.Assets.menuBuzzSound = trap_S_RegisterSound( tempStr );
 			continue;
 		}
 
-		if (Q_stricmp(token, "cursor") == 0) 
+		if (Q_stricmp(token, "cursor") == 0)
 		{
-//			if (!COM_ParseString(p, &cgDC.Assets.cursorStr)) 
-//			{
-//				return qfalse;
-//			}
-//			cgDC.Assets.cursor = trap_R_RegisterShaderNoMip( cgDC.Assets.cursorStr);
+			//			if (!COM_ParseString(p, &cgDC.Assets.cursorStr))
+			//			{
+			//				return qfalse;
+			//			}
+			//			cgDC.Assets.cursor = trap_R_RegisterShaderNoMip( cgDC.Assets.cursorStr);
 			continue;
 		}
 
-		if (Q_stricmp(token, "fadeClamp") == 0) 
+		if (Q_stricmp(token, "fadeClamp") == 0)
 		{
-//			if (!COM_ParseFloat(p, &cgDC.Assets.fadeClamp)) 
-//			{
-//				return qfalse;
-//			}
+			//			if (!COM_ParseFloat(p, &cgDC.Assets.fadeClamp))
+			//			{
+			//				return qfalse;
+			//			}
 			continue;
 		}
 
-		if (Q_stricmp(token, "fadeCycle") == 0) 
+		if (Q_stricmp(token, "fadeCycle") == 0)
 		{
-//			if (!COM_ParseInt(p, &cgDC.Assets.fadeCycle)) 
-//			{
-//				return qfalse;
-//			}
+			//			if (!COM_ParseInt(p, &cgDC.Assets.fadeCycle))
+			//			{
+			//				return qfalse;
+			//			}
 			continue;
 		}
 
-		if (Q_stricmp(token, "fadeAmount") == 0) 
+		if (Q_stricmp(token, "fadeAmount") == 0)
 		{
-//			if (!COM_ParseFloat(p, &cgDC.Assets.fadeAmount)) 
-//			{
-//				return qfalse;
-//			}
+			//			if (!COM_ParseFloat(p, &cgDC.Assets.fadeAmount))
+			//			{
+			//				return qfalse;
+			//			}
 			continue;
 		}
 
-		if (Q_stricmp(token, "shadowX") == 0) 
+		if (Q_stricmp(token, "shadowX") == 0)
 		{
-//			if (!COM_ParseFloat(p, &cgDC.Assets.shadowX)) 
-//			{
-//				return qfalse;
-//			}
+			//			if (!COM_ParseFloat(p, &cgDC.Assets.shadowX))
+			//			{
+			//				return qfalse;
+			//			}
 			continue;
 		}
 
-		if (Q_stricmp(token, "shadowY") == 0) 
+		if (Q_stricmp(token, "shadowY") == 0)
 		{
-//			if (!COM_ParseFloat(p, &cgDC.Assets.shadowY)) 
-//			{
-//				return qfalse;
-//			}
+			//			if (!COM_ParseFloat(p, &cgDC.Assets.shadowY))
+			//			{
+			//				return qfalse;
+			//			}
 			continue;
 		}
 
-		if (Q_stricmp(token, "shadowColor") == 0) 
+		if (Q_stricmp(token, "shadowColor") == 0)
 		{
 			/*
 			if (!PC_Color_Parse(handle, &cgDC.Assets.shadowColor)) 
@@ -2894,20 +2953,20 @@ void cgi_UI_EndParseSession(char *buf);
 CG_ParseMenu();
 =================
 */
-void CG_ParseMenu(const char *menuFile) 
+void CG_ParseMenu(const char *menuFile)
 {
-	char			*token;
-	int				result;
-	char			*buf,*p;
+	char *token;
+	int result;
+	char *buf, *p;
 
 	//Com_Printf("Parsing menu file:%s\n", menuFile);
 
-	result = cgi_UI_StartParseSession((char *) menuFile,&buf);
+	result = cgi_UI_StartParseSession((char *)menuFile, &buf);
 
 	if (!result)
 	{
 		Com_Printf("Unable to load hud menu file:%s. Using default ui/testhud.menu.\n", menuFile);
-		result = cgi_UI_StartParseSession("ui/testhud.menu",&buf);
+		result = cgi_UI_StartParseSession("ui/testhud.menu", &buf);
 		if (!result)
 		{
 			Com_Printf("Unable to load default ui/testhud.menu.\n");
@@ -2916,11 +2975,11 @@ void CG_ParseMenu(const char *menuFile)
 	}
 
 	p = buf;
-	while ( 1 ) 
+	while (1)
 	{
 		cgi_UI_ParseExt(&token);
 
-		if (!*token)	// All done?
+		if (!*token) // All done?
 		{
 			break;
 		}
@@ -2935,12 +2994,12 @@ void CG_ParseMenu(const char *menuFile)
 		//	break;
 		//}
 
-//		if ( *token == '}' ) 
-//		{
-//			break;
-//		}
+		//		if ( *token == '}' )
+		//		{
+		//			break;
+		//		}
 
-		if (Q_stricmp(token, "assetGlobalDef") == 0) 
+		if (Q_stricmp(token, "assetGlobalDef") == 0)
 		{
 			/*
 			if (CG_Asset_Parse(handle)) 
@@ -2954,8 +3013,7 @@ void CG_ParseMenu(const char *menuFile)
 			*/
 		}
 
-
-		if (Q_stricmp(token, "menudef") == 0) 
+		if (Q_stricmp(token, "menudef") == 0)
 		{
 			// start a new menu
 			cgi_UI_Menu_New(p);
@@ -2963,7 +3021,6 @@ void CG_ParseMenu(const char *menuFile)
 	}
 
 	cgi_UI_EndParseSession(buf);
-
 }
 
 /*
@@ -2972,33 +3029,33 @@ CG_Load_Menu();
 
 =================
 */
-qboolean CG_Load_Menu( const char **p) 
+qboolean CG_Load_Menu(const char **p)
 {
 	const char *token;
 
 	token = COM_ParseExt(p, qtrue);
 
-	if (token[0] != '{') 
+	if (token[0] != '{')
 	{
 		return qfalse;
 	}
 
-	while ( 1 ) 
+	while (1)
 	{
 
 		token = COM_ParseExt(p, qtrue);
-    
-		if (Q_stricmp(token, "}") == 0) 
+
+		if (Q_stricmp(token, "}") == 0)
 		{
 			return qtrue;
 		}
 
-		if ( !token || token[0] == 0 ) 
+		if (!token || token[0] == 0)
 		{
 			return qfalse;
 		}
 
-		CG_ParseMenu(token); 
+		CG_ParseMenu(token);
 	}
 	return qfalse;
 }
@@ -3009,64 +3066,64 @@ CG_LoadMenus();
 
 =================
 */
-void CG_LoadMenus(const char *menuFile) 
+void CG_LoadMenus(const char *menuFile)
 {
-	const char	*token;
-	const char	*p;
-	int	len, start;
-	fileHandle_t	f;
+	const char *token;
+	const char *p;
+	int len, start;
+	fileHandle_t f;
 	char buf[MAX_MENUDEFFILE];
 
 	start = cgi_Milliseconds();
 
-	len = cgi_FS_FOpenFile( menuFile, &f, FS_READ );
-	if ( !f ) 
+	len = cgi_FS_FOpenFile(menuFile, &f, FS_READ);
+	if (!f)
 	{
-		cgi_Error( va( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile ) );
-		len = cgi_FS_FOpenFile( "ui/jahud.txt", &f, FS_READ );
-		if (!f) 
+		cgi_Error(va(S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile));
+		len = cgi_FS_FOpenFile("ui/jahud.txt", &f, FS_READ);
+		if (!f)
 		{
-			cgi_Error( va( S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!\n", menuFile ) );
+			cgi_Error(va(S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!\n", menuFile));
 		}
 	}
 
-	if ( len >= MAX_MENUDEFFILE ) 
+	if (len >= MAX_MENUDEFFILE)
 	{
-		cgi_Error( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", menuFile, len, MAX_MENUDEFFILE ) );
-		cgi_FS_FCloseFile( f );
+		cgi_Error(va(S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", menuFile, len, MAX_MENUDEFFILE));
+		cgi_FS_FCloseFile(f);
 		return;
 	}
 
-	cgi_FS_Read( buf, len, f );
+	cgi_FS_Read(buf, len, f);
 	buf[len] = 0;
-	cgi_FS_FCloseFile( f );
-	
-//	COM_Compress(buf);
+	cgi_FS_FCloseFile(f);
 
-//	cgi_UI_Menu_Reset();
+	//	COM_Compress(buf);
+
+	//	cgi_UI_Menu_Reset();
 
 	p = buf;
 
-	while ( 1 ) 
+	while (1)
 	{
-		token = COM_ParseExt( &p, qtrue );
-		if( !token || token[0] == 0 || token[0] == '}') 
+		token = COM_ParseExt(&p, qtrue);
+		if (!token || token[0] == 0 || token[0] == '}')
 		{
 			break;
 		}
 
-		if ( Q_stricmp( token, "}" ) == 0 ) 
+		if (Q_stricmp(token, "}") == 0)
 		{
 			break;
 		}
 
-		if (Q_stricmp(token, "loadmenu") == 0) 
+		if (Q_stricmp(token, "loadmenu") == 0)
 		{
-			if (CG_Load_Menu(&p)) 
+			if (CG_Load_Menu(&p))
 			{
 				continue;
-			} 
-			else 
+			}
+			else
 			{
 				break;
 			}
@@ -3082,10 +3139,10 @@ CG_LoadHudMenu();
 
 =================
 */
-void CG_LoadHudMenu(void) 
+void CG_LoadHudMenu(void)
 {
 	const char *hudSet;
-/*
+	/*
 	cgDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;
 	cgDC.setColor = &trap_R_SetColor;
 	cgDC.drawHandlePic = &CG_DrawPic;
@@ -3128,22 +3185,21 @@ void CG_LoadHudMenu(void)
 	cgDC.stopCinematic = &CG_StopCinematic;
 	cgDC.drawCinematic = &CG_DrawCinematic;
 	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
-*/	
-//	Init_Display(&cgDC);
+*/
+	//	Init_Display(&cgDC);
 
-//	cgi_UI_String_Init();
+	//	cgi_UI_String_Init();
 
-//	cgi_UI_Menu_Reset();
-	
+	//	cgi_UI_Menu_Reset();
+
 	hudSet = cg_hudFiles.string;
-	if (hudSet[0] == '\0') 
+	if (hudSet[0] == '\0')
 	{
 		hudSet = "ui/jahud.txt";
 	}
 
 	CG_LoadMenus(hudSet);
 }
-
 
 /*
 ==============================================================================
@@ -3158,16 +3214,15 @@ INVENTORY SELECTION
 CG_InventorySelectable
 ===============
 */
-static inline qboolean CG_InventorySelectable( int index) 
+static inline qboolean CG_InventorySelectable(int index)
 {
-	if (cg.snap->ps.inventory[index])	// Is there any in the inventory?
+	if (cg.snap->ps.inventory[index]) // Is there any in the inventory?
 	{
 		return qtrue;
 	}
 
 	return qfalse;
 }
-
 
 /*
 ===============
@@ -3177,7 +3232,7 @@ SetInventoryTime
 static inline void SetInventoryTime(void)
 {
 	if (((cg.weaponSelectTime + WEAPON_SELECT_TIME) > cg.time) ||	// The Weapon HUD was currently active to just swap it out with Force HUD
-		((cg.forcepowerSelectTime + WEAPON_SELECT_TIME) > cg.time))	// The Force HUD was currently active to just swap it out with Force HUD
+		((cg.forcepowerSelectTime + WEAPON_SELECT_TIME) > cg.time)) // The Force HUD was currently active to just swap it out with Force HUD
 	{
 		cg.weaponSelectTime = 0;
 		cg.forcepowerSelectTime = 0;
@@ -3194,28 +3249,28 @@ static inline void SetInventoryTime(void)
 CG_DPPrevInventory_f
 ===============
 */
-void CG_DPPrevInventory_f( void ) 
+void CG_DPPrevInventory_f(void)
 {
-	int		i;
+	int i;
 
-	if ( !cg.snap ) 
+	if (!cg.snap)
 	{
 		return;
 	}
 
 	const int original = cg.DataPadInventorySelect;
 
-	for ( i = 0 ; i < INV_MAX ; i++ ) 
+	for (i = 0; i < INV_MAX; i++)
 	{
 		cg.DataPadInventorySelect--;
 
 		if ((cg.DataPadInventorySelect < INV_ELECTROBINOCULARS) || (cg.DataPadInventorySelect >= INV_MAX))
-		{ 
-			cg.DataPadInventorySelect = (INV_MAX - 1); 
+		{
+			cg.DataPadInventorySelect = (INV_MAX - 1);
 		}
-		
-		if ( CG_InventorySelectable( cg.DataPadInventorySelect ) )
-		{	
+
+		if (CG_InventorySelectable(cg.DataPadInventorySelect))
+		{
 			return;
 		}
 	}
@@ -3227,28 +3282,28 @@ void CG_DPPrevInventory_f( void )
 CG_DPNextInventory_f
 ===============
 */
-void CG_DPNextInventory_f( void ) 
+void CG_DPNextInventory_f(void)
 {
-	int		i;
+	int i;
 
-	if ( !cg.snap ) 
+	if (!cg.snap)
 	{
 		return;
 	}
 
 	const int original = cg.DataPadInventorySelect;
 
-	for ( i = 0 ; i < INV_MAX ; i++ ) 
+	for (i = 0; i < INV_MAX; i++)
 	{
 		cg.DataPadInventorySelect++;
 
 		if ((cg.DataPadInventorySelect < INV_ELECTROBINOCULARS) || (cg.DataPadInventorySelect >= INV_MAX))
-		{ 
-			cg.DataPadInventorySelect = INV_ELECTROBINOCULARS; 
+		{
+			cg.DataPadInventorySelect = INV_ELECTROBINOCULARS;
 		}
 
-		if ( CG_InventorySelectable( cg.DataPadInventorySelect ) && (inv_icons[cg.DataPadInventorySelect])) 
-		{	
+		if (CG_InventorySelectable(cg.DataPadInventorySelect) && (inv_icons[cg.DataPadInventorySelect]))
+		{
 			return;
 		}
 	}
@@ -3261,19 +3316,19 @@ void CG_DPNextInventory_f( void )
 CG_NextInventory_f
 ===============
 */
-void CG_NextInventory_f( void ) 
+void CG_NextInventory_f(void)
 {
-	int		i;
-	float	*color;
+	int i;
+	float *color;
 
-	if ( !cg.snap ) 
+	if (!cg.snap)
 	{
 		return;
 	}
 
 	// The first time it's been hit so just show inventory but don't advance in inventory.
-	color = CG_FadeColor( cg.inventorySelectTime, WEAPON_SELECT_TIME );	
-	if ( !color )	
+	color = CG_FadeColor(cg.inventorySelectTime, WEAPON_SELECT_TIME);
+	if (!color)
 	{
 		SetInventoryTime();
 		return;
@@ -3281,18 +3336,18 @@ void CG_NextInventory_f( void )
 
 	const int original = cg.inventorySelect;
 
-	for ( i = 0 ; i < INV_MAX ; i++ ) 
+	for (i = 0; i < INV_MAX; i++)
 	{
 		cg.inventorySelect++;
 
 		if ((cg.inventorySelect < INV_ELECTROBINOCULARS) || (cg.inventorySelect >= INV_MAX))
-		{ 
-			cg.inventorySelect = INV_ELECTROBINOCULARS; 
+		{
+			cg.inventorySelect = INV_ELECTROBINOCULARS;
 		}
 
-		if ( CG_InventorySelectable( cg.inventorySelect ) && (inv_icons[cg.inventorySelect])) 
-		{	
-			cgi_S_StartSound (NULL, 0, CHAN_AUTO, cgs.media.selectSound2 );
+		if (CG_InventorySelectable(cg.inventorySelect) && (inv_icons[cg.inventorySelect]))
+		{
+			cgi_S_StartSound(NULL, 0, CHAN_AUTO, cgs.media.selectSound2);
 			SetInventoryTime();
 			return;
 		}
@@ -3315,19 +3370,19 @@ this func was moved to Cmd_UseInventory_f in g_cmds.cpp
 CG_PrevInventory_f
 ===============
 */
-void CG_PrevInventory_f( void ) 
+void CG_PrevInventory_f(void)
 {
-	int		i;
-	float	*color;
+	int i;
+	float *color;
 
-	if ( !cg.snap ) 
+	if (!cg.snap)
 	{
 		return;
 	}
 
 	// The first time it's been hit so just show inventory but don't advance in inventory.
-	color = CG_FadeColor( cg.inventorySelectTime, WEAPON_SELECT_TIME );	
-	if ( !color )	
+	color = CG_FadeColor(cg.inventorySelectTime, WEAPON_SELECT_TIME);
+	if (!color)
 	{
 		SetInventoryTime();
 		return;
@@ -3335,18 +3390,18 @@ void CG_PrevInventory_f( void )
 
 	const int original = cg.inventorySelect;
 
-	for ( i = 0 ; i < INV_MAX ; i++ ) 
+	for (i = 0; i < INV_MAX; i++)
 	{
 		cg.inventorySelect--;
 
 		if ((cg.inventorySelect < INV_ELECTROBINOCULARS) || (cg.inventorySelect >= INV_MAX))
-		{ 
-			cg.inventorySelect = (INV_MAX - 1); 
+		{
+			cg.inventorySelect = (INV_MAX - 1);
 		}
-		
-		if ( CG_InventorySelectable( cg.inventorySelect ) && (inv_icons[cg.inventorySelect])) 
-		{	
-			cgi_S_StartSound (NULL, 0, CHAN_AUTO, cgs.media.selectSound2 );
+
+		if (CG_InventorySelectable(cg.inventorySelect) && (inv_icons[cg.inventorySelect]))
+		{
+			cgi_S_StartSound(NULL, 0, CHAN_AUTO, cgs.media.selectSound2);
 			SetInventoryTime();
 			return;
 		}
@@ -3355,7 +3410,6 @@ void CG_PrevInventory_f( void )
 	cg.inventorySelect = original;
 }
 
-
 /*
 ===================
 FindInventoryItemTag
@@ -3363,11 +3417,11 @@ FindInventoryItemTag
 */
 gitem_t *FindInventoryItemTag(int tag)
 {
-	int		i;
+	int i;
 
-	for ( i = 1 ; i < bg_numItems ; i++ ) 
+	for (i = 1; i < bg_numItems; i++)
 	{
-		if ( bg_itemlist[i].giTag == tag && bg_itemlist[i].giType == IT_HOLDABLE ) // I guess giTag's aren't unique amongst items..must also make sure it's a holdable
+		if (bg_itemlist[i].giTag == tag && bg_itemlist[i].giType == IT_HOLDABLE) // I guess giTag's aren't unique amongst items..must also make sure it's a holdable
 		{
 			return &bg_itemlist[i];
 		}
@@ -3376,40 +3430,37 @@ gitem_t *FindInventoryItemTag(int tag)
 	return (0);
 }
 
-
-
-
 /*
 ===================
 CG_DrawInventorySelect
 ===================
 */
-void CG_DrawInventorySelect( void ) 
+void CG_DrawInventorySelect(void)
 {
-	int				i;
-	int				holdCount,iconCnt;
-	int				sideLeftIconCnt,sideRightIconCnt;
-	int				count;
-	int				holdX;
-	int				height;
-//	int				tag;
-	float			addX;
-	vec4_t			textColor = { .312f, .75f, .621f, 1.0f };
-	char			text[1024]={0};
+	int i;
+	int holdCount, iconCnt;
+	int sideLeftIconCnt, sideRightIconCnt;
+	int count;
+	int holdX;
+	int height;
+	//	int				tag;
+	float addX;
+	vec4_t textColor = {.312f, .75f, .621f, 1.0f};
+	char text[1024] = {0};
 
 	// don't display if dead
-	if ( cg.predicted_player_state.stats[STAT_HEALTH] <= 0 || ( cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD )) 
+	if (cg.predicted_player_state.stats[STAT_HEALTH] <= 0 || (cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD))
 	{
 		return;
 	}
 
-	if ((cg.inventorySelectTime+WEAPON_SELECT_TIME)<cg.time)	// Time is up for the HUD to display
+	if ((cg.inventorySelectTime + WEAPON_SELECT_TIME) < cg.time) // Time is up for the HUD to display
 	{
 		return;
 	}
 
-	int x2,y2,w2,h2;
-	if (!cgi_UI_GetMenuInfo("inventoryselecthud",&x2,&y2,&w2,&h2))
+	int x2, y2, w2, h2;
+	if (!cgi_UI_GetMenuInfo("inventoryselecthud", &x2, &y2, &w2, &h2))
 	{
 		return;
 	}
@@ -3421,9 +3472,9 @@ void CG_DrawInventorySelect( void )
 
 	// count the number of items owned
 	count = 0;
-	for ( i = 0 ; i < INV_MAX ; i++ ) 
+	for (i = 0; i < INV_MAX; i++)
 	{
-		if (CG_InventorySelectable(i) && inv_icons[i]) 
+		if (CG_InventorySelectable(i) && inv_icons[i])
 		{
 			count++;
 		}
@@ -3431,37 +3482,37 @@ void CG_DrawInventorySelect( void )
 
 	if (!count)
 	{
-		cgi_SP_GetStringTextString("SP_INGAME_EMPTY_INV",text, sizeof(text) );
-		int w = cgi_R_Font_StrLenPixels( text, cgs.media.qhFontSmall, 1.0f );
-		int x = ( SCREEN_WIDTH - w ) / 2;
+		cgi_SP_GetStringTextString("SP_INGAME_EMPTY_INV", text, sizeof(text));
+		int w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 1.0f);
+		int x = (SCREEN_WIDTH - w) / 2;
 		CG_DrawProportionalString(x, y2 + 22, text, CG_CENTER | CG_SMALLFONT, colorTable[CT_ICON_BLUE]);
 		return;
 	}
 
-	const int sideMax = 3;	// Max number of icons on the side
+	const int sideMax = 3; // Max number of icons on the side
 
 	// Calculate how many icons will appear to either side of the center one
-	holdCount = count - 1;	// -1 for the center icon
-	if (holdCount == 0)			// No icons to either side
+	holdCount = count - 1; // -1 for the center icon
+	if (holdCount == 0)	   // No icons to either side
 	{
 		sideLeftIconCnt = 0;
 		sideRightIconCnt = 0;
 	}
-	else if (count > (2*sideMax))	// Go to the max on each side
+	else if (count > (2 * sideMax)) // Go to the max on each side
 	{
 		sideLeftIconCnt = sideMax;
 		sideRightIconCnt = sideMax;
 	}
-	else							// Less than max, so do the calc
+	else // Less than max, so do the calc
 	{
-		sideLeftIconCnt = holdCount/2;
+		sideLeftIconCnt = holdCount / 2;
 		sideRightIconCnt = holdCount - sideLeftIconCnt;
 	}
 
 	i = cg.inventorySelect - 1;
-	if (i<0)
+	if (i < 0)
 	{
-		i = INV_MAX-1;
+		i = INV_MAX - 1;
 	}
 
 	const int smallIconSize = 40;
@@ -3470,7 +3521,7 @@ void CG_DrawInventorySelect( void )
 
 #ifdef _XBOX
 	int x = 320;
-	if(cg.widescreen)
+	if (cg.widescreen)
 		x = 360;
 #else
 	const int x = 320;
@@ -3479,15 +3530,15 @@ void CG_DrawInventorySelect( void )
 
 	// Left side ICONS
 	// Work backwards from current icon
-	holdX = x - ((bigIconSize/2) + pad + smallIconSize);
+	holdX = x - ((bigIconSize / 2) + pad + smallIconSize);
 	height = smallIconSize * cg.iconHUDPercent;
-	addX = (float) smallIconSize * .75;
+	addX = (float)smallIconSize * .75;
 
-	for (iconCnt=0;iconCnt<sideLeftIconCnt;i--)
+	for (iconCnt = 0; iconCnt < sideLeftIconCnt; i--)
 	{
-		if (i<0)
+		if (i < 0)
 		{
-			i = INV_MAX-1;
+			i = INV_MAX - 1;
 		}
 
 		if ((!CG_InventorySelectable(i)) || (!inv_icons[i]))
@@ -3495,18 +3546,18 @@ void CG_DrawInventorySelect( void )
 			continue;
 		}
 
-		++iconCnt;					// Good icon
+		++iconCnt; // Good icon
 
 		if (inv_icons[i])
 		{
 			cgi_R_SetColor(NULL);
-			CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, inv_icons[i] );
+			CG_DrawPic(holdX, y + 10, smallIconSize, smallIconSize, inv_icons[i]);
 
 			cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
-			CG_DrawNumField (holdX + addX, y + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12, 
-				NUM_FONT_SMALL,qfalse);
+			CG_DrawNumField(holdX + addX, y + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
+							NUM_FONT_SMALL, qfalse);
 
-			holdX -= (smallIconSize+pad);
+			holdX -= (smallIconSize + pad);
 		}
 	}
 
@@ -3515,48 +3566,48 @@ void CG_DrawInventorySelect( void )
 	if (inv_icons[cg.inventorySelect])
 	{
 		cgi_R_SetColor(NULL);
-		CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize, bigIconSize, inv_icons[cg.inventorySelect] );
-		addX = (float) bigIconSize * .75;
+		CG_DrawPic(x - (bigIconSize / 2), (y - ((bigIconSize - smallIconSize) / 2)) + 10, bigIconSize, bigIconSize, inv_icons[cg.inventorySelect]);
+		addX = (float)bigIconSize * .75;
 		cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
-		CG_DrawNumField ((x-(bigIconSize/2)) + addX, y, 2, cg.snap->ps.inventory[cg.inventorySelect], 6, 12, 
-			NUM_FONT_SMALL,qfalse);
+		CG_DrawNumField((x - (bigIconSize / 2)) + addX, y, 2, cg.snap->ps.inventory[cg.inventorySelect], 6, 12,
+						NUM_FONT_SMALL, qfalse);
 
 		if (inv_names[cg.inventorySelect])
 		{
 			// FIXME: This is ONLY a temp solution, the icon stuff, etc, should all just use items.dat for everything
-			gitem_t *item = FindInventoryItemTag( cg.inventorySelect );
+			gitem_t *item = FindInventoryItemTag(cg.inventorySelect);
 
-			if ( item && item->classname && item->classname[0] )
+			if (item && item->classname && item->classname[0])
 			{
 				char itemName[256], data[1024]; // FIXME: do these really need to be this large??  does it matter?
 
-				sprintf( itemName, "SP_INGAME_%s",	item->classname );
-			
-				if ( cgi_SP_GetStringTextString( itemName, data, sizeof( data )))
-				{
-					int w = cgi_R_Font_StrLenPixels( data, cgs.media.qhFontSmall, 1.0f );
-					int x = ( SCREEN_WIDTH - w ) / 2;
+				sprintf(itemName, "SP_INGAME_%s", item->classname);
 
-					cgi_R_Font_DrawString( x, (SCREEN_HEIGHT - 24), data, textColor, cgs.media.qhFontSmall, -1, 1.0f);
+				if (cgi_SP_GetStringTextString(itemName, data, sizeof(data)))
+				{
+					int w = cgi_R_Font_StrLenPixels(data, cgs.media.qhFontSmall, 1.0f);
+					int x = (SCREEN_WIDTH - w) / 2;
+
+					cgi_R_Font_DrawString(x, (SCREEN_HEIGHT - 24), data, textColor, cgs.media.qhFontSmall, -1, 1.0f);
 				}
 			}
 		}
 	}
 
 	i = cg.inventorySelect + 1;
-	if (i> INV_MAX-1)
+	if (i > INV_MAX - 1)
 	{
 		i = 0;
 	}
 
 	// Right side ICONS
 	// Work forwards from current icon
-	holdX = x + (bigIconSize/2) + pad;
+	holdX = x + (bigIconSize / 2) + pad;
 	height = smallIconSize * cg.iconHUDPercent;
-	addX = (float) smallIconSize * .75;
-	for (iconCnt=0;iconCnt<sideRightIconCnt;i++)
+	addX = (float)smallIconSize * .75;
+	for (iconCnt = 0; iconCnt < sideRightIconCnt; i++)
 	{
-		if (i> INV_MAX-1)
+		if (i > INV_MAX - 1)
 		{
 			i = 0;
 		}
@@ -3566,100 +3617,96 @@ void CG_DrawInventorySelect( void )
 			continue;
 		}
 
-		++iconCnt;					// Good icon
+		++iconCnt; // Good icon
 
 		if (inv_icons[i])
 		{
 			cgi_R_SetColor(NULL);
-			CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, inv_icons[i] );
+			CG_DrawPic(holdX, y + 10, smallIconSize, smallIconSize, inv_icons[i]);
 
 			cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
-			CG_DrawNumField (holdX + addX, y + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12, 
-				NUM_FONT_SMALL,qfalse);
+			CG_DrawNumField(holdX + addX, y + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
+							NUM_FONT_SMALL, qfalse);
 
-			holdX += (smallIconSize+pad);
+			holdX += (smallIconSize + pad);
 		}
 	}
 }
 
-int cgi_UI_GetItemText(char *menuFile,char *itemName, char *text);
+int cgi_UI_GetItemText(char *menuFile, char *itemName, char *text);
 
-char *inventoryDesc[15] = 
-{
-"NEURO_SAAV_DESC",
-"BACTA_DESC",
-"INQUISITOR_DESC",
-"LA_GOGGLES_DESC",
-"PORTABLE_SENTRY_DESC",
-"GOODIE_KEY_DESC",
-"SECURITY_KEY_DP_DESC",
+char *inventoryDesc[15] =
+	{
+		"NEURO_SAAV_DESC",
+		"BACTA_DESC",
+		"INQUISITOR_DESC",
+		"LA_GOGGLES_DESC",
+		"PORTABLE_SENTRY_DESC",
+		"GOODIE_KEY_DESC",
+		"SECURITY_KEY_DP_DESC",
 };
-
 
 /*
 ===================
 CG_DrawDataPadInventorySelect
 ===================
 */
-void CG_DrawDataPadInventorySelect( void ) 
+void CG_DrawDataPadInventorySelect(void)
 {
-	int				i;
-	int				holdCount,iconCnt;
-	int				sideLeftIconCnt,sideRightIconCnt;
-	int				count;
-	int				holdX;
-	int				height;
-	float			addX;
-	char			text[1024]={0};
-	vec4_t			textColor = { .312f, .75f, .621f, 1.0f };
-
+	int i;
+	int holdCount, iconCnt;
+	int sideLeftIconCnt, sideRightIconCnt;
+	int count;
+	int holdX;
+	int height;
+	float addX;
+	char text[1024] = {0};
+	vec4_t textColor = {.312f, .75f, .621f, 1.0f};
 
 	// count the number of items owned
 	count = 0;
-	for ( i = 0 ; i < INV_MAX ; i++ ) 
+	for (i = 0; i < INV_MAX; i++)
 	{
-		if (CG_InventorySelectable(i) && inv_icons[i]) 
+		if (CG_InventorySelectable(i) && inv_icons[i])
 		{
 			count++;
 		}
 	}
 
-
 	if (!count)
 	{
-		cgi_SP_GetStringTextString("SP_INGAME_EMPTY_INV",text, sizeof(text) );
-		int w = cgi_R_Font_StrLenPixels( text, cgs.media.qhFontSmall, 1.0f );
-		int x = ( SCREEN_WIDTH - w ) / 2;
+		cgi_SP_GetStringTextString("SP_INGAME_EMPTY_INV", text, sizeof(text));
+		int w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 1.0f);
+		int x = (SCREEN_WIDTH - w) / 2;
 		CG_DrawProportionalString(x, 300 + 22, text, CG_CENTER | CG_SMALLFONT, colorTable[CT_ICON_BLUE]);
 		return;
 	}
 
-	const int sideMax = 3;	// Max number of icons on the side
+	const int sideMax = 3; // Max number of icons on the side
 
 	// Calculate how many icons will appear to either side of the center one
-	holdCount = count - 1;	// -1 for the center icon
-	if (holdCount == 0)			// No icons to either side
+	holdCount = count - 1; // -1 for the center icon
+	if (holdCount == 0)	   // No icons to either side
 	{
 		sideLeftIconCnt = 0;
 		sideRightIconCnt = 0;
 	}
-	else if (count > (2*sideMax))	// Go to the max on each side
+	else if (count > (2 * sideMax)) // Go to the max on each side
 	{
 		sideLeftIconCnt = sideMax;
 		sideRightIconCnt = sideMax;
 	}
-	else							// Less than max, so do the calc
+	else // Less than max, so do the calc
 	{
-		sideLeftIconCnt = holdCount/2;
+		sideLeftIconCnt = holdCount / 2;
 		sideRightIconCnt = holdCount - sideLeftIconCnt;
 	}
 
 	i = cg.DataPadInventorySelect - 1;
-	if (i<0)
+	if (i < 0)
 	{
-		i = INV_MAX-1;
+		i = INV_MAX - 1;
 	}
-
 
 	const int smallIconSize = 40;
 	const int bigIconSize = 80;
@@ -3668,25 +3715,24 @@ void CG_DrawDataPadInventorySelect( void )
 
 #ifdef _XBOX
 	int centerXPos = 320;
-	if(cg.widescreen)
+	if (cg.widescreen)
 		centerXPos = 360;
 #else
 	const int centerXPos = 320;
 #endif
 	const int graphicYPos = 340;
 
-
 	// Left side ICONS
 	// Work backwards from current icon
-	holdX = centerXPos - ((bigIconSize/2) + bigPad + smallIconSize);
+	holdX = centerXPos - ((bigIconSize / 2) + bigPad + smallIconSize);
 	height = smallIconSize * cg.iconHUDPercent;
-	addX = (float) smallIconSize * .75;
+	addX = (float)smallIconSize * .75;
 
-	for (iconCnt=0;iconCnt<sideLeftIconCnt;i--)
+	for (iconCnt = 0; iconCnt < sideLeftIconCnt; i--)
 	{
-		if (i<0)
+		if (i < 0)
 		{
-			i = INV_MAX-1;
+			i = INV_MAX - 1;
 		}
 
 		if ((!CG_InventorySelectable(i)) || (!inv_icons[i]))
@@ -3694,18 +3740,18 @@ void CG_DrawDataPadInventorySelect( void )
 			continue;
 		}
 
-		++iconCnt;					// Good icon
+		++iconCnt; // Good icon
 
 		if (inv_icons[i])
 		{
 			cgi_R_SetColor(colorTable[CT_WHITE]);
-			CG_DrawPic( holdX, graphicYPos+10, smallIconSize, smallIconSize, inv_icons[i] );
+			CG_DrawPic(holdX, graphicYPos + 10, smallIconSize, smallIconSize, inv_icons[i]);
 
 			cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
-			CG_DrawNumField (holdX + addX, graphicYPos + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12, 
-				NUM_FONT_SMALL,qfalse);
+			CG_DrawNumField(holdX + addX, graphicYPos + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
+							NUM_FONT_SMALL, qfalse);
 
-			holdX -= (smallIconSize+pad);
+			holdX -= (smallIconSize + pad);
 		}
 	}
 
@@ -3714,28 +3760,27 @@ void CG_DrawDataPadInventorySelect( void )
 	if (inv_icons[cg.DataPadInventorySelect])
 	{
 		cgi_R_SetColor(colorTable[CT_WHITE]);
-		CG_DrawPic( centerXPos-(bigIconSize/2), (graphicYPos-((bigIconSize-smallIconSize)/2))+10, bigIconSize, bigIconSize, inv_icons[cg.DataPadInventorySelect] );
-		addX = (float) bigIconSize * .75;
+		CG_DrawPic(centerXPos - (bigIconSize / 2), (graphicYPos - ((bigIconSize - smallIconSize) / 2)) + 10, bigIconSize, bigIconSize, inv_icons[cg.DataPadInventorySelect]);
+		addX = (float)bigIconSize * .75;
 		cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
-		CG_DrawNumField ((centerXPos-(bigIconSize/2)) + addX, graphicYPos, 2, cg.snap->ps.inventory[cg.DataPadInventorySelect], 6, 12, 
-			NUM_FONT_SMALL,qfalse);
-
+		CG_DrawNumField((centerXPos - (bigIconSize / 2)) + addX, graphicYPos, 2, cg.snap->ps.inventory[cg.DataPadInventorySelect], 6, 12,
+						NUM_FONT_SMALL, qfalse);
 	}
 
 	i = cg.DataPadInventorySelect + 1;
-	if (i> INV_MAX-1)
+	if (i > INV_MAX - 1)
 	{
 		i = 0;
 	}
 
 	// Right side ICONS
 	// Work forwards from current icon
-	holdX = centerXPos + (bigIconSize/2) + bigPad;
+	holdX = centerXPos + (bigIconSize / 2) + bigPad;
 	height = smallIconSize * cg.iconHUDPercent;
-	addX = (float) smallIconSize * .75;
-	for (iconCnt=0;iconCnt<sideRightIconCnt;i++)
+	addX = (float)smallIconSize * .75;
+	for (iconCnt = 0; iconCnt < sideRightIconCnt; i++)
 	{
-		if (i> INV_MAX-1)
+		if (i > INV_MAX - 1)
 		{
 			i = 0;
 		}
@@ -3745,33 +3790,32 @@ void CG_DrawDataPadInventorySelect( void )
 			continue;
 		}
 
-		++iconCnt;					// Good icon
+		++iconCnt; // Good icon
 
 		if (inv_icons[i])
 		{
 			cgi_R_SetColor(colorTable[CT_WHITE]);
-			CG_DrawPic( holdX, graphicYPos+10, smallIconSize, smallIconSize, inv_icons[i] );
+			CG_DrawPic(holdX, graphicYPos + 10, smallIconSize, smallIconSize, inv_icons[i]);
 
 			cgi_R_SetColor(colorTable[CT_ICON_BLUE]);
-			CG_DrawNumField (holdX + addX, graphicYPos + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12, 
-				NUM_FONT_SMALL,qfalse);
+			CG_DrawNumField(holdX + addX, graphicYPos + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
+							NUM_FONT_SMALL, qfalse);
 
-			holdX += (smallIconSize+pad);
+			holdX += (smallIconSize + pad);
 		}
 	}
 
 	// draw the weapon description
-	if ((cg.DataPadInventorySelect>=0) && (cg.DataPadInventorySelect<13))
+	if ((cg.DataPadInventorySelect >= 0) && (cg.DataPadInventorySelect < 13))
 	{
-		cgi_SP_GetStringTextString( va("SP_INGAME_%s",inventoryDesc[cg.DataPadInventorySelect]), text, sizeof(text) );
+		cgi_SP_GetStringTextString(va("SP_INGAME_%s", inventoryDesc[cg.DataPadInventorySelect]), text, sizeof(text));
 
 		if (text)
 		{
-			CG_DisplayBoxedText(70,50,500,300,text,
-											cgs.media.qhFontSmall,
-											0.7f,
-											textColor	
-											);
+			CG_DisplayBoxedText(70, 50, 500, 300, text,
+								cgs.media.qhFontSmall,
+								0.7f,
+								textColor);
 		}
 	}
 }
@@ -3783,8 +3827,8 @@ SetForcePowerTime
 */
 void SetForcePowerTime(void)
 {
-	if (((cg.weaponSelectTime + WEAPON_SELECT_TIME) > cg.time) ||	// The Weapon HUD was currently active to just swap it out with Force HUD
-		((cg.inventorySelectTime + WEAPON_SELECT_TIME) > cg.time))	// The Inventory HUD was currently active to just swap it out with Force HUD
+	if (((cg.weaponSelectTime + WEAPON_SELECT_TIME) > cg.time) ||  // The Weapon HUD was currently active to just swap it out with Force HUD
+		((cg.inventorySelectTime + WEAPON_SELECT_TIME) > cg.time)) // The Inventory HUD was currently active to just swap it out with Force HUD
 	{
 		cg.weaponSelectTime = 0;
 		cg.inventorySelectTime = 0;
@@ -3796,66 +3840,66 @@ void SetForcePowerTime(void)
 	}
 }
 
-int showPowers[MAX_SHOWPOWERS] = 
-{
-	FP_ABSORB,
-	FP_HEAL,
-	FP_PROTECT,
-	FP_TELEPATHY,
+int showPowers[MAX_SHOWPOWERS] =
+	{
+		FP_ABSORB,
+		FP_HEAL,
+		FP_PROTECT,
+		FP_TELEPATHY,
 
-	FP_SPEED,
-	FP_PUSH,
-	FP_PULL,
-	FP_SEE,
+		FP_SPEED,
+		FP_PUSH,
+		FP_PULL,
+		FP_SEE,
 
-	FP_DRAIN,
-	FP_LIGHTNING,
-	FP_RAGE,
-	FP_GRIP,
+		FP_DRAIN,
+		FP_LIGHTNING,
+		FP_RAGE,
+		FP_GRIP,
 };
 
-char *showPowersName[MAX_SHOWPOWERS] = 
-{
-	"SP_INGAME_ABSORB2",
-	"SP_INGAME_HEAL2",
-	"SP_INGAME_PROTECT2",
-	"SP_INGAME_MINDTRICK2",
+char *showPowersName[MAX_SHOWPOWERS] =
+	{
+		"SP_INGAME_ABSORB2",
+		"SP_INGAME_HEAL2",
+		"SP_INGAME_PROTECT2",
+		"SP_INGAME_MINDTRICK2",
 
-	"SP_INGAME_SPEED2",
-	"SP_INGAME_PUSH2",
-	"SP_INGAME_PULL2",
-	"SP_INGAME_SEEING2",
+		"SP_INGAME_SPEED2",
+		"SP_INGAME_PUSH2",
+		"SP_INGAME_PULL2",
+		"SP_INGAME_SEEING2",
 
-	"SP_INGAME_DRAIN2",
-	"SP_INGAME_LIGHTNING2",
-	"SP_INGAME_DARK_RAGE2",
-	"SP_INGAME_GRIP2",
+		"SP_INGAME_DRAIN2",
+		"SP_INGAME_LIGHTNING2",
+		"SP_INGAME_DARK_RAGE2",
+		"SP_INGAME_GRIP2",
 };
 
 // Keep these with groups light side, core, and dark side
-int showDataPadPowers[MAX_DPSHOWPOWERS] = 
-{
-	// Light side
-	FP_ABSORB,
-	FP_HEAL,
-	FP_PROTECT,
-	FP_TELEPATHY,
+int showDataPadPowers[MAX_DPSHOWPOWERS] =
+	{
+		// Light side
+		FP_ABSORB,
+		FP_HEAL,
+		FP_PROTECT,
+		FP_TELEPATHY,
 
-	// Core Powers
-	FP_LEVITATION,
-	FP_SPEED,
-	FP_PUSH,
-	FP_PULL,
-	FP_SABERTHROW,
-	FP_SABER_DEFENSE,
-	FP_SABER_OFFENSE,
-	FP_SEE,
+		// Core Powers
+		FP_LEVITATION,
+		FP_SPEED,
+		FP_PUSH,
+		FP_PULL,
+		FP_SABERTHROW,
+		FP_SABER_DEFENSE,
+		FP_SABER_OFFENSE,
+		FP_SEE,
 
-	//Dark Side
-	FP_DRAIN,
-	FP_LIGHTNING,
-	FP_RAGE,
-	FP_GRIP,
+		//Dark Side
+		FP_DRAIN,
+		FP_LIGHTNING,
+		FP_RAGE,
+		FP_GRIP,
 };
 
 /*
@@ -3865,12 +3909,12 @@ ForcePower_Valid
 */
 qboolean ForcePower_Valid(int index)
 {
-	gentity_t	*player = &g_entities[0];
+	gentity_t *player = &g_entities[0];
 
-	assert (MAX_SHOWPOWERS == ( sizeof(showPowers)/sizeof(showPowers[0]) ));
-	assert (index < MAX_SHOWPOWERS );	//is this a valid index?
-	if (player->client->ps.forcePowersKnown & (1 << showPowers[index]) && 
-		player->client->ps.forcePowerLevel[showPowers[index]])	// Does he have the force power?
+	assert(MAX_SHOWPOWERS == (sizeof(showPowers) / sizeof(showPowers[0])));
+	assert(index < MAX_SHOWPOWERS); //is this a valid index?
+	if (player->client->ps.forcePowersKnown & (1 << showPowers[index]) &&
+		player->client->ps.forcePowerLevel[showPowers[index]]) // Does he have the force power?
 	{
 		return qtrue;
 	}
@@ -3886,11 +3930,11 @@ CG_NextForcePower_f
 extern void IN_HotSwap1Off(void);
 extern void IN_HotSwap2Off(void);
 extern void IN_HotSwap3Off(void);
-void CG_NextForcePower_f( void ) 
+void CG_NextForcePower_f(void)
 {
-	int		i;
+	int i;
 
-	if ( !cg.snap || in_camera ) 
+	if (!cg.snap || in_camera)
 	{
 		return;
 	}
@@ -3908,18 +3952,18 @@ void CG_NextForcePower_f( void )
 
 	const int original = cg.forcepowerSelect;
 
-	for ( i = 0; i < MAX_SHOWPOWERS; i++ ) 
+	for (i = 0; i < MAX_SHOWPOWERS; i++)
 	{
 		cg.forcepowerSelect++;
 
 		if (cg.forcepowerSelect >= MAX_SHOWPOWERS)
-		{ 
-			cg.forcepowerSelect = 0; 
+		{
+			cg.forcepowerSelect = 0;
 		}
 
-		if (ForcePower_Valid(cg.forcepowerSelect))	// Does he have the force power?
+		if (ForcePower_Valid(cg.forcepowerSelect)) // Does he have the force power?
 		{
-			cgi_S_StartSound (NULL, 0, CHAN_AUTO, cgs.media.selectSound2 );
+			cgi_S_StartSound(NULL, 0, CHAN_AUTO, cgs.media.selectSound2);
 			return;
 		}
 	}
@@ -3932,11 +3976,11 @@ void CG_NextForcePower_f( void )
 CG_PrevForcePower_f
 ===============
 */
-void CG_PrevForcePower_f( void ) 
+void CG_PrevForcePower_f(void)
 {
-	int		i;
+	int i;
 
-	if ( !cg.snap || in_camera ) 
+	if (!cg.snap || in_camera)
 	{
 		return;
 	}
@@ -3954,22 +3998,21 @@ void CG_PrevForcePower_f( void )
 
 	const int original = cg.forcepowerSelect;
 
-	for ( i = 0; i < MAX_SHOWPOWERS; i++ ) 
+	for (i = 0; i < MAX_SHOWPOWERS; i++)
 	{
 		cg.forcepowerSelect--;
 
 		if (cg.forcepowerSelect < 0)
-		{ 
-			cg.forcepowerSelect = MAX_SHOWPOWERS - 1; 
+		{
+			cg.forcepowerSelect = MAX_SHOWPOWERS - 1;
 		}
 
-		if (ForcePower_Valid(cg.forcepowerSelect))	// Does he have the force power?
+		if (ForcePower_Valid(cg.forcepowerSelect)) // Does he have the force power?
 		{
-			cgi_S_StartSound (NULL, 0, CHAN_AUTO, cgs.media.selectSound2 );
+			cgi_S_StartSound(NULL, 0, CHAN_AUTO, cgs.media.selectSound2);
 			return;
 		}
 	}
-
 
 	cg.forcepowerSelect = original;
 }
@@ -3979,30 +4022,30 @@ void CG_PrevForcePower_f( void )
 CG_DrawForceSelect
 ===================
 */
-void CG_DrawForceSelect( void ) 
+void CG_DrawForceSelect(void)
 {
-	int		i;
-	int		count;
-	int		holdX;
-	int		sideLeftIconCnt,sideRightIconCnt;
-	int		holdCount,iconCnt;
-	char	text[1024]={0};
-	int		yOffset = 0;
-
+	int i;
+	int count;
+	int holdX;
+	int sideLeftIconCnt, sideRightIconCnt;
+	int holdCount, iconCnt;
+	char text[1024] = {0};
+	int yOffset = 0;
 
 	// don't display if dead
-	if ( cg.predicted_player_state.stats[STAT_HEALTH] <= 0 || ( cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD )) 
+	if (cg.predicted_player_state.stats[STAT_HEALTH] <= 0 || (cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD))
 	{
 		return;
 	}
 
-	if ((cg.forcepowerSelectTime+WEAPON_SELECT_TIME)<cg.time)	// Time is up for the HUD to display
+	if ((cg.forcepowerSelectTime + WEAPON_SELECT_TIME) < cg.time) // Time is up for the HUD to display
 	{
 		return;
 	}
 
 #ifdef _XBOX
-	if(CL_ExtendSelectTime()) {
+	if (CL_ExtendSelectTime())
+	{
 		cg.forcepowerSelectTime = cg.time;
 	}
 
@@ -4012,7 +4055,7 @@ void CG_DrawForceSelect( void )
 	// count the number of powers owned
 	count = 0;
 
-	for (i=0; i<MAX_SHOWPOWERS; ++i)
+	for (i = 0; i < MAX_SHOWPOWERS; ++i)
 	{
 		if (ForcePower_Valid(i))
 		{
@@ -4020,12 +4063,12 @@ void CG_DrawForceSelect( void )
 		}
 	}
 
-	if (count == 0)	// If no force powers, don't display
+	if (count == 0) // If no force powers, don't display
 	{
 		return;
 	}
 
-/*
+	/*
 	int x2,y2;
 	if (!cgi_UI_GetMenuInfo("forceselecthud",&x2,&y2,&w2,&h2))
 	{
@@ -4037,23 +4080,23 @@ void CG_DrawForceSelect( void )
 	// showing weapon select clears pickup item display, but not the blend blob
 	cg.itemPickupTime = 0;
 
-	const int sideMax = 3;	// Max number of icons on the side
+	const int sideMax = 3; // Max number of icons on the side
 
 	// Calculate how many icons will appear to either side of the center one
-	holdCount = count - 1;	// -1 for the center icon
-	if (holdCount == 0)			// No icons to either side
+	holdCount = count - 1; // -1 for the center icon
+	if (holdCount == 0)	   // No icons to either side
 	{
 		sideLeftIconCnt = 0;
 		sideRightIconCnt = 0;
 	}
-	else if (count > (2*sideMax))	// Go to the max on each side
+	else if (count > (2 * sideMax)) // Go to the max on each side
 	{
 		sideLeftIconCnt = sideMax;
 		sideRightIconCnt = sideMax;
 	}
-	else							// Less than max, so do the calc
+	else // Less than max, so do the calc
 	{
-		sideLeftIconCnt = holdCount/2;
+		sideLeftIconCnt = holdCount / 2;
 		sideRightIconCnt = holdCount - sideLeftIconCnt;
 	}
 
@@ -4063,7 +4106,7 @@ void CG_DrawForceSelect( void )
 
 #ifdef _XBOX
 	int x = 320;
-	if(cg.widescreen)
+	if (cg.widescreen)
 		x = 360;
 #else
 	const int x = 320;
@@ -4073,75 +4116,74 @@ void CG_DrawForceSelect( void )
 	i = cg.forcepowerSelect - 1;
 	if (i < 0)
 	{
-		i = MAX_SHOWPOWERS-1;
+		i = MAX_SHOWPOWERS - 1;
 	}
 
 	cgi_R_SetColor(NULL);
 	// Work backwards from current icon
-	holdX = x - ((bigIconSize/2) + pad + smallIconSize);
-	for (iconCnt=1;iconCnt<(sideLeftIconCnt+1);i--)
+	holdX = x - ((bigIconSize / 2) + pad + smallIconSize);
+	for (iconCnt = 1; iconCnt < (sideLeftIconCnt + 1); i--)
 	{
 		if (i < 0)
 		{
-			i = MAX_SHOWPOWERS-1;
+			i = MAX_SHOWPOWERS - 1;
 		}
 
-		if (!ForcePower_Valid(i))	// Does he have this power?
+		if (!ForcePower_Valid(i)) // Does he have this power?
 		{
 			continue;
 		}
 
-		++iconCnt;					// Good icon
+		++iconCnt; // Good icon
 
 		if (force_icons[showPowers[i]])
 		{
-			CG_DrawPic( holdX, y + yOffset, smallIconSize, smallIconSize, force_icons[showPowers[i]] ); 
-			holdX -= (smallIconSize+pad);
+			CG_DrawPic(holdX, y + yOffset, smallIconSize, smallIconSize, force_icons[showPowers[i]]);
+			holdX -= (smallIconSize + pad);
 		}
 	}
 
 	// Current Center Icon
 	if (force_icons[showPowers[cg.forcepowerSelect]])
 	{
-		CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2)) + yOffset, bigIconSize, bigIconSize, force_icons[showPowers[cg.forcepowerSelect]] );
+		CG_DrawPic(x - (bigIconSize / 2), (y - ((bigIconSize - smallIconSize) / 2)) + yOffset, bigIconSize, bigIconSize, force_icons[showPowers[cg.forcepowerSelect]]);
 	}
 
-
 	i = cg.forcepowerSelect + 1;
-	if (i>=MAX_SHOWPOWERS)
+	if (i >= MAX_SHOWPOWERS)
 	{
 		i = 0;
 	}
 
 	// Work forwards from current icon
-	holdX = x + (bigIconSize/2) + pad;
-	for (iconCnt=1;iconCnt<(sideRightIconCnt+1);i++)
+	holdX = x + (bigIconSize / 2) + pad;
+	for (iconCnt = 1; iconCnt < (sideRightIconCnt + 1); i++)
 	{
-		if (i>=MAX_SHOWPOWERS)
+		if (i >= MAX_SHOWPOWERS)
 		{
 			i = 0;
 		}
 
-		if (!ForcePower_Valid(i))	// Does he have this power?
+		if (!ForcePower_Valid(i)) // Does he have this power?
 		{
 			continue;
 		}
 
-		++iconCnt;					// Good icon
+		++iconCnt; // Good icon
 
 		if (force_icons[showPowers[i]])
 		{
-			CG_DrawPic( holdX, y + yOffset, smallIconSize, smallIconSize, force_icons[showPowers[i]] );
-			holdX += (smallIconSize+pad);
+			CG_DrawPic(holdX, y + yOffset, smallIconSize, smallIconSize, force_icons[showPowers[i]]);
+			holdX += (smallIconSize + pad);
 		}
 	}
 
 	// This only a temp solution.
-	if (cgi_SP_GetStringTextString( showPowersName[cg.forcepowerSelect], text, sizeof(text) ))
+	if (cgi_SP_GetStringTextString(showPowersName[cg.forcepowerSelect], text, sizeof(text)))
 	{
-			int w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 0.9f); //1.0f);	
-			int x = ( SCREEN_WIDTH - w ) / 2;
-			cgi_R_Font_DrawString(x, (SCREEN_HEIGHT - 24) + yOffset, text, colorTable[CT_ICON_BLUE], cgs.media.qhFontSmall, -1, 0.9f); //1.0f);
+		int w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 0.9f); //1.0f);
+		int x = (SCREEN_WIDTH - w) / 2;
+		cgi_R_Font_DrawString(x, (SCREEN_HEIGHT - 24) + yOffset, text, colorTable[CT_ICON_BLUE], cgs.media.qhFontSmall, -1, 0.9f); //1.0f);
 	}
 }
 
@@ -4152,11 +4194,11 @@ ForcePowerDataPad_Valid
 */
 qboolean ForcePowerDataPad_Valid(int index)
 {
-	gentity_t	*player = &g_entities[0];
+	gentity_t *player = &g_entities[0];
 
-	assert (index < MAX_DPSHOWPOWERS);
-	if (player->client->ps.forcePowersKnown & (1 << showDataPadPowers[index]) && 
-		player->client->ps.forcePowerLevel[showDataPadPowers[index]])	// Does he have the force power?
+	assert(index < MAX_DPSHOWPOWERS);
+	if (player->client->ps.forcePowersKnown & (1 << showDataPadPowers[index]) &&
+		player->client->ps.forcePowerLevel[showDataPadPowers[index]]) // Does he have the force power?
 	{
 		return qtrue;
 	}
@@ -4169,28 +4211,28 @@ qboolean ForcePowerDataPad_Valid(int index)
 CG_DPNextForcePower_f
 ===============
 */
-void CG_DPNextForcePower_f( void ) 
+void CG_DPNextForcePower_f(void)
 {
-	int		i;
-	int		original;
+	int i;
+	int original;
 
-	if ( !cg.snap ) 
+	if (!cg.snap)
 	{
 		return;
 	}
 
 	original = cg.DataPadforcepowerSelect;
 
-	for ( i = 0; i<MAX_DPSHOWPOWERS; i++ ) 
+	for (i = 0; i < MAX_DPSHOWPOWERS; i++)
 	{
 		cg.DataPadforcepowerSelect++;
 
 		if (cg.DataPadforcepowerSelect >= MAX_DPSHOWPOWERS)
-		{ 
-			cg.DataPadforcepowerSelect = 0; 
+		{
+			cg.DataPadforcepowerSelect = 0;
 		}
 
-		if (ForcePowerDataPad_Valid(cg.DataPadforcepowerSelect))	// Does he have the force power?
+		if (ForcePowerDataPad_Valid(cg.DataPadforcepowerSelect)) // Does he have the force power?
 		{
 			return;
 		}
@@ -4204,124 +4246,122 @@ void CG_DPNextForcePower_f( void )
 CG_DPPrevForcePower_f
 ===============
 */
-void CG_DPPrevForcePower_f( void ) 
+void CG_DPPrevForcePower_f(void)
 {
-	int		i;
-	int		original;
+	int i;
+	int original;
 
-	if ( !cg.snap ) 
+	if (!cg.snap)
 	{
 		return;
 	}
 
 	original = cg.DataPadforcepowerSelect;
 
-	for ( i = 0; i<MAX_DPSHOWPOWERS; i++ ) 
+	for (i = 0; i < MAX_DPSHOWPOWERS; i++)
 	{
 		cg.DataPadforcepowerSelect--;
 
 		if (cg.DataPadforcepowerSelect < 0)
-		{ 
-			cg.DataPadforcepowerSelect = MAX_DPSHOWPOWERS-1; 
+		{
+			cg.DataPadforcepowerSelect = MAX_DPSHOWPOWERS - 1;
 		}
 
-		if (ForcePowerDataPad_Valid(cg.DataPadforcepowerSelect))	// Does he have the force power?
+		if (ForcePowerDataPad_Valid(cg.DataPadforcepowerSelect)) // Does he have the force power?
 		{
 			return;
 		}
 	}
 
-
 	cg.DataPadforcepowerSelect = original;
 }
 
-char *forcepowerDesc[NUM_FORCE_POWERS] = 
-{
-"FORCE_ABSORB_DESC",
-"FORCE_HEAL_DESC",
-"FORCE_PROTECT_DESC",
-"FORCE_MIND_TRICK_DESC",
+char *forcepowerDesc[NUM_FORCE_POWERS] =
+	{
+		"FORCE_ABSORB_DESC",
+		"FORCE_HEAL_DESC",
+		"FORCE_PROTECT_DESC",
+		"FORCE_MIND_TRICK_DESC",
 
-"FORCE_JUMP_DESC",
-"FORCE_SPEED_DESC",
-"FORCE_PUSH_DESC",
-"FORCE_PULL_DESC",
-"FORCE_SABER_THROW_DESC",
-"FORCE_SABER_DEFENSE_DESC",
-"FORCE_SABER_OFFENSE_DESC",
-"FORCE_SENSE_DESC",
+		"FORCE_JUMP_DESC",
+		"FORCE_SPEED_DESC",
+		"FORCE_PUSH_DESC",
+		"FORCE_PULL_DESC",
+		"FORCE_SABER_THROW_DESC",
+		"FORCE_SABER_DEFENSE_DESC",
+		"FORCE_SABER_OFFENSE_DESC",
+		"FORCE_SENSE_DESC",
 
-"FORCE_DRAIN_DESC",
-"FORCE_LIGHTNING_DESC",
-"FORCE_RAGE_DESC",
-"FORCE_GRIP_DESC",
+		"FORCE_DRAIN_DESC",
+		"FORCE_LIGHTNING_DESC",
+		"FORCE_RAGE_DESC",
+		"FORCE_GRIP_DESC",
 };
 
+char *forcepowerLvl1Desc[NUM_FORCE_POWERS] =
+	{
+		"FORCE_ABSORB_LVL1_DESC",
+		"FORCE_HEAL_LVL1_DESC",
+		"FORCE_PROTECT_LVL1_DESC",
+		"FORCE_MIND_TRICK_LVL1_DESC",
 
-char *forcepowerLvl1Desc[NUM_FORCE_POWERS] = 
-{
-"FORCE_ABSORB_LVL1_DESC",
-"FORCE_HEAL_LVL1_DESC",
-"FORCE_PROTECT_LVL1_DESC",
-"FORCE_MIND_TRICK_LVL1_DESC",
+		"FORCE_JUMP_LVL1_DESC",
+		"FORCE_SPEED_LVL1_DESC",
+		"FORCE_PUSH_LVL1_DESC",
+		"FORCE_PULL_LVL1_DESC",
+		"FORCE_SABER_THROW_LVL1_DESC",
+		"FORCE_SABER_DEFENSE_LVL1_DESC",
+		"FORCE_SABER_OFFENSE_LVL1_DESC",
+		"FORCE_SENSE_LVL1_DESC",
 
-"FORCE_JUMP_LVL1_DESC",
-"FORCE_SPEED_LVL1_DESC",
-"FORCE_PUSH_LVL1_DESC",
-"FORCE_PULL_LVL1_DESC",
-"FORCE_SABER_THROW_LVL1_DESC",
-"FORCE_SABER_DEFENSE_LVL1_DESC",
-"FORCE_SABER_OFFENSE_LVL1_DESC",
-"FORCE_SENSE_LVL1_DESC",
-
-"FORCE_DRAIN_LVL1_DESC",
-"FORCE_LIGHTNING_LVL1_DESC",
-"FORCE_RAGE_LVL1_DESC",
-"FORCE_GRIP_LVL1_DESC",
+		"FORCE_DRAIN_LVL1_DESC",
+		"FORCE_LIGHTNING_LVL1_DESC",
+		"FORCE_RAGE_LVL1_DESC",
+		"FORCE_GRIP_LVL1_DESC",
 };
 
-char *forcepowerLvl2Desc[NUM_FORCE_POWERS] = 
-{
-"FORCE_ABSORB_LVL2_DESC",
-"FORCE_HEAL_LVL2_DESC",
-"FORCE_PROTECT_LVL2_DESC",
-"FORCE_MIND_TRICK_LVL2_DESC",
+char *forcepowerLvl2Desc[NUM_FORCE_POWERS] =
+	{
+		"FORCE_ABSORB_LVL2_DESC",
+		"FORCE_HEAL_LVL2_DESC",
+		"FORCE_PROTECT_LVL2_DESC",
+		"FORCE_MIND_TRICK_LVL2_DESC",
 
-"FORCE_JUMP_LVL2_DESC",
-"FORCE_SPEED_LVL2_DESC",
-"FORCE_PUSH_LVL2_DESC",
-"FORCE_PULL_LVL2_DESC",
-"FORCE_SABER_THROW_LVL2_DESC",
-"FORCE_SABER_DEFENSE_LVL2_DESC",
-"FORCE_SABER_OFFENSE_LVL2_DESC",
-"FORCE_SENSE_LVL2_DESC",
+		"FORCE_JUMP_LVL2_DESC",
+		"FORCE_SPEED_LVL2_DESC",
+		"FORCE_PUSH_LVL2_DESC",
+		"FORCE_PULL_LVL2_DESC",
+		"FORCE_SABER_THROW_LVL2_DESC",
+		"FORCE_SABER_DEFENSE_LVL2_DESC",
+		"FORCE_SABER_OFFENSE_LVL2_DESC",
+		"FORCE_SENSE_LVL2_DESC",
 
-"FORCE_DRAIN_LVL2_DESC",
-"FORCE_LIGHTNING_LVL2_DESC",
-"FORCE_RAGE_LVL2_DESC",
-"FORCE_GRIP_LVL2_DESC",
+		"FORCE_DRAIN_LVL2_DESC",
+		"FORCE_LIGHTNING_LVL2_DESC",
+		"FORCE_RAGE_LVL2_DESC",
+		"FORCE_GRIP_LVL2_DESC",
 };
 
-char *forcepowerLvl3Desc[NUM_FORCE_POWERS] = 
-{
-"FORCE_ABSORB_LVL3_DESC",
-"FORCE_HEAL_LVL3_DESC",
-"FORCE_PROTECT_LVL3_DESC",
-"FORCE_MIND_TRICK_LVL3_DESC",
+char *forcepowerLvl3Desc[NUM_FORCE_POWERS] =
+	{
+		"FORCE_ABSORB_LVL3_DESC",
+		"FORCE_HEAL_LVL3_DESC",
+		"FORCE_PROTECT_LVL3_DESC",
+		"FORCE_MIND_TRICK_LVL3_DESC",
 
-"FORCE_JUMP_LVL3_DESC",
-"FORCE_SPEED_LVL3_DESC",
-"FORCE_PUSH_LVL3_DESC",
-"FORCE_PULL_LVL3_DESC",
-"FORCE_SABER_THROW_LVL3_DESC",
-"FORCE_SABER_DEFENSE_LVL3_DESC",
-"FORCE_SABER_OFFENSE_LVL3_DESC",
-"FORCE_SENSE_LVL3_DESC",
+		"FORCE_JUMP_LVL3_DESC",
+		"FORCE_SPEED_LVL3_DESC",
+		"FORCE_PUSH_LVL3_DESC",
+		"FORCE_PULL_LVL3_DESC",
+		"FORCE_SABER_THROW_LVL3_DESC",
+		"FORCE_SABER_DEFENSE_LVL3_DESC",
+		"FORCE_SABER_OFFENSE_LVL3_DESC",
+		"FORCE_SENSE_LVL3_DESC",
 
-"FORCE_DRAIN_LVL3_DESC",
-"FORCE_LIGHTNING_LVL3_DESC",
-"FORCE_RAGE_LVL3_DESC",
-"FORCE_GRIP_LVL3_DESC",
+		"FORCE_DRAIN_LVL3_DESC",
+		"FORCE_LIGHTNING_LVL3_DESC",
+		"FORCE_RAGE_LVL3_DESC",
+		"FORCE_GRIP_LVL3_DESC",
 };
 
 /*
@@ -4330,84 +4370,82 @@ CG_DrawDataPadForceSelect
 ===================
 */
 #include "../ui/ui_shared.h"
-extern void Menu_SetItemText(const menuDef_t *menu,const char *itemName, const char *text);
+extern void Menu_SetItemText(const menuDef_t *menu, const char *itemName, const char *text);
 
 char forceDesc[2048];
-void CG_SetDataPadForceText( void )
+void CG_SetDataPadForceText(void)
 {
-	char	text[1024]={0};
-	char	text2[1024]={0};
+	char text[1024] = {0};
+	char text2[1024] = {0};
 
-	cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerDesc[cg.DataPadforcepowerSelect]), text, sizeof(text) );
-	if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==1)
+	cgi_SP_GetStringTextString(va("SP_INGAME_%s", forcepowerDesc[cg.DataPadforcepowerSelect]), text, sizeof(text));
+	if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]] == 1)
 	{
-		cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl1Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		cgi_SP_GetStringTextString(va("SP_INGAME_%s", forcepowerLvl1Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2));
 	}
-	else if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==2)
+	else if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]] == 2)
 	{
-		cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl2Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		cgi_SP_GetStringTextString(va("SP_INGAME_%s", forcepowerLvl2Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2));
 	}
-	else 
+	else
 	{
-		cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl3Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		cgi_SP_GetStringTextString(va("SP_INGAME_%s", forcepowerLvl3Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2));
 	}
 
-	const char* craptext	= va("%s%s",text,text2);
+	const char *craptext = va("%s%s", text, text2);
 	assert(strlen(craptext) < 2048);
 	strcpy(forceDesc, craptext);
 	Menu_SetItemText(Menu_GetFocused(), "desc", forceDesc);
 }
 
-void CG_DrawDataPadForceSelect( void ) 
+void CG_DrawDataPadForceSelect(void)
 {
-	int		i;
-	int		count;
-	int		holdX;
-	int		sideLeftIconCnt,sideRightIconCnt;
-	int		holdCount,iconCnt;
-
+	int i;
+	int count;
+	int holdX;
+	int sideLeftIconCnt, sideRightIconCnt;
+	int holdCount, iconCnt;
 
 	// count the number of powers known
 	count = 0;
-	for (i=0;i<MAX_DPSHOWPOWERS;i++)
+	for (i = 0; i < MAX_DPSHOWPOWERS; i++)
 	{
 		if (ForcePowerDataPad_Valid(i))
 		{
 			count++;
 			// Fix for datapad always showing absorb, even when we don't have it:
-			if (!ForcePowerDataPad_Valid( cg.DataPadforcepowerSelect ))
+			if (!ForcePowerDataPad_Valid(cg.DataPadforcepowerSelect))
 				cg.DataPadforcepowerSelect = i;
 		}
 	}
 
-	if (count < 1)	// If no force powers, don't display
+	if (count < 1) // If no force powers, don't display
 	{
 		return;
 	}
 
 	cg.iconSelectTime = cg.forcepowerSelectTime;
 
-
 	i = cg.DataPadforcepowerSelect - 1;
 	if (i < 0)
 	{
-		i = MAX_DPSHOWPOWERS-1;
+		i = MAX_DPSHOWPOWERS - 1;
 	}
 
 	// Current Center Icon
 	if (force_icons[showDataPadPowers[cg.DataPadforcepowerSelect]])
 	{
-		cgi_Cvar_Set("ui_rules", va("%d",cg.DataPadforcepowerSelect));
+		cgi_Cvar_Set("ui_rules", va("%d", cg.DataPadforcepowerSelect));
 
 		cgi_R_SetColor(colorTable[CT_WHITE]);
-		CG_DrawPic( 290, 155, 56, 56, force_icons[showDataPadPowers[cg.DataPadforcepowerSelect]] );
+		CG_DrawPic(290, 155, 56, 56, force_icons[showDataPadPowers[cg.DataPadforcepowerSelect]]);
 
 		// New force power
 		if (((cg_updatedDataPadForcePower1.integer - 1) == showDataPadPowers[cg.DataPadforcepowerSelect]) ||
 			((cg_updatedDataPadForcePower2.integer - 1) == showDataPadPowers[cg.DataPadforcepowerSelect]) ||
 			((cg_updatedDataPadForcePower3.integer - 1) == showDataPadPowers[cg.DataPadforcepowerSelect]))
-		{			
-			CG_DrawPic( 290, 155, 56, 56, cgs.media.DPForcePowerOverlay ); 
+		{
+			CG_DrawPic(290, 155, 56, 56, cgs.media.DPForcePowerOverlay);
 		}
 	}
 }
@@ -4436,7 +4474,3 @@ static void CG_RunCinematicFrame(int handle) {
 }
 #pragma warning ( default : 4505)
 */
-
-
-
-

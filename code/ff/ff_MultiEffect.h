@@ -19,40 +19,35 @@ class MultiEffect : public CImmCompoundEffect
 {
 public:
 	// dummy constructor
-	MultiEffect() : CImmCompoundEffect( NULL, 0, NULL ) {}	// Never call (cast instead)
+	MultiEffect() : CImmCompoundEffect(NULL, 0, NULL) {} // Never call (cast instead)
 
 	// CImmEffect extensions
-	qboolean GetStatus( DWORD &Status );
-	qboolean GetStartDelay( DWORD &StartDelay );
-	qboolean GetDuration( DWORD &Duration );
-	qboolean GetGain( DWORD &Gain );
-	qboolean ChangeDuration( DWORD Duration );
-	qboolean ChangeGain( DWORD Gain );
-	qboolean ChangeStartDelay( DWORD StartDelay );
+	qboolean GetStatus(DWORD &Status);
+	qboolean GetStartDelay(DWORD &StartDelay);
+	qboolean GetDuration(DWORD &Duration);
+	qboolean GetGain(DWORD &Gain);
+	qboolean ChangeDuration(DWORD Duration);
+	qboolean ChangeGain(DWORD Gain);
+	qboolean ChangeStartDelay(DWORD StartDelay);
 
 	// utility functions
-	qboolean GetDelayEnd( DWORD &DelayEnd );
+	qboolean GetDelayEnd(DWORD &DelayEnd);
 	qboolean IsBeyondStartDelay()
 	{
 		DWORD DelayEnd;
-		return qboolean
-		(	GetDelayEnd( DelayEnd )
-		&&	DelayEnd < ::GetTickCount()		// Does not account for counter overflow.
+		return qboolean(GetDelayEnd(DelayEnd) && DelayEnd < ::GetTickCount() // Does not account for counter overflow.
 		);
 	}
 	qboolean IsPlaying()
 	{
-		DWORD Status; 
-		return qboolean( GetStatus( Status ) && (Status & IMM_STATUS_PLAYING) );
+		DWORD Status;
+		return qboolean(GetStatus(Status) && (Status & IMM_STATUS_PLAYING));
 	}
 
 	// CImmCompoundEffect overrides
-	qboolean Start( DWORD dwIterations = IMM_EFFECT_DONT_CHANGE, DWORD dwFlags = 0 )
+	qboolean Start(DWORD dwIterations = IMM_EFFECT_DONT_CHANGE, DWORD dwFlags = 0)
 	{
-		return qboolean
-		(	IsBeyondStartDelay()
-		&&	CImmCompoundEffect::Start( dwIterations, dwFlags )
-		);
+		return qboolean(IsBeyondStartDelay() && CImmCompoundEffect::Start(dwIterations, dwFlags));
 	}
 };
 

@@ -25,47 +25,47 @@
  *	none
  *
  ************************************************************************************************/
-CRMRandomInstance::CRMRandomInstance ( CGPGroup *instGroup, CRMInstanceFile& instFile ) 
-	: CRMInstance ( instGroup, instFile )
+CRMRandomInstance::CRMRandomInstance(CGPGroup *instGroup, CRMInstanceFile &instFile)
+	: CRMInstance(instGroup, instFile)
 {
-	CGPGroup* group;
-	CGPGroup* groups[MAX_RANDOM_INSTANCES];
-	int		  numGroups;
+	CGPGroup *group;
+	CGPGroup *groups[MAX_RANDOM_INSTANCES];
+	int numGroups;
 
 	// Build a list of the groups one can be chosen
-	for ( numGroups = 0, group = instGroup->GetSubGroups ( ); 
-		  group; 
-		  group = group->GetNext ( ) )
+	for (numGroups = 0, group = instGroup->GetSubGroups();
+		 group;
+		 group = group->GetNext())
 	{
 		// If this isnt an instance group then skip it
-		if ( stricmp ( group->GetName ( ), "instance" ) )
+		if (stricmp(group->GetName(), "instance"))
 		{
 			continue;
 		}
 
-		int multiplier = atoi(group->FindPairValue ( "multiplier", "1" ));
-		for ( ; multiplier > 0 && numGroups < MAX_RANDOM_INSTANCES; multiplier -- )
-		{ 
+		int multiplier = atoi(group->FindPairValue("multiplier", "1"));
+		for (; multiplier > 0 && numGroups < MAX_RANDOM_INSTANCES; multiplier--)
+		{
 			groups[numGroups++] = group;
 		}
 	}
 
 	// No groups, no instance
-	if ( !numGroups )
+	if (!numGroups)
 	{
 		// Initialize this now
 		mInstance = NULL;
 
-		Com_Printf ( "WARNING: No sub instances specified for random instance '%s'\n", group->FindPairValue ( "name", "unknown" ) );
+		Com_Printf("WARNING: No sub instances specified for random instance '%s'\n", group->FindPairValue("name", "unknown"));
 		return;
 	}
 
-	// Now choose a group to parse	
-	instGroup = groups[TheRandomMissionManager->GetLandScape()->irand(0,numGroups-1)];
+	// Now choose a group to parse
+	instGroup = groups[TheRandomMissionManager->GetLandScape()->irand(0, numGroups - 1)];
 
 	// Create the child instance now.  If the instance create fails then the
 	// IsValid routine will return false and this instance wont be added
-	mInstance = instFile.CreateInstance ( instGroup->FindPairValue ( "name", "" ) );
+	mInstance = instFile.CreateInstance(instGroup->FindPairValue("name", ""));
 	mInstance->SetFilter(mFilter);
 	mInstance->SetTeamFilter(mTeamFilter);
 
@@ -89,14 +89,14 @@ CRMRandomInstance::CRMRandomInstance ( CGPGroup *instGroup, CRMInstanceFile& ins
  ************************************************************************************************/
 CRMRandomInstance::~CRMRandomInstance(void)
 {
-	if ( mInstance )
+	if (mInstance)
 	{
 		delete mInstance;
 	}
 }
 
 void CRMRandomInstance::SetMirror(int mirror)
-{ 
+{
 	CRMInstance::SetMirror(mirror);
 	if (mInstance)
 	{
@@ -104,7 +104,7 @@ void CRMRandomInstance::SetMirror(int mirror)
 	}
 }
 
-void CRMRandomInstance::SetFilter( const char *filter )
+void CRMRandomInstance::SetFilter(const char *filter)
 {
 	CRMInstance::SetFilter(filter);
 	if (mInstance)
@@ -113,7 +113,7 @@ void CRMRandomInstance::SetFilter( const char *filter )
 	}
 }
 
-void CRMRandomInstance::SetTeamFilter( const char *teamFilter )
+void CRMRandomInstance::SetTeamFilter(const char *teamFilter)
 {
 	CRMInstance::SetTeamFilter(teamFilter);
 	if (mInstance)
@@ -134,13 +134,13 @@ void CRMRandomInstance::SetTeamFilter( const char *teamFilter )
  *  false: preparation failed
  *
  ************************************************************************************************/
-bool CRMRandomInstance::PreSpawn ( CRandomTerrain* terrain, qboolean IsServer )
+bool CRMRandomInstance::PreSpawn(CRandomTerrain *terrain, qboolean IsServer)
 {
-	assert ( mInstance );
+	assert(mInstance);
 
-	mInstance->SetFlattenHeight ( GetFlattenHeight( ) );
+	mInstance->SetFlattenHeight(GetFlattenHeight());
 
-	return mInstance->PreSpawn ( terrain, IsServer );
+	return mInstance->PreSpawn(terrain, IsServer);
 }
 
 /************************************************************************************************
@@ -155,12 +155,12 @@ bool CRMRandomInstance::PreSpawn ( CRandomTerrain* terrain, qboolean IsServer )
  *  false: spawn failed
  *
  ************************************************************************************************/
-bool CRMRandomInstance::Spawn ( CRandomTerrain* terrain, qboolean IsServer )
+bool CRMRandomInstance::Spawn(CRandomTerrain *terrain, qboolean IsServer)
 {
 	mInstance->SetObjective(GetObjective());
 	mInstance->SetSide(GetSide());
 
-	if ( !mInstance->Spawn ( terrain, IsServer ) )
+	if (!mInstance->Spawn(terrain, IsServer))
 	{
 		return false;
 	}
@@ -179,9 +179,9 @@ bool CRMRandomInstance::Spawn ( CRandomTerrain* terrain, qboolean IsServer )
  *	none
  *
  ************************************************************************************************/
-void CRMRandomInstance::SetArea ( CRMAreaManager* amanager, CRMArea* area )
+void CRMRandomInstance::SetArea(CRMAreaManager *amanager, CRMArea *area)
 {
-	CRMInstance::SetArea ( amanager, area );
+	CRMInstance::SetArea(amanager, area);
 
-	mInstance->SetArea ( amanager, mArea );
+	mInstance->SetArea(amanager, mArea);
 }

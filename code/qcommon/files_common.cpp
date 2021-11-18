@@ -7,7 +7,6 @@
  *
  *****************************************************************************/
 
-
 #include "../game/q_shared.h"
 #include "qcommon.h"
 #include "files.h"
@@ -160,35 +159,29 @@ or configs will never get loaded from disk!
 // hit the shelves a little later
 //#define	PRE_RELEASE_DEMO
 
-
-char		fs_gamedir[MAX_OSPATH];	// this will be a single file name with no separators
-cvar_t		*fs_debug;
-cvar_t		*fs_basepath;
-cvar_t		*fs_cdpath;
-cvar_t		*fs_copyfiles;
-cvar_t		*fs_gamedirvar;
-cvar_t		*fs_restrict;
-searchpath_t	*fs_searchpaths;
-int			fs_readCount;			// total bytes read
-int			fs_loadCount;			// total files read
-int			fs_packFiles;			// total number of files in packs
+char fs_gamedir[MAX_OSPATH]; // this will be a single file name with no separators
+cvar_t *fs_debug;
+cvar_t *fs_basepath;
+cvar_t *fs_cdpath;
+cvar_t *fs_copyfiles;
+cvar_t *fs_gamedirvar;
+cvar_t *fs_restrict;
+searchpath_t *fs_searchpaths;
+int fs_readCount; // total bytes read
+int fs_loadCount; // total files read
+int fs_packFiles; // total number of files in packs
 
 qboolean initialized = qfalse;
 
-
-
-
-
-fileHandleData_t	fsh[MAX_FILE_HANDLES];
+fileHandleData_t fsh[MAX_FILE_HANDLES];
 
 void FS_CheckInit(void)
 {
 	if (!initialized)
 	{
-		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
+		Com_Error(ERR_FATAL, "Filesystem call made without initialization\n");
 	}
 }
-
 
 /*
 ==============
@@ -196,33 +189,36 @@ FS_Initialized
 ==============
 */
 
-qboolean FS_Initialized() {
+qboolean FS_Initialized()
+{
 	return (qboolean)(fs_searchpaths != NULL);
 }
 
+fileHandle_t FS_HandleForFile(void)
+{
+	int i;
 
-
-fileHandle_t	FS_HandleForFile(void) {
-	int		i;
-
-	for ( i = 1 ; i < MAX_FILE_HANDLES ; i++ ) {
+	for (i = 1; i < MAX_FILE_HANDLES; i++)
+	{
 #ifdef _XBOX
-		if ( !fsh[i].used ) {
+		if (!fsh[i].used)
+		{
 #else
-		if ( fsh[i].handleFiles.file.o == NULL ) {
+		if (fsh[i].handleFiles.file.o == NULL)
+		{
 #endif
 			return i;
 		}
 	}
 
-	Com_Printf( "FS_HandleForFile: all handles taken:\n" );
-	for ( i = 1 ; i < MAX_FILE_HANDLES ; i++ ) {
-		Com_Printf( "%d. %s\n", i, fsh[i].name);
+	Com_Printf("FS_HandleForFile: all handles taken:\n");
+	for (i = 1; i < MAX_FILE_HANDLES; i++)
+	{
+		Com_Printf("%d. %s\n", i, fsh[i].name);
 	}
-	Com_Error( ERR_DROP, "FS_HandleForFile: none free" );
+	Com_Error(ERR_DROP, "FS_HandleForFile: none free");
 	return 0;
 }
-
 
 /*
 ====================
@@ -231,11 +227,14 @@ FS_ReplaceSeparators
 Fix things up differently for win/unix/mac
 ====================
 */
-void FS_ReplaceSeparators( char *path ) {
-	char	*s;
+void FS_ReplaceSeparators(char *path)
+{
+	char *s;
 
-	for ( s = path ; *s ; s++ ) {
-		if ( *s == '/' || *s == '\\' ) {
+	for (s = path; *s; s++)
+	{
+		if (*s == '/' || *s == '\\')
+		{
 			*s = PATH_SEP;
 		}
 	}
@@ -249,56 +248,56 @@ Qpath may have either forward or backwards slashes
 ===================
 */
 
-char *FS_BuildOSPath( const char *qpath )
+char *FS_BuildOSPath(const char *qpath)
 {
-	char	temp[MAX_OSPATH];
+	char temp[MAX_OSPATH];
 	static char ospath[2][MAX_OSPATH];
 	static int toggle;
-	
-	toggle ^= 1;		// flip-flop to allow two returns without clash
 
-	Com_sprintf( temp, sizeof(temp), "/%s/%s", fs_gamedirvar->string, qpath );
+	toggle ^= 1; // flip-flop to allow two returns without clash
 
-	FS_ReplaceSeparators( temp );	
-	Com_sprintf( ospath[toggle], sizeof( ospath[0] ), "%s%s", 
-		fs_basepath->string, temp );
-	
+	Com_sprintf(temp, sizeof(temp), "/%s/%s", fs_gamedirvar->string, qpath);
+
+	FS_ReplaceSeparators(temp);
+	Com_sprintf(ospath[toggle], sizeof(ospath[0]), "%s%s",
+				fs_basepath->string, temp);
+
 	return ospath[toggle];
 }
 
-char *FS_BuildOSPathUnMapped( const char *qpath )
+char *FS_BuildOSPathUnMapped(const char *qpath)
 {
-	char	temp[MAX_OSPATH];
+	char temp[MAX_OSPATH];
 	static char ospath[2][MAX_OSPATH];
 	static int toggle;
-	
-	toggle ^= 1;		// flip-flop to allow two returns without clash
 
-	Com_sprintf( temp, sizeof(temp), "/%s/%s", fs_gamedirvar->string, qpath );
+	toggle ^= 1; // flip-flop to allow two returns without clash
 
-	FS_ReplaceSeparators( temp );	
-	Com_sprintf( ospath[toggle], sizeof( ospath[0] ), "%s%s", 
-		"d:", temp );
-	
+	Com_sprintf(temp, sizeof(temp), "/%s/%s", fs_gamedirvar->string, qpath);
+
+	FS_ReplaceSeparators(temp);
+	Com_sprintf(ospath[toggle], sizeof(ospath[0]), "%s%s",
+				"d:", temp);
+
 	return ospath[toggle];
 }
 
 #ifndef _XBOX
-char *FS_BuildOSPath( const char *base, const char *game, const char *qpath ) {
-	char	temp[MAX_OSPATH];
+char *FS_BuildOSPath(const char *base, const char *game, const char *qpath)
+{
+	char temp[MAX_OSPATH];
 	static char ospath[4][MAX_OSPATH];
 	static int toggle;
-	
-	toggle = (++toggle)&3;	// allows four returns without clash (increased from 2 during fs_copyfiles 2 enhancement)
 
-	Com_sprintf( temp, sizeof(temp), "/%s/%s", game, qpath );
-	FS_ReplaceSeparators( temp );	
-	Com_sprintf( ospath[toggle], sizeof( ospath[0] ), "%s%s", base, temp );
-	
+	toggle = (++toggle) & 3; // allows four returns without clash (increased from 2 during fs_copyfiles 2 enhancement)
+
+	Com_sprintf(temp, sizeof(temp), "/%s/%s", game, qpath);
+	FS_ReplaceSeparators(temp);
+	Com_sprintf(ospath[toggle], sizeof(ospath[0]), "%s%s", base, temp);
+
 	return ospath[toggle];
 }
 #endif
-
 
 /*
 ============
@@ -307,29 +306,31 @@ FS_CreatePath
 Creates any directories needed to store the given filename
 ============
 */
-void	FS_CreatePath (char *OSPath) {
-	char	*ofs;
-	
+void FS_CreatePath(char *OSPath)
+{
+	char *ofs;
+
 	// make absolutely sure that it can't back up the path
 	// FIXME: is c: allowed???
-	if ( strstr( OSPath, ".." ) || strstr( OSPath, "::" ) ) {
-		Com_Printf( "WARNING: refusing to create relative path \"%s\"\n", OSPath );
+	if (strstr(OSPath, "..") || strstr(OSPath, "::"))
+	{
+		Com_Printf("WARNING: refusing to create relative path \"%s\"\n", OSPath);
 		return;
 	}
 
 	strlwr(OSPath);
 
-	for (ofs = OSPath+1 ; *ofs ; ofs++) {
-		if (*ofs == PATH_SEP) {	
+	for (ofs = OSPath + 1; *ofs; ofs++)
+	{
+		if (*ofs == PATH_SEP)
+		{
 			// create the directory
 			*ofs = 0;
-			Sys_Mkdir (OSPath);
+			Sys_Mkdir(OSPath);
 			*ofs = PATH_SEP;
 		}
 	}
 }
-
-
 
 /*
 ===========
@@ -337,49 +338,51 @@ FS_SV_FOpenFileRead
 
 ===========
 */
-int FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp ) {
-  char *ospath;
-	fileHandle_t	f;
+int FS_SV_FOpenFileRead(const char *filename, fileHandle_t *fp)
+{
+	char *ospath;
+	fileHandle_t f;
 
-	if ( !fs_searchpaths ) {
-		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
+	if (!fs_searchpaths)
+	{
+		Com_Error(ERR_FATAL, "Filesystem call made without initialization\n");
 	}
 
 	f = FS_HandleForFile();
 	fsh[f].zipFile = qfalse;
 
-	Q_strncpyz( fsh[f].name, filename, sizeof( fsh[f].name ) );
+	Q_strncpyz(fsh[f].name, filename, sizeof(fsh[f].name));
 
 	// don't let sound stutter
 	S_ClearSoundBuffer();
 
 #ifdef _XBOX
-	ospath = FS_BuildOSPath( filename );
+	ospath = FS_BuildOSPath(filename);
 #else
-	ospath = FS_BuildOSPath( fs_basepath->string, filename, "" );
+	ospath = FS_BuildOSPath(fs_basepath->string, filename, "");
 #endif
 	// remove trailing slash
-  ospath[strlen(ospath)-1] = '\0';
+	ospath[strlen(ospath) - 1] = '\0';
 
-	if ( fs_debug->integer ) {
-		Com_Printf( "FS_SV_FOpenFileRead: %s\n", ospath );
+	if (fs_debug->integer)
+	{
+		Com_Printf("FS_SV_FOpenFileRead: %s\n", ospath);
 	}
 
-	fsh[f].handleFiles.file.o = fopen( ospath, "rb" );
+	fsh[f].handleFiles.file.o = fopen(ospath, "rb");
 	fsh[f].handleSync = qfalse;
-	if (!fsh[f].handleFiles.file.o) {
+	if (!fsh[f].handleFiles.file.o)
+	{
 		f = 0;
 	}
-  
-  *fp = f;
-  if (f) {
-    return FS_filelength(f);
-  }
-  return 0;
+
+	*fp = f;
+	if (f)
+	{
+		return FS_filelength(f);
+	}
+	return 0;
 }
-
-
-
 
 /*
 ===========
@@ -387,41 +390,44 @@ FS_FOpenFileAppend
 
 ===========
 */
-fileHandle_t FS_FOpenFileAppend( const char *filename ) {
-	char			*ospath;
-	fileHandle_t	f;
+fileHandle_t FS_FOpenFileAppend(const char *filename)
+{
+	char *ospath;
+	fileHandle_t f;
 
-	if ( !fs_searchpaths ) {
-		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
+	if (!fs_searchpaths)
+	{
+		Com_Error(ERR_FATAL, "Filesystem call made without initialization\n");
 	}
 
 	f = FS_HandleForFile();
 	fsh[f].zipFile = qfalse;
 
-	Q_strncpyz( fsh[f].name, filename, sizeof( fsh[f].name ) );
+	Q_strncpyz(fsh[f].name, filename, sizeof(fsh[f].name));
 
 	// don't let sound stutter
 	S_ClearSoundBuffer();
 
 #ifdef _XBOX
-	ospath = FS_BuildOSPath( filename );
+	ospath = FS_BuildOSPath(filename);
 #else
-	ospath = FS_BuildOSPath( fs_basepath->string, fs_gamedir, filename );
+	ospath = FS_BuildOSPath(fs_basepath->string, fs_gamedir, filename);
 #endif
 
-	if ( fs_debug->integer ) {
-		Com_Printf( "FS_FOpenFileAppend: %s\n", ospath );
+	if (fs_debug->integer)
+	{
+		Com_Printf("FS_FOpenFileAppend: %s\n", ospath);
 	}
 
-	FS_CreatePath( ospath );
-	fsh[f].handleFiles.file.o = fopen( ospath, "ab" );
+	FS_CreatePath(ospath);
+	fsh[f].handleFiles.file.o = fopen(ospath, "ab");
 	fsh[f].handleSync = qfalse;
-	if (!fsh[f].handleFiles.file.o) {
+	if (!fsh[f].handleFiles.file.o)
+	{
 		f = 0;
 	}
 	return f;
 }
-
 
 /*
 ===========
@@ -430,50 +436,54 @@ FS_FilenameCompare
 Ignore case and seprator char distinctions
 ===========
 */
-qboolean FS_FilenameCompare( const char *s1, const char *s2 ) {
-	int		c1, c2;
-	
-	do {
+qboolean FS_FilenameCompare(const char *s1, const char *s2)
+{
+	int c1, c2;
+
+	do
+	{
 		c1 = *s1++;
 		c2 = *s2++;
 
-		if ( Q_islower(c1) ) {
+		if (Q_islower(c1))
+		{
 			c1 -= ('a' - 'A');
 		}
-		if ( Q_islower(c2) ) {
+		if (Q_islower(c2))
+		{
 			c2 -= ('a' - 'A');
 		}
 
-		if ( c1 == '\\' || c1 == ':' ) {
+		if (c1 == '\\' || c1 == ':')
+		{
 			c1 = '/';
 		}
-		if ( c2 == '\\' || c2 == ':' ) {
+		if (c2 == '\\' || c2 == ':')
+		{
 			c2 = '/';
 		}
-		
-		if (c1 != c2) {
-			return -1;		// strings not equal
+
+		if (c1 != c2)
+		{
+			return -1; // strings not equal
 		}
 	} while (c1);
-	
-	return 0;		// strings are equal
+
+	return 0; // strings are equal
 }
 
-					
-#define	MAXPRINTMSG	4096
-void QDECL FS_Printf( fileHandle_t h, const char *fmt, ... ) {
-	va_list		argptr;
-	char		msg[MAXPRINTMSG];
+#define MAXPRINTMSG 4096
+void QDECL FS_Printf(fileHandle_t h, const char *fmt, ...)
+{
+	va_list argptr;
+	char msg[MAXPRINTMSG];
 
-	va_start (argptr,fmt);
-	vsprintf (msg,fmt,argptr);
-	va_end (argptr);
+	va_start(argptr, fmt);
+	vsprintf(msg, fmt, argptr);
+	va_end(argptr);
 
 	FS_Write(msg, strlen(msg), h);
 }
-
-
-
 
 /*
 ============
@@ -482,34 +492,31 @@ FS_WriteFile
 Filename are relative to the quake search path
 ============
 */
-void FS_WriteFile( const char *qpath, const void *buffer, int size ) {
+void FS_WriteFile(const char *qpath, const void *buffer, int size)
+{
 	fileHandle_t f;
 
-	if ( !fs_searchpaths ) {
-		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
+	if (!fs_searchpaths)
+	{
+		Com_Error(ERR_FATAL, "Filesystem call made without initialization\n");
 	}
 
-	if ( !qpath || !buffer ) {
-		Com_Error( ERR_FATAL, "FS_WriteFile: NULL parameter" );
+	if (!qpath || !buffer)
+	{
+		Com_Error(ERR_FATAL, "FS_WriteFile: NULL parameter");
 	}
 
-	f = FS_FOpenFileWrite( qpath );
-	if ( !f ) {
-		Com_Printf( "Failed to open %s\n", qpath );
+	f = FS_FOpenFileWrite(qpath);
+	if (!f)
+	{
+		Com_Printf("Failed to open %s\n", qpath);
 		return;
 	}
 
-	FS_Write( buffer, size, f );
+	FS_Write(buffer, size, f);
 
-	FS_FCloseFile( f );
+	FS_FCloseFile(f);
 }
-
-
-
-
-
-
-
 
 /*
 ================
@@ -518,44 +525,48 @@ FS_Shutdown
 Frees all resources and closes all files
 ================
 */
-void FS_Shutdown( void ) {
-	searchpath_t	*p, *next;
-	int	i;
+void FS_Shutdown(void)
+{
+	searchpath_t *p, *next;
+	int i;
 
-	for(i = 0; i < MAX_FILE_HANDLES; i++) {
-		if (fsh[i].fileSize) {
+	for (i = 0; i < MAX_FILE_HANDLES; i++)
+	{
+		if (fsh[i].fileSize)
+		{
 			FS_FCloseFile(i);
 		}
 	}
 
 	// free everything
-	for ( p = fs_searchpaths ; p ; p = next ) {
+	for (p = fs_searchpaths; p; p = next)
+	{
 		next = p->next;
 
-		if ( p->pack ) {
+		if (p->pack)
+		{
 #ifndef _XBOX
 			unzClose(p->pack->handle);
 #endif
-			Z_Free( p->pack->buildBuffer );
-			Z_Free( p->pack );
+			Z_Free(p->pack->buildBuffer);
+			Z_Free(p->pack);
 		}
-		if ( p->dir ) {
-			Z_Free( p->dir );
+		if (p->dir)
+		{
+			Z_Free(p->dir);
 		}
-		Z_Free( p );
+		Z_Free(p);
 	}
 
 	// any FS_ calls will now be an error until reinitialized
 	fs_searchpaths = NULL;
 
-	Cmd_RemoveCommand( "path" );
-	Cmd_RemoveCommand( "dir" );
-	Cmd_RemoveCommand( "touchFile" );
+	Cmd_RemoveCommand("path");
+	Cmd_RemoveCommand("dir");
+	Cmd_RemoveCommand("touchFile");
 
 	initialized = qfalse;
 }
-
-
 
 /*
 ================
@@ -565,7 +576,8 @@ Called only at inital startup, not when the filesystem
 is resetting due to a game change
 ================
 */
-void FS_InitFilesystem( void ) {
+void FS_InitFilesystem(void)
+{
 	// allow command line parms to override our defaults
 	// we don't have to specially handle this, because normal command
 	// line variable sets happen before the filesystem
@@ -575,14 +587,14 @@ void FS_InitFilesystem( void ) {
 	// we have to specially handle this, because normal command
 	// line variable sets don't happen until after the filesystem
 	// has already been initialized
-	Com_StartupVariable( "fs_cdpath" );
-	Com_StartupVariable( "fs_basepath" );
-	Com_StartupVariable( "fs_game" );
-	Com_StartupVariable( "fs_copyfiles" );
-	Com_StartupVariable( "fs_restrict" );
+	Com_StartupVariable("fs_cdpath");
+	Com_StartupVariable("fs_basepath");
+	Com_StartupVariable("fs_game");
+	Com_StartupVariable("fs_copyfiles");
+	Com_StartupVariable("fs_restrict");
 
 	// try to start up normally
-	FS_Startup( BASEGAME );
+	FS_Startup(BASEGAME);
 	initialized = qtrue;
 
 	// see if we are going to allow add-ons
@@ -591,15 +603,13 @@ void FS_InitFilesystem( void ) {
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
-	if ( FS_ReadFile( "default.cfg", NULL ) <= 0 ) {
-		Com_Error( ERR_FATAL, "Couldn't load default.cfg" );
+	if (FS_ReadFile("default.cfg", NULL) <= 0)
+	{
+		Com_Error(ERR_FATAL, "Couldn't load default.cfg");
 	}
 }
 
-
-
-
-void	FS_Flush( fileHandle_t f ) {
+void FS_Flush(fileHandle_t f)
+{
 	fflush(fsh[f].handleFiles.file.o);
 }
-

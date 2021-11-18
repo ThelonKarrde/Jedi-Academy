@@ -71,29 +71,29 @@
 // Gah! I hate Bink! Stupid thing allocates physical memory (probably via
 // DSound) when starting. Need to leave just a little more.
 #ifdef FINAL_BUILD
-#	define ZONE_HEAP_FREE (1024*1024*6 + 512*1024 + 256*1024 + 64*1024)
+#define ZONE_HEAP_FREE (1024 * 1024 * 6 + 512 * 1024 + 256 * 1024 + 64 * 1024)
 #else
-#	define ZONE_HEAP_FREE (1024*1024*16 + 16*1024*1024)
+#define ZONE_HEAP_FREE (1024 * 1024 * 16 + 16 * 1024 * 1024)
 #endif
 
 #ifdef FINAL_BUILD
-#define TEXTURE_POOL_SIZE	16*1024*1024
+#define TEXTURE_POOL_SIZE 16 * 1024 * 1024
 #else
-#define TEXTURE_POOL_SIZE	20*1024*1024
+#define TEXTURE_POOL_SIZE 20 * 1024 * 1024
 #endif
 
 // Two systems (Bink, and Savegames) need large, contiguous allocations once things
 // are running and fragmented. They get their own sandbox:
-#define TEMP_ALLOC_POOL_SIZE	(2*1024*1024 + 512*1024)
+#define TEMP_ALLOC_POOL_SIZE (2 * 1024 * 1024 + 512 * 1024)
 
-__declspec (align(32)) char s_TempAllocPool[TEMP_ALLOC_POOL_SIZE];
+__declspec(align(32)) char s_TempAllocPool[TEMP_ALLOC_POOL_SIZE];
 int s_TempAllocPoint = 0;
 
-void *TempAlloc( unsigned long size )
+void *TempAlloc(unsigned long size)
 {
-	if( s_TempAllocPoint + size > TEMP_ALLOC_POOL_SIZE )
+	if (s_TempAllocPoint + size > TEMP_ALLOC_POOL_SIZE)
 	{
-		Com_Printf( "WARNING: TempAlloc pool full!\n" );
+		Com_Printf("WARNING: TempAlloc pool full!\n");
 		return NULL;
 	}
 
@@ -104,7 +104,7 @@ void *TempAlloc( unsigned long size )
 	return retVal;
 }
 
-void TempFree( void )
+void TempFree(void)
 {
 	s_TempAllocPoint = 0;
 }
@@ -122,19 +122,19 @@ typedef unsigned char ZoneDebugFooter;
 // Extended header information for memory freed with TagFree()
 struct ZoneLinkHeader
 {
-	ZoneLinkHeader* m_Next;
-	ZoneLinkHeader* m_Prev;
+	ZoneLinkHeader *m_Next;
+	ZoneLinkHeader *m_Prev;
 };
 
-static ZoneLinkHeader* s_LinkBase;
+static ZoneLinkHeader *s_LinkBase;
 
 // Free memory block tracking information
 struct ZoneFreeBlock
 {
 	unsigned int m_Address;
 	unsigned int m_Size;
-	ZoneFreeBlock* m_Next;
-	ZoneFreeBlock* m_Prev;
+	ZoneFreeBlock *m_Next;
+	ZoneFreeBlock *m_Prev;
 };
 
 // Buffer to hold free memory information that we can't
@@ -148,14 +148,14 @@ static ZoneFreeBlock s_FreeEnd;
 // Various stats collected at runtime
 struct ZoneStats
 {
-	int	m_CountAlloc;
+	int m_CountAlloc;
 	int m_SizeAlloc;
 	int m_OverheadAlloc;
-	int	m_PeakAlloc;
-	int	m_CountFree;
+	int m_PeakAlloc;
+	int m_CountFree;
 	int m_SizeFree;
-	int	m_SizesPerTag[TAG_COUNT];
-	int	m_CountsPerTag[TAG_COUNT];	
+	int m_SizesPerTag[TAG_COUNT];
+	int m_CountsPerTag[TAG_COUNT];
 };
 
 static ZoneStats s_Stats;
@@ -178,14 +178,14 @@ static ZoneEmptyBlock s_EmptyBlock = {TAG_STATIC << 25};
 
 // Free block jump table for fast memory deallocation
 #define Z_JUMP_TABLE_SIZE 64
-static ZoneFreeBlock* s_FreeJumpTable[Z_JUMP_TABLE_SIZE];
+static ZoneFreeBlock *s_FreeJumpTable[Z_JUMP_TABLE_SIZE];
 static unsigned int s_FreeJumpResolution;
 
-static void* s_PoolBase;
+static void *s_PoolBase;
 static int s_PoolSize;
 static bool s_Initialized = false;
 
-static memtag_t s_newDeleteTagStack[32] = { TAG_NEWDEL };
+static memtag_t s_newDeleteTagStack[32] = {TAG_NEWDEL};
 static int s_newDeleteTagStackTop = 0;
 
 #ifndef _GAMECUBE
@@ -197,15 +197,15 @@ void Z_Details_f(void);
 void Z_DumpMemMap_f(void);
 void Z_CompactStats(void);
 
-void Z_PushNewDeleteTag( memtag_t eTag )
+void Z_PushNewDeleteTag(memtag_t eTag)
 {
-	assert( s_newDeleteTagStackTop < 31 );
+	assert(s_newDeleteTagStackTop < 31);
 	s_newDeleteTagStack[++s_newDeleteTagStackTop] = eTag;
 }
 
-void Z_PopNewDeleteTag( void )
+void Z_PopNewDeleteTag(void)
 {
-	assert( s_newDeleteTagStackTop );
+	assert(s_newDeleteTagStackTop);
 	--s_newDeleteTagStackTop;
 }
 
@@ -215,16 +215,16 @@ void ShowOSMemory(void)
 	MEMORYSTATUS stat;
 	GlobalMemoryStatus(&stat);
 	Com_Printf("     total mem: %d, free mem: %d\n", stat.dwTotalPhys / 1024,
-			stat.dwAvailPhys / 1024);
+			   stat.dwAvailPhys / 1024);
 	FILE *out = fopen("d:\\osmem.txt", "a");
-	if(out) {
+	if (out)
+	{
 		fprintf(out, "total mem: %d, free mem: %d\n", stat.dwTotalPhys / 1024,
 				stat.dwAvailPhys / 1024);
 		fclose(out);
 	}
 }
 #endif
-
 
 int Z_MemFree(void)
 {
@@ -233,7 +233,7 @@ int Z_MemFree(void)
 
 void Com_InitZoneMemory(void)
 {
-//	assert(!s_Initialized);
+	//	assert(!s_Initialized);
 	// Zone now initializes on first use, can't reliably assume anything here
 	if (s_Initialized)
 		return;
@@ -253,21 +253,21 @@ void Com_InitZoneMemory(void)
 	// BTO : VVFIXME - Extra little note to see how much memory
 	// is being used by globals/statics
 	Com_Printf("*** PhysRAM: %d used, %d free\n",
-				status.dwTotalPhys-status.dwAvailPhys,
-				status.dwAvailPhys);
+			   status.dwTotalPhys - status.dwAvailPhys,
+			   status.dwAvailPhys);
 
 	// Allocate the texture pool:
-	gTextures.Initialize( TEXTURE_POOL_SIZE );
+	gTextures.Initialize(TEXTURE_POOL_SIZE);
 
 	GlobalMemoryStatus(&status);
 
 	// BTO : VVFIXME - Extra little note to see how much memory
 	// is being used by globals/statics
 	Com_Printf("*** PhysRAM: %d used, %d free\n",
-				status.dwTotalPhys-status.dwAvailPhys,
-				status.dwAvailPhys);
+			   status.dwTotalPhys - status.dwAvailPhys,
+			   status.dwAvailPhys);
 	SIZE_T size;
-#	if ZONE_EMULATE_SPACE
+#if ZONE_EMULATE_SPACE
 #ifdef _DEBUG
 	//Emulated space is always about 6 megs off from release build.  Try
 	//to compensate.  This number may need tweaking in the future.
@@ -276,22 +276,22 @@ void Com_InitZoneMemory(void)
 	SIZE_T exe = 0; //Exe size is already reflected in GlobalMemoryStatus().
 #endif
 	size = 0x4000000 - (exe + ZONE_HEAP_FREE);
-#	else
+#else
 	size = status.dwAvailPhys - ZONE_HEAP_FREE;
-#	endif
+#endif
 
 	s_PoolBase = GlobalAlloc(0, size);
 	s_PoolSize = size;
 
 	// Setup the initial free block
-	ZoneFreeBlock* base = (ZoneFreeBlock*)s_PoolBase;
+	ZoneFreeBlock *base = (ZoneFreeBlock *)s_PoolBase;
 	base->m_Address = (unsigned int)s_PoolBase;
 	base->m_Size = size;
 	base->m_Next = &s_FreeEnd;
 	base->m_Prev = &s_FreeStart;
 
 	// Init the free block jump table
-	memset(s_FreeJumpTable, 0, Z_JUMP_TABLE_SIZE * sizeof(ZoneFreeBlock*));
+	memset(s_FreeJumpTable, 0, Z_JUMP_TABLE_SIZE * sizeof(ZoneFreeBlock *));
 	s_FreeJumpResolution = (size / Z_JUMP_TABLE_SIZE) + 1;
 	s_FreeJumpTable[0] = base;
 
@@ -312,10 +312,10 @@ void Com_InitZoneMemory(void)
 	s_Initialized = true;
 
 	// Add some commands
-	Cmd_AddCommand("zone_stats",	Z_Stats_f);
-	Cmd_AddCommand("zone_details",	Z_Details_f);
-	Cmd_AddCommand("zone_memmap",	Z_DumpMemMap_f);
-	Cmd_AddCommand("zone_cstats",	Z_CompactStats);
+	Cmd_AddCommand("zone_stats", Z_Stats_f);
+	Cmd_AddCommand("zone_details", Z_Details_f);
+	Cmd_AddCommand("zone_memmap", Z_DumpMemMap_f);
+	Cmd_AddCommand("zone_cstats", Z_CompactStats);
 
 #ifndef _GAMECUBE
 	s_Mutex = CreateMutex(NULL, FALSE, NULL);
@@ -327,7 +327,7 @@ void Com_InitZoneMemory(void)
 	// that we'll have a big chunk in the middle. That's bad. And if we reserve space at the
 	// front, then we might not need it, and we've got a 1.2MB chunk of empty space there.
 	// This works perfectly, though:
-	extern void G_ReserveZoneGentities( void );
+	extern void G_ReserveZoneGentities(void);
 	G_ReserveZoneGentities();
 }
 
@@ -343,10 +343,10 @@ void Com_ShutdownZoneMemory(void)
 	if (s_Stats.m_CountAlloc)
 	{
 		// Free all memory
-//		CM_ReleaseVisData();
+		//		CM_ReleaseVisData();
 		Z_TagFree(TAG_ALL);
 	}
-	
+
 	// Clear some globals
 	memset(&s_Stats, 0, sizeof(s_Stats));
 	memset(s_FreeOverflow, 0, sizeof(s_FreeOverflow));
@@ -363,51 +363,49 @@ void Com_ShutdownZoneMemory(void)
 	s_Initialized = false;
 }
 
-
 // Determine if a tag should only be allocated for a very
 // short period of time.
 static bool Z_IsTagTemp(memtag_t eTag)
 {
-	return 
-		eTag == TAG_TEMP_WORKSPACE || 
-		eTag == TAG_SND_RAWDATA ||
-		eTag == TAG_ICARUS ||
-		eTag == TAG_LISTFILES ||
-		eTag == TAG_GP2;
+	return eTag == TAG_TEMP_WORKSPACE ||
+		   eTag == TAG_SND_RAWDATA ||
+		   eTag == TAG_ICARUS ||
+		   eTag == TAG_LISTFILES ||
+		   eTag == TAG_GP2;
 }
 
 // Determine if a tag needs TagFree() support.
 static bool Z_IsTagLinked(memtag_t eTag)
 {
-	return
-		eTag == TAG_BSP ||
-		eTag == TAG_HUNKALLOC ||
-//		eTag == TAG_HUNKMISCMODELS ||
-		eTag == TAG_G_ALLOC ||
-		eTag == TAG_UI_ALLOC;
+	return eTag == TAG_BSP ||
+		   eTag == TAG_HUNKALLOC ||
+		   //		eTag == TAG_HUNKMISCMODELS ||
+		   eTag == TAG_G_ALLOC ||
+		   eTag == TAG_UI_ALLOC;
 }
 
-static int Z_CalcAlignmentPad(int iAlign, unsigned int iAddress, unsigned int iOffset, 
-	unsigned int iSize, unsigned int iHeaderSize, unsigned int iFooterSize)
+static int Z_CalcAlignmentPad(int iAlign, unsigned int iAddress, unsigned int iOffset,
+							  unsigned int iSize, unsigned int iHeaderSize, unsigned int iFooterSize)
 {
 	int align_size;
 
-	if (iAlign == 0) return 0;
-	
+	if (iAlign == 0)
+		return 0;
+
 	if (iOffset == 0)
 	{
 		// Align data at low end of block
-		align_size = iAlign - 
-			((iAddress + iHeaderSize) % iAlign);
+		align_size = iAlign -
+					 ((iAddress + iHeaderSize) % iAlign);
 	}
 	else
 	{
 		// Align data at high end of block
-		unsigned int block_start = iAddress + iOffset - 
-			iSize + iHeaderSize;
+		unsigned int block_start = iAddress + iOffset -
+								   iSize + iHeaderSize;
 		align_size = block_start % iAlign;
 	}
-	
+
 	if (align_size == iAlign)
 	{
 		return 0;
@@ -416,7 +414,7 @@ static int Z_CalcAlignmentPad(int iAlign, unsigned int iAddress, unsigned int iO
 	return align_size;
 }
 
-static ZoneFreeBlock* Z_GetOverflowBlock(void)
+static ZoneFreeBlock *Z_GetOverflowBlock(void)
 {
 	for (int i = s_LastOverflowIndex; i < ZONE_FREE_OVERFLOW; ++i)
 	{
@@ -439,8 +437,8 @@ static ZoneFreeBlock* Z_GetOverflowBlock(void)
 	return NULL;
 }
 
-static inline bool Z_IsFreeBlockLargeEnough(ZoneFreeBlock* pBlock, int iSize, 
-	int iHeaderSize, int iFooterSize, int iAlign, bool bLow, int& iAlignPad)
+static inline bool Z_IsFreeBlockLargeEnough(ZoneFreeBlock *pBlock, int iSize,
+											int iHeaderSize, int iFooterSize, int iAlign, bool bLow, int &iAlignPad)
 {
 	// Is the block large enough?
 	if (pBlock->m_Size >= iSize)
@@ -450,8 +448,8 @@ static inline bool Z_IsFreeBlockLargeEnough(ZoneFreeBlock* pBlock, int iSize,
 			// If we need some aligment, we need to check size
 			// against that as well.
 			iAlignPad = Z_CalcAlignmentPad(iAlign,
-				pBlock->m_Address, !bLow ? pBlock->m_Size : 0,
-				iSize, iHeaderSize, iFooterSize);
+										   pBlock->m_Address, !bLow ? pBlock->m_Size : 0,
+										   iSize, iHeaderSize, iFooterSize);
 
 			if (pBlock->m_Size < iAlignPad + iSize)
 			{
@@ -463,13 +461,13 @@ static inline bool Z_IsFreeBlockLargeEnough(ZoneFreeBlock* pBlock, int iSize,
 	return false;
 }
 
-static ZoneFreeBlock* Z_FindFirstFree(int iSize, int iHeaderSize, 
-	int iFooterSize, int iAlign, int& iAlignPad)
+static ZoneFreeBlock *Z_FindFirstFree(int iSize, int iHeaderSize,
+									  int iFooterSize, int iAlign, int &iAlignPad)
 {
-	for (ZoneFreeBlock* block = s_FreeStart.m_Next; block; block = block->m_Next)
+	for (ZoneFreeBlock *block = s_FreeStart.m_Next; block; block = block->m_Next)
 	{
 		if (Z_IsFreeBlockLargeEnough(block, iSize, iHeaderSize, iFooterSize,
-			iAlign, true, iAlignPad))
+									 iAlign, true, iAlignPad))
 		{
 			return block;
 		}
@@ -477,13 +475,13 @@ static ZoneFreeBlock* Z_FindFirstFree(int iSize, int iHeaderSize,
 	return NULL;
 }
 
-static ZoneFreeBlock* Z_FindLastFree(int iSize, int iHeaderSize, 
-	int iFooterSize, int iAlign, int& iAlignPad)
+static ZoneFreeBlock *Z_FindLastFree(int iSize, int iHeaderSize,
+									 int iFooterSize, int iAlign, int &iAlignPad)
 {
-	for (ZoneFreeBlock* block = s_FreeEnd.m_Prev; block; block = block->m_Prev)
+	for (ZoneFreeBlock *block = s_FreeEnd.m_Prev; block; block = block->m_Prev)
 	{
 		if (Z_IsFreeBlockLargeEnough(block, iSize, iHeaderSize, iFooterSize,
-			iAlign, false, iAlignPad))
+									 iAlign, false, iAlignPad))
 		{
 			return block;
 		}
@@ -495,17 +493,17 @@ static bool Z_ValidateFree(void)
 {
 #if ZONE_DEBUG
 	// Make sure no free blocks are overlapping
-	for (ZoneFreeBlock* a = &s_FreeStart; a; a = a->m_Next)
+	for (ZoneFreeBlock *a = &s_FreeStart; a; a = a->m_Next)
 	{
 		if (a->m_Address == 0 && a->m_Size != 0)
 		{
 			return false;
 		}
 
-		for (ZoneFreeBlock* b = &s_FreeStart; b; b = b->m_Next)
+		for (ZoneFreeBlock *b = &s_FreeStart; b; b = b->m_Next)
 		{
-			if (a != b && 
-				a->m_Address >= b->m_Address && 
+			if (a != b &&
+				a->m_Address >= b->m_Address &&
 				a->m_Address < b->m_Address + b->m_Size)
 			{
 				return false;
@@ -521,7 +519,7 @@ static bool Z_ValidateLinks(void)
 {
 #if ZONE_DEBUG
 	// Make sure links are sane
-	for (ZoneLinkHeader* a = s_LinkBase; a; a = a->m_Next)
+	for (ZoneLinkHeader *a = s_LinkBase; a; a = a->m_Next)
 	{
 		if ((a->m_Next && a != a->m_Next->m_Prev) ||
 			(a->m_Prev && a != a->m_Prev->m_Next))
@@ -537,24 +535,28 @@ static bool Z_ValidateLinks(void)
 static int Z_GetJumpTableIndex(unsigned int iAddress)
 {
 	int index = (iAddress - (unsigned int)s_PoolBase) / s_FreeJumpResolution;
-	if (index < 0) return 0;
-	if (index >= Z_JUMP_TABLE_SIZE) return Z_JUMP_TABLE_SIZE - 1;
+	if (index < 0)
+		return 0;
+	if (index >= Z_JUMP_TABLE_SIZE)
+		return Z_JUMP_TABLE_SIZE - 1;
 	return index;
 }
 
-static ZoneFreeBlock* Z_GetFreeBlockBefore(unsigned int iAddress)
+static ZoneFreeBlock *Z_GetFreeBlockBefore(unsigned int iAddress)
 {
 	// Find this block's position in the jump table
 	int index = Z_GetJumpTableIndex(iAddress) - 1;
 
 	// Find a valid jump table entry
-	while (index >= 0 && !s_FreeJumpTable[index]) --index;
+	while (index >= 0 && !s_FreeJumpTable[index])
+		--index;
 
-	if (index < 0) return &s_FreeStart;
+	if (index < 0)
+		return &s_FreeStart;
 	return s_FreeJumpTable[index];
 }
 
-static void Z_RemoveFromJumpTable(ZoneFreeBlock* pBlock)
+static void Z_RemoveFromJumpTable(ZoneFreeBlock *pBlock)
 {
 	// Is this block in the jump table?
 	int index = Z_GetJumpTableIndex(pBlock->m_Address);
@@ -587,9 +589,9 @@ static void Z_RemoveFromJumpTable(ZoneFreeBlock* pBlock)
 	}
 }
 
-static void Z_LinkFreeBlock(ZoneFreeBlock* pBlock)
+static void Z_LinkFreeBlock(ZoneFreeBlock *pBlock)
 {
-	ZoneFreeBlock* cur = Z_GetFreeBlockBefore(pBlock->m_Address);
+	ZoneFreeBlock *cur = Z_GetFreeBlockBefore(pBlock->m_Address);
 	for (; cur; cur = cur->m_Next)
 	{
 		// Find the correct position, ordered by address
@@ -610,17 +612,17 @@ static void Z_LinkFreeBlock(ZoneFreeBlock* pBlock)
 
 			s_Stats.m_CountFree++;
 			s_Stats.m_SizeFree += pBlock->m_Size;
-			
+
 			assert(Z_ValidateFree());
 			break;
 		}
-	}	
+	}
 }
 
-static void* Z_SplitFree(ZoneFreeBlock* pBlock, int iSize, bool bLow)
+static void *Z_SplitFree(ZoneFreeBlock *pBlock, int iSize, bool bLow)
 {
 	assert(pBlock->m_Size >= iSize);
-	
+
 	Z_RemoveFromJumpTable(pBlock);
 
 	// Delink the free block
@@ -642,7 +644,7 @@ static void* Z_SplitFree(ZoneFreeBlock* pBlock, int iSize, bool bLow)
 		{
 			// Free portion is not large to hold free info --
 			// we're going to have to use the overflow buffer.
-			ZoneFreeBlock* nblock = Z_GetOverflowBlock();
+			ZoneFreeBlock *nblock = Z_GetOverflowBlock();
 
 			if (nblock == NULL)
 			{
@@ -651,18 +653,18 @@ static void* Z_SplitFree(ZoneFreeBlock* pBlock, int iSize, bool bLow)
 			}
 
 			// Split the block
-			void* ret;
+			void *ret;
 			if (bLow)
 			{
-				ret = (void*)fblock.m_Address;
+				ret = (void *)fblock.m_Address;
 				nblock->m_Address = fblock.m_Address + iSize;
 			}
 			else
 			{
-				ret = (void*)(fblock.m_Address + remainder);
+				ret = (void *)(fblock.m_Address + remainder);
 				nblock->m_Address = fblock.m_Address;
 			}
-	
+
 			nblock->m_Size = remainder;
 			Z_LinkFreeBlock(nblock);
 
@@ -671,22 +673,22 @@ static void* Z_SplitFree(ZoneFreeBlock* pBlock, int iSize, bool bLow)
 		else
 		{
 			// Free portion is large enough -- split it
-			void* ret;
-			ZoneFreeBlock* nblock;
+			void *ret;
+			ZoneFreeBlock *nblock;
 			if (bLow)
 			{
-				ret = (void*)fblock.m_Address;
-				nblock = (ZoneFreeBlock*)(fblock.m_Address + iSize);
+				ret = (void *)fblock.m_Address;
+				nblock = (ZoneFreeBlock *)(fblock.m_Address + iSize);
 			}
 			else
 			{
-				ret = (void*)(fblock.m_Address + remainder);
-				nblock = (ZoneFreeBlock*)fblock.m_Address;
+				ret = (void *)(fblock.m_Address + remainder);
+				nblock = (ZoneFreeBlock *)fblock.m_Address;
 			}
 
 			nblock->m_Address = (unsigned int)nblock;
 			nblock->m_Size = remainder;
-			
+
 			Z_LinkFreeBlock(nblock);
 
 			return ret;
@@ -695,41 +697,41 @@ static void* Z_SplitFree(ZoneFreeBlock* pBlock, int iSize, bool bLow)
 	else
 	{
 		// No need to split, just return block.
-		return (void*)fblock.m_Address;
+		return (void *)fblock.m_Address;
 	}
 }
 
-static void Z_SetupAlignmentPad(void* pBlock, int iAlignPad, bool bLow)
+static void Z_SetupAlignmentPad(void *pBlock, int iAlignPad, bool bLow)
 {
 	// Clear alignment bytes
 	memset(pBlock, 0, iAlignPad);
-	
+
 	// If we have more than 1 alignment byte, the first align byte
 	// tells us how many additional bytes we have.
 	if (iAlignPad > 1)
 	{
 		assert(iAlignPad < 256);
-		unsigned char* ptr;
+		unsigned char *ptr;
 		if (bLow)
 		{
-			ptr = (unsigned char*)pBlock + (iAlignPad - 1);
+			ptr = (unsigned char *)pBlock + (iAlignPad - 1);
 		}
 		else
 		{
-			ptr = (unsigned char*)pBlock;
+			ptr = (unsigned char *)pBlock;
 		}
 		*ptr = iAlignPad - 1;
 	}
 }
 
-void Z_MallocFail(const char* pMessage, int iSize, memtag_t eTag)
+void Z_MallocFail(const char *pMessage, int iSize, memtag_t eTag)
 {
 	// Report the error
-//	Com_Printf("Z_Malloc(): %s : %d bytes and tag %d !!!!\n", pMessage, iSize, eTag);
+	//	Com_Printf("Z_Malloc(): %s : %d bytes and tag %d !!!!\n", pMessage, iSize, eTag);
 	Com_Printf("Z_Malloc(): %s : %d bytes and tag %d !!!!\n", pMessage, iSize, eTag);
 	Z_Details_f();
 	Z_DumpMemMap_f();
-//	Com_Printf("(Repeat): Z_Malloc(): %s : %d bytes and tag %d !!!!\n", pMessage, iSize, eTag);
+	//	Com_Printf("(Repeat): Z_Malloc(): %s : %d bytes and tag %d !!!!\n", pMessage, iSize, eTag);
 	Com_Printf("(Repeat): Z_Malloc(): %s : %d bytes and tag %d !!!!\n", pMessage, iSize, eTag);
 
 	// Clear the screen blue to indicate out of memory
@@ -744,17 +746,17 @@ void Z_MallocFail(const char* pMessage, int iSize, memtag_t eTag)
 
 void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign)
 {
-//	assert(s_Initialized);
+	//	assert(s_Initialized);
 	// Zone now initializes on first use. (During static constructors)
 	if (!s_Initialized)
 		Com_InitZoneMemory();
-	
+
 	if (iSize == 0)
 	{
 #ifdef _DEBUG
-		return (void*)(&s_EmptyBlock.start + 1);
+		return (void *)(&s_EmptyBlock.start + 1);
 #else
-		return (void*)(&s_EmptyBlock.header + 1);
+		return (void *)(&s_EmptyBlock.header + 1);
 #endif
 	}
 
@@ -767,9 +769,9 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign)
 #ifndef _GAMECUBE
 	WaitForSingleObject(s_Mutex, INFINITE);
 #endif
-	
+
 	// Make new/delete memory temporary if requested
-	if (eTag == TAG_NEWDEL )
+	if (eTag == TAG_NEWDEL)
 	{
 		eTag = s_newDeleteTagStack[s_newDeleteTagStackTop];
 	}
@@ -791,16 +793,16 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign)
 	// Get a bit of free memory.  Temporary memory is allocated
 	// from the end.  More permanent allocations are done at the
 	// begining of the pool.
-	ZoneFreeBlock* fblock;
+	ZoneFreeBlock *fblock;
 	if (Z_IsTagTemp(eTag))
 	{
-		fblock = Z_FindLastFree(real_size, header_size, footer_size, 
-			iAlign, align_pad);
+		fblock = Z_FindLastFree(real_size, header_size, footer_size,
+								iAlign, align_pad);
 	}
 	else
 	{
-		fblock = Z_FindFirstFree(real_size, header_size, footer_size, 
-			iAlign, align_pad);
+		fblock = Z_FindFirstFree(real_size, header_size, footer_size,
+								 iAlign, align_pad);
 	}
 
 	// Did we actually find some memory?
@@ -809,8 +811,9 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign)
 #ifndef _GAMECUBE
 		ReleaseMutex(s_Mutex);
 #endif
-//		if(eTag == TAG_TEMP_SND_RAWDATA) {
-		if(eTag == TAG_SND_RAWDATA) {
+		//		if(eTag == TAG_TEMP_SND_RAWDATA) {
+		if (eTag == TAG_SND_RAWDATA)
+		{
 			return NULL;
 		}
 
@@ -823,14 +826,14 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign)
 
 	// Split the free block and get a pointer to the start
 	// allocated space.
-	void* ablock;
+	void *ablock;
 	if (Z_IsTagTemp(eTag))
 	{
 		ablock = Z_SplitFree(fblock, real_size, false);
-		
+
 		// Append align pad to end of block
 		Z_SetupAlignmentPad(
-			(void*)((char*)ablock + real_size - align_pad), 
+			(void *)((char *)ablock + real_size - align_pad),
 			align_pad, false);
 	}
 	else
@@ -839,7 +842,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign)
 
 		// Insert align pad at block start
 		Z_SetupAlignmentPad(ablock, align_pad, true);
-		ablock = (void*)((char*)ablock + align_pad);
+		ablock = (void *)((char *)ablock + align_pad);
 	}
 
 	if (!ablock)
@@ -850,7 +853,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign)
 	// Add linking header if necessary
 	if (Z_IsTagLinked(eTag))
 	{
-		ZoneLinkHeader* linked = (ZoneLinkHeader*)ablock;
+		ZoneLinkHeader *linked = (ZoneLinkHeader *)ablock;
 		linked->m_Next = s_LinkBase;
 		linked->m_Prev = NULL;
 		if (s_LinkBase)
@@ -862,7 +865,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign)
 		assert(Z_ValidateLinks());
 
 		// Next...
-		ablock = (void*)((char*)ablock + sizeof(ZoneLinkHeader));
+		ablock = (void *)((char *)ablock + sizeof(ZoneLinkHeader));
 	}
 
 	// Setup the header:
@@ -871,8 +874,8 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign)
 	//		0-24	- size without headers/footers
 	assert(iSize >= 0 && iSize < (1 << 25));
 	assert(eTag >= 0 && eTag < 64);
-	ZoneHeader* header = (ZoneHeader*)ablock;
-	*header = 
+	ZoneHeader *header = (ZoneHeader *)ablock;
+	*header =
 		(((unsigned int)eTag) << 25) |
 		((unsigned int)iSize);
 
@@ -882,21 +885,21 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign)
 	}
 
 	// Next...
-	ablock = (void*)((char*)ablock + sizeof(ZoneHeader));
+	ablock = (void *)((char *)ablock + sizeof(ZoneHeader));
 
 #ifdef _DEBUG
 	{
 		// Setup the debug markers
-		ZoneDebugHeader* debug_header = (ZoneDebugHeader*)ablock;
+		ZoneDebugHeader *debug_header = (ZoneDebugHeader *)ablock;
 
-		ZoneDebugFooter* debug_footer = (ZoneDebugFooter*)((char*)debug_header + 
-			(sizeof(ZoneDebugHeader) + iSize));
+		ZoneDebugFooter *debug_footer = (ZoneDebugFooter *)((char *)debug_header +
+															(sizeof(ZoneDebugHeader) + iSize));
 
 		*debug_header = ZONE_MAGIC;
 		*debug_footer = ZONE_MAGIC;
 
 		// Next...
-		ablock = (void*)((char*)ablock + sizeof(ZoneDebugHeader));
+		ablock = (void *)((char *)ablock + sizeof(ZoneDebugHeader));
 	}
 #endif
 
@@ -947,21 +950,21 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit, int iAlign)
 	return ablock;
 }
 
-static memtag_t Z_GetTag(const ZoneHeader* header)
+static memtag_t Z_GetTag(const ZoneHeader *header)
 {
 	return (*header & 0x7E000000) >> 25;
 }
 
-static unsigned int Z_GetSize(const ZoneHeader* header)
+static unsigned int Z_GetSize(const ZoneHeader *header)
 {
 	return *header & 0x1FFFFFF;
 }
 
-static int Z_GetAlign(const ZoneHeader* header)
+static int Z_GetAlign(const ZoneHeader *header)
 {
 	if (*header & (1 << 31))
 	{
-		unsigned char* ptr = (unsigned char*)header;
+		unsigned char *ptr = (unsigned char *)header;
 		memtag_t tag = Z_GetTag(header);
 
 		// point to the first alignment block
@@ -992,36 +995,36 @@ int Z_Size(void *pvAddress)
 	assert(s_Initialized);
 
 #ifdef _DEBUG
-	ZoneDebugHeader* debug = (ZoneDebugHeader*)pvAddress - 1;
+	ZoneDebugHeader *debug = (ZoneDebugHeader *)pvAddress - 1;
 
 	if (*debug != ZONE_MAGIC)
 	{
 		Com_Error(ERR_FATAL, "Z_Size(): Not a valid zone header!");
-		return 0;	// won't get here
+		return 0; // won't get here
 	}
 
-	pvAddress = (void*)debug;
+	pvAddress = (void *)debug;
 #endif
 
-	ZoneHeader* header = (ZoneHeader*)pvAddress - 1;
+	ZoneHeader *header = (ZoneHeader *)pvAddress - 1;
 
 	if (Z_GetTag(header) == TAG_STATIC)
 	{
-		return 0;	// kind of
+		return 0; // kind of
 	}
-	
+
 	return Z_GetSize(header);
 }
 
-static void Z_Coalasce(ZoneFreeBlock* pBlock)
+static void Z_Coalasce(ZoneFreeBlock *pBlock)
 {
 	unsigned int size = 0;
-	
+
 	// Find later free blocks adjacent to us
-	ZoneFreeBlock* end;
-	for (end = pBlock->m_Next; 
-	end->m_Next; 
-	end = end->m_Next)
+	ZoneFreeBlock *end;
+	for (end = pBlock->m_Next;
+		 end->m_Next;
+		 end = end->m_Next)
 	{
 		if (end->m_Address !=
 			end->m_Prev->m_Address + end->m_Prev->m_Size)
@@ -1038,10 +1041,10 @@ static void Z_Coalasce(ZoneFreeBlock* pBlock)
 	}
 
 	// Find previous free blocks adjacent to us
-	ZoneFreeBlock* start;
-	for (start = pBlock; 
-	start->m_Prev; 
-	start = start->m_Prev)
+	ZoneFreeBlock *start;
+	for (start = pBlock;
+		 start->m_Prev;
+		 start = start->m_Prev)
 	{
 		if (start->m_Prev->m_Address + start->m_Prev->m_Size !=
 			start->m_Address)
@@ -1068,42 +1071,43 @@ static void Z_Coalasce(ZoneFreeBlock* pBlock)
 
 // Return type of Z_Free differs in SP/MP. Macro hack to wrap it up
 #ifdef _JK2MP
-	void Z_Free(void *pvAddress)
-	#define Z_FREE_RETURN(x) return
+void Z_Free(void *pvAddress)
+#define Z_FREE_RETURN(x) return
 #else
 int Z_Free(void *pvAddress)
-	#define Z_FREE_RETURN(x) return (x)
+#define Z_FREE_RETURN(x) return (x)
 #endif
 {
 #ifdef _WINDOWS
-	if (!s_Initialized) return;
+	if (!s_Initialized)
+		return;
 #endif
 
 	assert(s_Initialized);
 
 #ifdef _DEBUG
 	// check the header magic
-	ZoneDebugHeader* debug_header = (ZoneDebugHeader*)pvAddress - 1;
+	ZoneDebugHeader *debug_header = (ZoneDebugHeader *)pvAddress - 1;
 
 	if (*debug_header != ZONE_MAGIC)
 	{
 		Com_Error(ERR_FATAL, "Z_Free(): Corrupt zone header!");
-		Z_FREE_RETURN( 0 );
+		Z_FREE_RETURN(0);
 	}
 
-	ZoneHeader* header = (ZoneHeader*)debug_header - 1;
+	ZoneHeader *header = (ZoneHeader *)debug_header - 1;
 
 	// check the footer magic
-	ZoneDebugFooter* debug_footer = (ZoneDebugFooter*)((char*)pvAddress + 
-		Z_GetSize(header));
+	ZoneDebugFooter *debug_footer = (ZoneDebugFooter *)((char *)pvAddress +
+														Z_GetSize(header));
 
 	if (*debug_footer != ZONE_MAGIC)
 	{
 		Com_Error(ERR_FATAL, "Z_Free(): Corrupt zone footer!");
-		Z_FREE_RETURN( 0 );
+		Z_FREE_RETURN(0);
 	}
 #else
-	ZoneHeader* header = (ZoneHeader*)pvAddress - 1;
+	ZoneHeader *header = (ZoneHeader *)pvAddress - 1;
 #endif
 
 	memtag_t tag = Z_GetTag(header);
@@ -1136,19 +1140,19 @@ int Z_Free(void *pvAddress)
 		footer_size += sizeof(ZoneDebugFooter);
 #endif
 		int real_size = data_size + header_size + footer_size;
-		
+
 		// Update the stats
 		s_Stats.m_SizeAlloc -= data_size;
 		s_Stats.m_OverheadAlloc -= header_size + footer_size;
 		s_Stats.m_SizesPerTag[tag] -= data_size;
 		s_Stats.m_CountAlloc--;
 		s_Stats.m_CountsPerTag[tag]--;
-	
+
 		// Delink block
 		if (Z_IsTagLinked(tag))
 		{
-			ZoneLinkHeader* linked = (ZoneLinkHeader*)header - 1;
-			
+			ZoneLinkHeader *linked = (ZoneLinkHeader *)header - 1;
+
 			if (linked == s_LinkBase)
 			{
 				s_LinkBase = linked->m_Next;
@@ -1173,7 +1177,7 @@ int Z_Free(void *pvAddress)
 		*header = 0;
 
 		// Add block to free list
-		ZoneFreeBlock* nblock = NULL;
+		ZoneFreeBlock *nblock = NULL;
 		if (real_size < sizeof(ZoneFreeBlock))
 		{
 			// Not enough space in block to put free information --
@@ -1189,7 +1193,7 @@ int Z_Free(void *pvAddress)
 		else
 		{
 			// Place free information in block
-			nblock = (ZoneFreeBlock*)((char*)pvAddress - header_size);
+			nblock = (ZoneFreeBlock *)((char *)pvAddress - header_size);
 		}
 
 		nblock->m_Address = (unsigned int)pvAddress - header_size;
@@ -1203,9 +1207,8 @@ int Z_Free(void *pvAddress)
 #endif
 	}
 
-	Z_FREE_RETURN( 0 );
+	Z_FREE_RETURN(0);
 }
-
 
 int Z_MemSize(memtag_t eTag)
 {
@@ -1222,11 +1225,11 @@ void Z_FindLeak(void)
 
 	struct PointerInfo
 	{
-		void* data;
+		void *data;
 		int counter;
 		bool mark;
 	};
-	
+
 	const int max_pointers = 32768;
 	static PointerInfo pointers[max_pointers];
 	static int num_pointers = 0;
@@ -1236,14 +1239,14 @@ void Z_FindLeak(void)
 	{
 		pointers[i].mark = false;
 	}
-	
+
 	// Add all known pointers
 	int start_num = num_pointers;
-	for (ZoneLinkHeader* link = s_LinkBase; link;)
+	for (ZoneLinkHeader *link = s_LinkBase; link;)
 	{
-		ZoneHeader* header = (ZoneHeader*)(link + 1);
+		ZoneHeader *header = (ZoneHeader *)(link + 1);
 		link = link->m_Next;
-		
+
 		if (Z_GetTag(header) == tag)
 		{
 			// See if the pointer already is in the array
@@ -1276,8 +1279,8 @@ void Z_FindLeak(void)
 	{
 		if (pointers[j].mark)
 		{
-			if (pointers[j].counter != cycle_count && 
-				pointers[j].counter != cycle_count - 1 && 
+			if (pointers[j].counter != cycle_count &&
+				pointers[j].counter != cycle_count - 1 &&
 				pointers[j].counter != 0)
 			{
 				Com_Printf("Memory leak: %p\n", pointers[j].data);
@@ -1288,10 +1291,12 @@ void Z_FindLeak(void)
 			int k;
 			for (k = j; k < num_pointers; ++k)
 			{
-				if (pointers[k].mark) break;
+				if (pointers[k].mark)
+					break;
 			}
 
-			if (k == num_pointers) break;
+			if (k == num_pointers)
+				break;
 
 			memmove(pointers + j, pointers + k, (num_pointers - k) * sizeof(PointerInfo));
 			num_pointers -= k - j;
@@ -1310,25 +1315,24 @@ void Z_TagPointers(memtag_t eTag)
 	WaitForSingleObject(s_Mutex, INFINITE);
 #endif
 
-	Sys_Log( "pointers.txt", va("Pointers for tag %d:\n", eTag) );
+	Sys_Log("pointers.txt", va("Pointers for tag %d:\n", eTag));
 
-	for (ZoneLinkHeader* link = s_LinkBase; link;)
+	for (ZoneLinkHeader *link = s_LinkBase; link;)
 	{
-		ZoneHeader* header = (ZoneHeader*)(link + 1);
+		ZoneHeader *header = (ZoneHeader *)(link + 1);
 		link = link->m_Next;
 
 		if (eTag == TAG_ALL || Z_GetTag(header) == eTag)
 		{
 #ifdef _DEBUG
-			Sys_Log( "pointers.txt",
-					va("%x - %d\n", ((void*)((char*)header + 
-							sizeof(ZoneHeader) + sizeof(ZoneDebugHeader))),
-					Z_Size(((void*)((char*)header + 
-							sizeof(ZoneHeader) + sizeof(ZoneDebugHeader))))));
+			Sys_Log("pointers.txt",
+					va("%x - %d\n", ((void *)((char *)header + sizeof(ZoneHeader) + sizeof(ZoneDebugHeader))),
+					   Z_Size(((void *)((char *)header +
+										sizeof(ZoneHeader) + sizeof(ZoneDebugHeader))))));
 #else
-			Sys_Log( "pointers.txt",
-					va("%x - %d\n", (void*)(header + 1),
-					Z_Size((void*)(header + 1))));
+			Sys_Log("pointers.txt",
+					va("%x - %d\n", (void *)(header + 1),
+					   Z_Size((void *)(header + 1))));
 #endif
 		}
 	}
@@ -1342,18 +1346,18 @@ void Z_TagFree(memtag_t eTag)
 {
 	assert(s_Initialized);
 
-	for (ZoneLinkHeader* link = s_LinkBase; link;)
+	for (ZoneLinkHeader *link = s_LinkBase; link;)
 	{
-		ZoneHeader* header = (ZoneHeader*)(link + 1);
+		ZoneHeader *header = (ZoneHeader *)(link + 1);
 		link = link->m_Next;
 
 		if (eTag == TAG_ALL || Z_GetTag(header) == eTag)
 		{
 #ifdef _DEBUG
-			Z_Free((void*)((char*)header + sizeof(ZoneHeader) + 
-				sizeof(ZoneDebugHeader)));
+			Z_Free((void *)((char *)header + sizeof(ZoneHeader) +
+							sizeof(ZoneDebugHeader)));
 #else
-			Z_Free((void*)(header + 1));
+			Z_Free((void *)(header + 1));
 #endif
 		}
 	}
@@ -1361,13 +1365,13 @@ void Z_TagFree(memtag_t eTag)
 
 void Z_SetNewDeleteTemporary(bool bTemp)
 {
-	if( bTemp )
-		Z_PushNewDeleteTag( TAG_TEMP_WORKSPACE );
+	if (bTemp)
+		Z_PushNewDeleteTag(TAG_TEMP_WORKSPACE);
 	else
 		Z_PopNewDeleteTag();
 }
 
-void *S_Malloc( int iSize ) 
+void *S_Malloc(int iSize)
 {
 	return Z_Malloc(iSize, TAG_SMALL, qfalse, 0);
 }
@@ -1378,8 +1382,8 @@ int Z_GetLevelMemory(void)
 	return s_Stats.m_SizesPerTag[TAG_BSP];
 #else
 	return s_Stats.m_SizesPerTag[TAG_HUNKALLOC] +
-//		s_Stats.m_SizesPerTag[TAG_HUNKMISCMODELS] +
-		s_Stats.m_SizesPerTag[TAG_BSP];
+		   //		s_Stats.m_SizesPerTag[TAG_HUNKMISCMODELS] +
+		   s_Stats.m_SizesPerTag[TAG_BSP];
 #endif
 }
 
@@ -1387,22 +1391,22 @@ int Z_GetLevelMemory(void)
 int Z_GetHunkMemory(void)
 {
 	return s_Stats.m_SizesPerTag[TAG_HUNKALLOC] +
-		s_Stats.m_SizesPerTag[TAG_TEMP_HUNKALLOC];
+		   s_Stats.m_SizesPerTag[TAG_TEMP_HUNKALLOC];
 }
 #endif
 
 int Z_GetMiscMemory(void)
 {
 	return s_Stats.m_SizeAlloc -
-		(Z_GetLevelMemory() +
+		   (Z_GetLevelMemory() +
 #ifdef _JK2MP
-		Z_GetHunkMemory() +
+			Z_GetHunkMemory() +
 #endif
-		s_Stats.m_SizesPerTag[TAG_MODEL_GLM] +
-		s_Stats.m_SizesPerTag[TAG_MODEL_GLA] +
-		s_Stats.m_SizesPerTag[TAG_MODEL_MD3] +
-		s_Stats.m_SizesPerTag[TAG_BINK] +
-		s_Stats.m_SizesPerTag[TAG_SND_RAWDATA]);
+			s_Stats.m_SizesPerTag[TAG_MODEL_GLM] +
+			s_Stats.m_SizesPerTag[TAG_MODEL_GLA] +
+			s_Stats.m_SizesPerTag[TAG_MODEL_MD3] +
+			s_Stats.m_SizesPerTag[TAG_BINK] +
+			s_Stats.m_SizesPerTag[TAG_SND_RAWDATA]);
 }
 
 #ifdef _GAMECUBE
@@ -1417,7 +1421,7 @@ void Z_CompactStats(void)
 	assert(s_Initialized);
 
 	static int printHeader = 1;
-	if( printHeader )
+	if (printHeader)
 	{
 		printHeader = 0;
 		Sys_Log("memory-map.txt", "Level:\tTextures:\tFreeZone:\tOverhead:\tTags...\n");
@@ -1425,38 +1429,37 @@ void Z_CompactStats(void)
 
 	// No more being conservative and doing strange math. I want real numbers:
 	Sys_Log("memory-map.txt", va("%s\t%d\t%d\t%d",
-								 Cvar_VariableString( "mapname" ),
+								 Cvar_VariableString("mapname"),
 								 gTextures.Size(),
 								 s_Stats.m_SizeFree,
 								 s_Stats.m_OverheadAlloc));
-	for( int t = 0; t < TAG_COUNT; ++t )
+	for (int t = 0; t < TAG_COUNT; ++t)
 		Sys_Log("memory-map.txt", va("\t%d", s_Stats.m_SizesPerTag[t]));
 	Sys_Log("memory-map.txt", "\n");
 }
-
 
 static void Z_Stats_f(void)
 {
 	assert(s_Initialized);
 	// Display some memory usage summary information...
 
-	Com_Printf("\nThe zone is using %d bytes (%.2fMB) in %d memory blocks\n", 
-		s_Stats.m_SizeAlloc,
-		(float)s_Stats.m_SizeAlloc / 1024.0f / 1024.0f, 
-		s_Stats.m_CountAlloc);
+	Com_Printf("\nThe zone is using %d bytes (%.2fMB) in %d memory blocks\n",
+			   s_Stats.m_SizeAlloc,
+			   (float)s_Stats.m_SizeAlloc / 1024.0f / 1024.0f,
+			   s_Stats.m_CountAlloc);
 
-	Com_Printf("Free memory is %d bytes (%.2fMB) in %d memory blocks\n", 
-		s_Stats.m_SizeFree,
-		(float)s_Stats.m_SizeFree / 1024.0f / 1024.0f, 
-		s_Stats.m_CountFree);
+	Com_Printf("Free memory is %d bytes (%.2fMB) in %d memory blocks\n",
+			   s_Stats.m_SizeFree,
+			   (float)s_Stats.m_SizeFree / 1024.0f / 1024.0f,
+			   s_Stats.m_CountFree);
 
-	Com_Printf("The zone peaked at %d bytes (%.2fMB)\n", 
-		s_Stats.m_PeakAlloc,
-		(float)s_Stats.m_PeakAlloc / 1024.0f / 1024.0f);
+	Com_Printf("The zone peaked at %d bytes (%.2fMB)\n",
+			   s_Stats.m_PeakAlloc,
+			   (float)s_Stats.m_PeakAlloc / 1024.0f / 1024.0f);
 
-	Com_Printf("The zone overhead is %d bytes (%.2fMB)\n", 
-		s_Stats.m_OverheadAlloc,
-		(float)s_Stats.m_OverheadAlloc / 1024.0f / 1024.0f);
+	Com_Printf("The zone overhead is %d bytes (%.2fMB)\n",
+			   s_Stats.m_OverheadAlloc,
+			   (float)s_Stats.m_OverheadAlloc / 1024.0f / 1024.0f);
 }
 
 void Z_Details_f(void)
@@ -1465,20 +1468,20 @@ void Z_Details_f(void)
 	// Display some tag specific information...
 
 	Com_Printf("---------------------------------------------------------------------------\n");
-	Com_Printf("%20s %9s\n","Zone Tag","Bytes");
-	Com_Printf("%20s %9s\n","--------","-----");
-	for (int i=0; i<TAG_COUNT; i++)
+	Com_Printf("%20s %9s\n", "Zone Tag", "Bytes");
+	Com_Printf("%20s %9s\n", "--------", "-----");
+	for (int i = 0; i < TAG_COUNT; i++)
 	{
 		int iThisCount = s_Stats.m_CountsPerTag[i];
 		int iThisSize = s_Stats.m_SizesPerTag[i];
 
 		if (iThisCount)
 		{
-			float	fSize		= (float)(iThisSize) / 1024.0f / 1024.0f;
-			int		iSize		= fSize;
-			int		iRemainder 	= 100.0f * (fSize - floor(fSize));
-			Com_Printf("%d %9d (%2d.%02dMB) in %6d blocks (%9d average)\n", 
-				i, iThisSize, iSize, iRemainder, iThisCount, iThisSize / iThisCount);
+			float fSize = (float)(iThisSize) / 1024.0f / 1024.0f;
+			int iSize = fSize;
+			int iRemainder = 100.0f * (fSize - floor(fSize));
+			Com_Printf("%d %9d (%2d.%02dMB) in %6d blocks (%9d average)\n",
+					   i, iThisSize, iSize, iRemainder, iThisCount, iThisSize / iThisCount);
 		}
 	}
 	Com_Printf("---------------------------------------------------------------------------\n");
@@ -1488,14 +1491,15 @@ void Z_Details_f(void)
 
 void Z_DumpMemMap_f(void)
 {
-#	define WRITECHAR(C) \
-		Sys_Log("memmap.txt", C, 1, false);	\
-		cur += 1024;	\
-		if ((++counter) % 81 == 0) Sys_Log("memmap.txt", "\n", 1, false);
-	
+#define WRITECHAR(C)                    \
+	Sys_Log("memmap.txt", C, 1, false); \
+	cur += 1024;                        \
+	if ((++counter) % 81 == 0)          \
+		Sys_Log("memmap.txt", "\n", 1, false);
+
 	unsigned int cur = (unsigned int)s_PoolBase;
 	unsigned int counter = 0;
-	for (ZoneFreeBlock* fblock = &s_FreeStart; fblock != &s_FreeEnd; fblock = fblock->m_Next)
+	for (ZoneFreeBlock *fblock = &s_FreeStart; fblock != &s_FreeEnd; fblock = fblock->m_Next)
 	{
 		while (fblock->m_Address > cur + 1024)
 		{
@@ -1512,7 +1516,7 @@ void Z_DumpMemMap_f(void)
 			WRITECHAR("-");
 		}
 
-		if (fblock->m_Address + fblock->m_Size > cur && 
+		if (fblock->m_Address + fblock->m_Size > cur &&
 			fblock->m_Address + fblock->m_Size < cur + 1024)
 		{
 			WRITECHAR("+");
@@ -1545,7 +1549,6 @@ void Z_DisplayLevelMemory(void)
 #endif
 }
 
-
 /*
 ========================
 CopyString
@@ -1554,7 +1557,7 @@ CopyString
 		memory from a memstatic_t might be returned
 ========================
 */
-char *CopyString( const char *in )
+char *CopyString(const char *in)
 {
 	struct ZoneSingleChar
 	{
@@ -1571,36 +1574,36 @@ char *CopyString( const char *in )
 #ifdef _DEBUG
 	static ZoneSingleChar empty = {(TAG_STATIC << 25) | 2, ZONE_MAGIC, "\0", ZONE_MAGIC};
 	static ZoneSingleChar numbers[10] =
-	{
-		{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "0", ZONE_MAGIC},
-		{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "1", ZONE_MAGIC},
-		{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "2", ZONE_MAGIC},
-		{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "3", ZONE_MAGIC},
-		{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "4", ZONE_MAGIC},
-		{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "5", ZONE_MAGIC},
-		{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "6", ZONE_MAGIC},
-		{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "7", ZONE_MAGIC},
-		{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "8", ZONE_MAGIC},
-		{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "9", ZONE_MAGIC},
-	};
+		{
+			{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "0", ZONE_MAGIC},
+			{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "1", ZONE_MAGIC},
+			{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "2", ZONE_MAGIC},
+			{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "3", ZONE_MAGIC},
+			{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "4", ZONE_MAGIC},
+			{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "5", ZONE_MAGIC},
+			{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "6", ZONE_MAGIC},
+			{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "7", ZONE_MAGIC},
+			{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "8", ZONE_MAGIC},
+			{(TAG_STATIC << 25) | 2, ZONE_MAGIC, "9", ZONE_MAGIC},
+		};
 #else
 	static ZoneSingleChar empty = {(TAG_STATIC << 25) | 2, "\0"};
 	static ZoneSingleChar numbers[10] =
-	{
-		{(TAG_STATIC << 25) | 2, "0"},
-		{(TAG_STATIC << 25) | 2, "1"},
-		{(TAG_STATIC << 25) | 2, "2"},
-		{(TAG_STATIC << 25) | 2, "3"},
-		{(TAG_STATIC << 25) | 2, "4"},
-		{(TAG_STATIC << 25) | 2, "5"},
-		{(TAG_STATIC << 25) | 2, "6"},
-		{(TAG_STATIC << 25) | 2, "7"},
-		{(TAG_STATIC << 25) | 2, "8"},
-		{(TAG_STATIC << 25) | 2, "9"},
-	};
+		{
+			{(TAG_STATIC << 25) | 2, "0"},
+			{(TAG_STATIC << 25) | 2, "1"},
+			{(TAG_STATIC << 25) | 2, "2"},
+			{(TAG_STATIC << 25) | 2, "3"},
+			{(TAG_STATIC << 25) | 2, "4"},
+			{(TAG_STATIC << 25) | 2, "5"},
+			{(TAG_STATIC << 25) | 2, "6"},
+			{(TAG_STATIC << 25) | 2, "7"},
+			{(TAG_STATIC << 25) | 2, "8"},
+			{(TAG_STATIC << 25) | 2, "9"},
+		};
 #endif
 
-	char	*out;
+	char *out;
 
 	if (!in[0])
 	{
@@ -1610,14 +1613,14 @@ char *CopyString( const char *in )
 	{
 		if (in[0] >= '0' && in[0] <= '9')
 		{
-			return numbers[in[0]-'0'].data;
+			return numbers[in[0] - '0'].data;
 		}
 	}
 
-	out = (char *) S_Malloc (strlen(in)+1);
-	strcpy (out, in);
+	out = (char *)S_Malloc(strlen(in) + 1);
+	strcpy(out, in);
 
-//	Z_Label(out,in);
+	//	Z_Label(out,in);
 
 	return out;
 }
@@ -1628,27 +1631,26 @@ void Com_TouchMemory(void)
 	return;
 }
 
-
 qboolean Z_IsFromZone(void *pvAddress, memtag_t eTag)
 {
-	if(pvAddress >= s_PoolBase && pvAddress < (char*)s_PoolBase + s_PoolSize) {
+	if (pvAddress >= s_PoolBase && pvAddress < (char *)s_PoolBase + s_PoolSize)
+	{
 		return qtrue;
 	}
 
 	return qfalse;
 }
-
 
 qboolean Z_IsFromTempPool(void *pvAddress)
 {
-	if(pvAddress >= s_TempAllocPool && pvAddress < s_TempAllocPool +
-			s_TempAllocPoint) {
+	if (pvAddress >= s_TempAllocPool && pvAddress < s_TempAllocPool +
+														s_TempAllocPoint)
+	{
 		return qtrue;
 	}
 
 	return qfalse;
 }
-
 
 /*
    Hunk emulation
@@ -1664,7 +1666,7 @@ void Hunk_Clear(void)
 {
 	Z_TagFree(TAG_TEMP_HUNKALLOC);
 	Z_TagFree(TAG_HUNKALLOC);
-/*
+	/*
 	Z_TagFree(TAG_HUNKALLOC);
 	Z_TagFree(TAG_BSP_HUNK);
 	Z_TagFree(TAG_BOT_HUNK);
@@ -1676,12 +1678,11 @@ void Hunk_Clear(void)
 */
 }
 
-
-//void *Hunk_Alloc( int size, ha_pref preference, memtag_t eTag ) 
+//void *Hunk_Alloc( int size, ha_pref preference, memtag_t eTag )
 void *Hunk_Alloc(int size, ha_pref preference)
 {
 	return Z_Malloc(size, TAG_HUNKALLOC, qtrue);
-/*
+	/*
 	assert(eTag == TAG_HUNKALLOC ||
 			eTag == TAG_BSP_HUNK ||
 			eTag == TAG_BOT_HUNK ||
@@ -1693,50 +1694,42 @@ void *Hunk_Alloc(int size, ha_pref preference)
 */
 }
 
-
 void *Hunk_AllocateTempMemory(int size)
 {
 	return Z_Malloc(size, TAG_TEMP_HUNKALLOC, qtrue);
-/*
+	/*
 	return Z_Malloc(size, TAG_TEMP_HUNK, qtrue);
 */
 }
-
 
 void Hunk_FreeTempMemory(void *buf)
 {
 	Z_Free(buf);
 }
 
-
 void Hunk_ClearTempMemory(void)
 {
 	Z_TagFree(TAG_TEMP_HUNKALLOC);
-//	Z_TagFree(TAG_TEMP_HUNK);
+	//	Z_TagFree(TAG_TEMP_HUNK);
 }
-
 
 void Com_InitHunkMemory(void)
 {
 }
-
 
 int Hunk_MemoryRemaining(void)
 {
 	return 0;
 }
 
-
 void Hunk_ClearToMark(void)
 {
 }
-
 
 qboolean Hunk_CheckMark(void)
 {
 	return qfalse;
 }
-
 
 void Hunk_SetMark(void)
 {

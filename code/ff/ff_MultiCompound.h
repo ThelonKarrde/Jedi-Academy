@@ -13,42 +13,44 @@
 class MultiCompound
 {
 public:
-	typedef set<MultiEffect*> Set;
+	typedef set<MultiEffect *> Set;
+
 protected:
 	Set mSet;
+
 public:
 	MultiCompound()
-	:	mSet() 
-	{}
-
-	MultiCompound( Set &compound ) 
-	:	mSet()
+		: mSet()
 	{
-		Add( compound );
 	}
 
-	Set& GetSet() { return mSet; }
-	qboolean Add( MultiEffect *Compound );
-	qboolean Add( Set &compound );
+	MultiCompound(Set &compound)
+		: mSet()
+	{
+		Add(compound);
+	}
+
+	Set &GetSet() { return mSet; }
+	qboolean Add(MultiEffect *Compound);
+	qboolean Add(Set &compound);
 
 	// CImmEffect iterations
 	qboolean Start();
 	qboolean Stop();
-	qboolean ChangeDuration( DWORD Duration );
-	qboolean ChangeGain( DWORD Gain );
+	qboolean ChangeDuration(DWORD Duration);
+	qboolean ChangeGain(DWORD Gain);
 
 	// Utilities
-	qboolean IsEmpty() { return qboolean( mSet.size() == 0 ); }
-	qboolean operator == ( MultiCompound &compound );
-	qboolean operator != ( MultiCompound &compound )
+	qboolean IsEmpty() { return qboolean(mSet.size() == 0); }
+	qboolean operator==(MultiCompound &compound);
+	qboolean operator!=(MultiCompound &compound)
 	{
-		return qboolean( !( (*this) == compound ) );
+		return qboolean(!((*this) == compound));
 	}
 
 	// Other iterations
 	qboolean IsPlaying();
 	qboolean EnsurePlaying();
-
 };
 
 #endif // FF_MULTICOMPOUND_H

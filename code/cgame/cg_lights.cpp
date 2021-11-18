@@ -3,27 +3,27 @@
 //#include "cg_local.h"
 
 #if !defined(CG_LIGHTS_H_INC)
-	#include "cg_lights.h"
+#include "cg_lights.h"
 #endif
 
-static	clightstyle_t	cl_lightstyle[MAX_LIGHT_STYLES];
-static	int				lastofs;
+static clightstyle_t cl_lightstyle[MAX_LIGHT_STYLES];
+static int lastofs;
 
 /*
 ================
 FX_ClearLightStyles
 ================
 */
-void CG_ClearLightStyles (void)
+void CG_ClearLightStyles(void)
 {
-	int	i;
+	int i;
 
-	memset (cl_lightstyle, 0, sizeof(cl_lightstyle));
+	memset(cl_lightstyle, 0, sizeof(cl_lightstyle));
 	lastofs = -1;
 
-	for(i=0;i<MAX_LIGHT_STYLES*3;i++)
+	for (i = 0; i < MAX_LIGHT_STYLES * 3; i++)
 	{
-		CG_SetLightstyle (i);
+		CG_SetLightstyle(i);
 	}
 }
 
@@ -32,18 +32,18 @@ void CG_ClearLightStyles (void)
 FX_RunLightStyles
 ================
 */
-void CG_RunLightStyles (void)
+void CG_RunLightStyles(void)
 {
-	int		ofs;
-	int		i;
-	clightstyle_t	*ls;
+	int ofs;
+	int i;
+	clightstyle_t *ls;
 
 	ofs = cg.time / 50;
-//	if (ofs == lastofs)
-//		return;
+	//	if (ofs == lastofs)
+	//		return;
 	lastofs = ofs;
 
-	for (i=0,ls=cl_lightstyle ; i<MAX_LIGHT_STYLES ; i++, ls++)
+	for (i = 0, ls = cl_lightstyle; i < MAX_LIGHT_STYLES; i++, ls++)
 	{
 		if (!ls->length)
 		{
@@ -58,30 +58,30 @@ void CG_RunLightStyles (void)
 		}
 		else
 		{
-			ls->value[0] = ls->map[ofs%ls->length][0];
-			ls->value[1] = ls->map[ofs%ls->length][1];
-			ls->value[2] = ls->map[ofs%ls->length][2];
+			ls->value[0] = ls->map[ofs % ls->length][0];
+			ls->value[1] = ls->map[ofs % ls->length][1];
+			ls->value[2] = ls->map[ofs % ls->length][2];
 			ls->value[3] = 255; //ls->map[ofs%ls->length][3];
 		}
-		trap_R_SetLightStyle(i, *(int*)ls->value);
+		trap_R_SetLightStyle(i, *(int *)ls->value);
 	}
 }
 
-void CG_SetLightstyle (int i)
+void CG_SetLightstyle(int i)
 {
-	const char	*s;
-	int			j, k;
+	const char *s;
+	int j, k;
 
-	s = CG_ConfigString( i+CS_LIGHT_STYLES );
-	j = strlen (s);
+	s = CG_ConfigString(i + CS_LIGHT_STYLES);
+	j = strlen(s);
 	if (j >= MAX_QPATH)
 	{
-		Com_Error (ERR_DROP, "svc_lightstyle length=%i", j);
+		Com_Error(ERR_DROP, "svc_lightstyle length=%i", j);
 	}
 
-	cl_lightstyle[(i/3)].length = j;
-	for (k=0 ; k<j ; k++)
+	cl_lightstyle[(i / 3)].length = j;
+	for (k = 0; k < j; k++)
 	{
-		cl_lightstyle[(i/3)].map[k][(i%3)] = (float)(s[k]-'a')/(float)('z'-'a') * 255.0;
+		cl_lightstyle[(i / 3)].map[k][(i % 3)] = (float)(s[k] - 'a') / (float)('z' - 'a') * 255.0;
 	}
 }

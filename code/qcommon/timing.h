@@ -2,10 +2,11 @@
 class timing_c
 {
 private:
-	__int64	start;
-	__int64	end;
+	__int64 start;
+	__int64 end;
 
-	int		reset;
+	int reset;
+
 public:
 	timing_c(void)
 	{
@@ -33,10 +34,10 @@ public:
 	int End()
 	{
 		const __int64 *e = &end;
-		__int64	time;
+		__int64 time;
 
 		__asm
-		{
+			{
 			push eax
 			push ebx
 			push edx
@@ -49,13 +50,13 @@ public:
 			pop edx
 			pop ebx
 			pop eax
-		}
+			}
 		time = end - start;
 		if (time < 0)
 		{
 			time = 0;
 		}
-		return((int)time);
+		return ((int)time);
 	}
 };
 

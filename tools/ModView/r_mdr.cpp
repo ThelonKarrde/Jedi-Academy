@@ -8,18 +8,8 @@
 //
 #include "r_mdr.h"
 
-
-
-
-void R_AddAnimSurfaces( trRefEntity_t *ent ) 
+void R_AddAnimSurfaces(trRefEntity_t *ent)
 {
 }
 
-
-
-
-
-
-
 //////////////////// eof ///////////
-

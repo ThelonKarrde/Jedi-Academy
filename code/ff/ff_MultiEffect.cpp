@@ -7,23 +7,19 @@
 //------------------------------
 //	Determines the shortest start delay.
 //
-qboolean MultiEffect::GetStartDelay( DWORD &StartDelay )
+qboolean MultiEffect::GetStartDelay(DWORD &StartDelay)
 {
 	StartDelay = MAXDWORD;
 	qboolean result = qtrue;
 
-	int i,max;
-	for
-	(	i = 0, max = GetNumberOfContainedEffects()
-	;	i < max
-	;	i++
-	){
+	int i, max;
+	for (i = 0, max = GetNumberOfContainedEffects(); i < max; i++)
+	{
 		DWORD CurrentStartDelay;
-		CImmEffect* pIE = GetContainedEffect( i );
-		if ( pIE
-		&&	 pIE->GetStartDelay( CurrentStartDelay )
-		){
-			StartDelay = Min( StartDelay, CurrentStartDelay );
+		CImmEffect *pIE = GetContainedEffect(i);
+		if (pIE && pIE->GetStartDelay(CurrentStartDelay))
+		{
+			StartDelay = Min(StartDelay, CurrentStartDelay);
 		}
 		else
 		{
@@ -31,10 +27,7 @@ qboolean MultiEffect::GetStartDelay( DWORD &StartDelay )
 		}
 	}
 
-	return qboolean
-	(	result 
-	&&	max > 0
-	);
+	return qboolean(result && max > 0);
 }
 
 ////------------------------
@@ -43,23 +36,19 @@ qboolean MultiEffect::GetStartDelay( DWORD &StartDelay )
 //	Computes end of earliest start delay. Compare this value with ::GetTickCount()
 //	to determine if any component waveform started playing on the device.
 //
-qboolean MultiEffect::GetDelayEnd( DWORD &DelayEnd )
+qboolean MultiEffect::GetDelayEnd(DWORD &DelayEnd)
 {
 	DelayEnd = MAXDWORD;
 	qboolean result = qtrue;
 
-	int i,max;
-	for
-	(	i = 0, max = GetNumberOfContainedEffects()
-	;	i < max
-	;	i++
-	){
+	int i, max;
+	for (i = 0, max = GetNumberOfContainedEffects(); i < max; i++)
+	{
 		DWORD StartDelay;
-		CImmEffect* pIE = GetContainedEffect( i );
-		if ( pIE 
-		&&	 pIE->GetStartDelay( StartDelay )
-		){
-			DelayEnd = Min( DelayEnd, StartDelay + pIE->m_dwLastStarted );
+		CImmEffect *pIE = GetContainedEffect(i);
+		if (pIE && pIE->GetStartDelay(StartDelay))
+		{
+			DelayEnd = Min(DelayEnd, StartDelay + pIE->m_dwLastStarted);
 		}
 		else
 		{
@@ -67,10 +56,7 @@ qboolean MultiEffect::GetDelayEnd( DWORD &DelayEnd )
 		}
 	}
 
-	return qboolean
-	(	result 
-	&&	max > 0
-	);
+	return qboolean(result && max > 0);
 }
 
 ////---------------------------
@@ -80,37 +66,24 @@ qboolean MultiEffect::GetDelayEnd( DWORD &DelayEnd )
 //	Returns false if any effect returns false. Attempts to change duration of all effects
 //	regardless of individual return values.
 //
-qboolean MultiEffect::ChangeDuration( DWORD Duration )
+qboolean MultiEffect::ChangeDuration(DWORD Duration)
 {
 	DWORD CurrentDuration;
-	qboolean result = GetDuration( CurrentDuration );
+	qboolean result = GetDuration(CurrentDuration);
 
-	if ( result )
+	if (result)
 	{
 		DWORD RelativeDuration = Duration - CurrentDuration;
 
-		int i,max;
-		for
-		(	i = 0, max = GetNumberOfContainedEffects()
-		;	i < max
-		;	i++
-		){
+		int i, max;
+		for (i = 0, max = GetNumberOfContainedEffects(); i < max; i++)
+		{
 			IMM_ENVELOPE Envelope = {0};
-			CImmEffect* pIE = GetContainedEffect( i );
-			result &= qboolean
-			(	pIE
-			&&	pIE->GetDuration( CurrentDuration )
-			&&	pIE->ChangeDuration( CurrentDuration + RelativeDuration )
-			&&	(	!pIE->GetEnvelope( &Envelope )
-				||	(	Envelope.dwAttackTime = ( CurrentDuration ? (DWORD)((float)Envelope.dwAttackTime * (float)Duration / (float)CurrentDuration) : 0 )
-					,	Envelope.dwFadeTime = ( CurrentDuration ? (DWORD)((float)Envelope.dwFadeTime * (float)Duration / (float)CurrentDuration) : 0 )
-					,	pIE->ChangeEnvelope( &Envelope )
-					)
-				)
-			);
+			CImmEffect *pIE = GetContainedEffect(i);
+			result &= qboolean(pIE && pIE->GetDuration(CurrentDuration) && pIE->ChangeDuration(CurrentDuration + RelativeDuration) && (!pIE->GetEnvelope(&Envelope) || (Envelope.dwAttackTime = (CurrentDuration ? (DWORD)((float)Envelope.dwAttackTime * (float)Duration / (float)CurrentDuration) : 0), Envelope.dwFadeTime = (CurrentDuration ? (DWORD)((float)Envelope.dwFadeTime * (float)Duration / (float)CurrentDuration) : 0), pIE->ChangeEnvelope(&Envelope))));
 		}
 
-		result &= qboolean( max > 0 );
+		result &= qboolean(max > 0);
 	}
 
 	return result;
@@ -123,30 +96,23 @@ qboolean MultiEffect::ChangeDuration( DWORD Duration )
 //	Returns false if any effect returns false. Attempts to change gain of all effects
 //	regardless of individual return values.
 //
-qboolean MultiEffect::ChangeGain( DWORD Gain )
+qboolean MultiEffect::ChangeGain(DWORD Gain)
 {
 	DWORD CurrentGain;
-	qboolean result = GetGain( CurrentGain );
+	qboolean result = GetGain(CurrentGain);
 
-	if ( result )
+	if (result)
 	{
 		DWORD RelativeGain = Gain - CurrentGain;
 
-		int i,max;
-		for
-		(	i = 0, max = GetNumberOfContainedEffects()
-		;	i < max
-		;	i++
-		){
-			CImmEffect* pIE = GetContainedEffect( i );
-			result &= qboolean
-			(	pIE
-			&&	pIE->GetGain( CurrentGain )
-			&&	pIE->ChangeGain( CurrentGain + RelativeGain )
-			);
+		int i, max;
+		for (i = 0, max = GetNumberOfContainedEffects(); i < max; i++)
+		{
+			CImmEffect *pIE = GetContainedEffect(i);
+			result &= qboolean(pIE && pIE->GetGain(CurrentGain) && pIE->ChangeGain(CurrentGain + RelativeGain));
 		}
 
-		result &= qboolean( max > 0 );
+		result &= qboolean(max > 0);
 	}
 
 	return result;
@@ -159,22 +125,18 @@ qboolean MultiEffect::ChangeGain( DWORD Gain )
 //	Returns false if any effect returns false. Attempts to get status of all effects
 //	regardless of individual return values.
 //
-qboolean MultiEffect::GetStatus( DWORD &Status )
+qboolean MultiEffect::GetStatus(DWORD &Status)
 {
 	Status = 0;
 	qboolean result = qtrue;
 
-	int i,max;
-	for
-	(	i = 0, max = GetNumberOfContainedEffects()
-	;	i < max
-	;	i++
-	){
+	int i, max;
+	for (i = 0, max = GetNumberOfContainedEffects(); i < max; i++)
+	{
 		DWORD CurrentStatus;
-		CImmEffect* pIE = GetContainedEffect( i );
-		if ( pIE
-		&&	 pIE->GetStatus( &CurrentStatus )
-		){
+		CImmEffect *pIE = GetContainedEffect(i);
+		if (pIE && pIE->GetStatus(&CurrentStatus))
+		{
 			Status |= CurrentStatus;
 		}
 		else
@@ -183,58 +145,44 @@ qboolean MultiEffect::GetStatus( DWORD &Status )
 		}
 	}
 
-	return qboolean
-	(	result
-	&&	max > 0
-	);
+	return qboolean(result && max > 0);
 }
 
-qboolean MultiEffect::ChangeStartDelay( DWORD StartDelay )
+qboolean MultiEffect::ChangeStartDelay(DWORD StartDelay)
 {
 	DWORD CurrentStartDelay;
-	qboolean result = GetStartDelay( CurrentStartDelay );
+	qboolean result = GetStartDelay(CurrentStartDelay);
 
-	if ( result )
+	if (result)
 	{
 		DWORD RelativeStartDelay = StartDelay - CurrentStartDelay;
-		
-		int i,max;
-		for
-		(	i = 0, max = GetNumberOfContainedEffects()
-		;	i < max
-		;	i++
-		){
-			CImmEffect* pIE = GetContainedEffect( i );
-			result &= qboolean
-			(	pIE
-			&&	pIE->GetStartDelay( CurrentStartDelay )
-			&&	pIE->ChangeStartDelay( CurrentStartDelay + RelativeStartDelay )
-			);
+
+		int i, max;
+		for (i = 0, max = GetNumberOfContainedEffects(); i < max; i++)
+		{
+			CImmEffect *pIE = GetContainedEffect(i);
+			result &= qboolean(pIE && pIE->GetStartDelay(CurrentStartDelay) && pIE->ChangeStartDelay(CurrentStartDelay + RelativeStartDelay));
 		}
 
-		result &= qboolean( max > 0 );
+		result &= qboolean(max > 0);
 	}
 
 	return result;
 }
 
-qboolean MultiEffect::GetDuration( DWORD &Duration )
+qboolean MultiEffect::GetDuration(DWORD &Duration)
 {
 	Duration = 0;
 	qboolean result = qtrue;
 
-	int i,max;
-	for
-	(	i = 0, max = GetNumberOfContainedEffects()
-	;	i < max
-	;	i++
-	){
+	int i, max;
+	for (i = 0, max = GetNumberOfContainedEffects(); i < max; i++)
+	{
 		DWORD CurrentDuration;
-		CImmEffect* pIE = GetContainedEffect( i );
-		if ( pIE
-		&&	 pIE->GetDuration( CurrentDuration )
-		){
-			Duration = Max( Duration, CurrentDuration );
+		CImmEffect *pIE = GetContainedEffect(i);
+		if (pIE && pIE->GetDuration(CurrentDuration))
+		{
+			Duration = Max(Duration, CurrentDuration);
 		}
 		else
 		{
@@ -242,29 +190,22 @@ qboolean MultiEffect::GetDuration( DWORD &Duration )
 		}
 	}
 
-	return qboolean
-	(	result
-	&&	max > 0
-	);
+	return qboolean(result && max > 0);
 }
 
-qboolean MultiEffect::GetGain( DWORD &Gain )
+qboolean MultiEffect::GetGain(DWORD &Gain)
 {
 	Gain = 0;
 	qboolean result = qtrue;
 
-	int i,max;
-	for
-	(	i = 0, max = GetNumberOfContainedEffects()
-	;	i < max
-	;	i++
-	){
+	int i, max;
+	for (i = 0, max = GetNumberOfContainedEffects(); i < max; i++)
+	{
 		DWORD CurrentGain;
-		CImmEffect* pIE = GetContainedEffect( i );
-		if ( pIE
-		&&	 pIE->GetGain( CurrentGain )
-		){
-			Gain = Max( Gain, CurrentGain );
+		CImmEffect *pIE = GetContainedEffect(i);
+		if (pIE && pIE->GetGain(CurrentGain))
+		{
+			Gain = Max(Gain, CurrentGain);
 		}
 		else
 		{
@@ -272,10 +213,7 @@ qboolean MultiEffect::GetGain( DWORD &Gain )
 		}
 	}
 
-	return qboolean
-	(	result
-	&&	max > 0
-	);
+	return qboolean(result && max > 0);
 }
 
 #endif // _IMMERSION

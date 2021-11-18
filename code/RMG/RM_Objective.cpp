@@ -22,27 +22,27 @@
  *	none
  *
  ************************************************************************************************/
-CRMObjective::CRMObjective ( CGPGroup* group )
-{	
+CRMObjective::CRMObjective(CGPGroup *group)
+{
 	SetPriority(atoi(group->FindPairValue("priority", "0")));
-	SetMessage( group->FindPairValue("message",va("Objective %i Completed", GetPriority()) ) );
-	SetDescription(group->FindPairValue("description",va("Objective %i", GetPriority()) ) );
-	SetInfo(group->FindPairValue("info",va("Info %i", GetPriority()) ) );
-	SetTrigger(group->FindPairValue("trigger",""));
+	SetMessage(group->FindPairValue("message", va("Objective %i Completed", GetPriority())));
+	SetDescription(group->FindPairValue("description", va("Objective %i", GetPriority())));
+	SetInfo(group->FindPairValue("info", va("Info %i", GetPriority())));
+	SetTrigger(group->FindPairValue("trigger", ""));
 	SetName(group->GetName());
-	
-/*	const char * soundPath = group->FindPairValue("completed_sound", "" ); 
+
+	/*	const char * soundPath = group->FindPairValue("completed_sound", "" ); 
 	if (soundPath)
 		mCompleteSoundID = G_SoundIndex(soundPath); 
 */
 
-	mCompleted  = false;
+	mCompleted = false;
 	mOrderIndex = -1;
 
 	// If no priority was specified for this objective then its active by default.
-	if ( GetPriority ( ) )
+	if (GetPriority())
 	{
-		mActive	= false;
+		mActive = false;
 	}
 	else
 	{
@@ -118,9 +118,9 @@ CRMObjective::CRMObjective ( CGPGroup* group )
  *  false: objective failed to link
  *
  ************************************************************************************************/
-bool CRMObjective::Link ( )
+bool CRMObjective::Link()
 {
-/*	CTriggerAriocheObjective* trigger;
+	/*	CTriggerAriocheObjective* trigger;
 
 	// Look for a random trigger to associate this objective to.
 	trigger = FindRandomTrigger ( );
@@ -128,7 +128,6 @@ bool CRMObjective::Link ( )
 	{
 		trigger->SetObjective ( this );
 	}
-*/	
+*/
 	return true;
 }
-

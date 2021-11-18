@@ -11,7 +11,7 @@
 #include "rm_headers.h"
 #include "../server/server.h"
 
-CRMObjective *CRMManager::mCurObjective=0;
+CRMObjective *CRMManager::mCurObjective = 0;
 
 /************************************************************************************************
  * TheRandomMissionManager
@@ -32,7 +32,7 @@ CRMManager *TheRandomMissionManager;
 CRMManager::CRMManager(void)
 {
 	mLandScape = NULL;
-	mTerrain   = NULL;
+	mTerrain = NULL;
 	mMission = NULL;
 	mCurPriority = 1;
 	mUseTimeLimit = false;
@@ -50,7 +50,7 @@ CRMManager::CRMManager(void)
 CRMManager::~CRMManager(void)
 {
 #ifndef FINAL_BUILD
-	Com_Printf ("... Shutting down TheRandomMissionManager\n");
+	Com_Printf("... Shutting down TheRandomMissionManager\n");
 #endif
 #ifndef DEDICATED
 	CM_TM_Free();
@@ -90,18 +90,18 @@ void CRMManager::SetLandScape(CCMLandScape *landscape)
  *	none
  *
  ************************************************************************************************/
-bool CRMManager::LoadMission ( qboolean IsServer )
+bool CRMManager::LoadMission(qboolean IsServer)
 {
 #ifndef PRE_RELEASE_DEMO
-	char	instances[MAX_QPATH];
-	char	mission[MAX_QPATH];
-	char	course[MAX_QPATH];
-	char	map[MAX_QPATH];
-	char	temp[MAX_QPATH];
+	char instances[MAX_QPATH];
+	char mission[MAX_QPATH];
+	char course[MAX_QPATH];
+	char map[MAX_QPATH];
+	char temp[MAX_QPATH];
 
 #ifndef FINAL_BUILD
-	Com_Printf ("--------- Random Mission Manager ---------\n\n");
-	Com_Printf ("RMG version : 0.01\n\n");
+	Com_Printf("--------- Random Mission Manager ---------\n\n");
+	Com_Printf("RMG version : 0.01\n\n");
 #endif
 
 	if (!mTerrain)
@@ -128,15 +128,15 @@ bool CRMManager::LoadMission ( qboolean IsServer )
 		mMission = NULL;
 	}
 
-	// Create a new mission file	
-	mMission = new CRMMission ( mTerrain );
+	// Create a new mission file
+	mMission = new CRMMission(mTerrain);
 
 	// Load the mission using the arioche variables
-	if ( !mMission->Load ( mission, instances, course ) )
+	if (!mMission->Load(mission, instances, course))
 	{
 		return false;
 	}
-	
+
 	if (mUseTimeLimit)
 	{
 		Cvar_Set("rmg_timelimit", va("%d", mMission->GetTimeLimit()));
@@ -147,8 +147,8 @@ bool CRMManager::LoadMission ( qboolean IsServer )
 	}
 
 	if (IsServer)
-	{	// set the names of the teams 
-		CGenericParser2		parser;
+	{ // set the names of the teams
+		CGenericParser2 parser;
 		//CGPGroup*			root;
 
 		Cvar_VariableStringBuffer("RMG_terrain", temp, MAX_QPATH);
@@ -170,10 +170,10 @@ bool CRMManager::LoadMission ( qboolean IsServer )
 	}
 
 	// Must have a valid landscape before we can spawn the mission
-	assert ( mLandScape );
+	assert(mLandScape);
 
 #ifndef FINAL_BUILD
-	Com_Printf ("------------------------------------------\n");
+	Com_Printf("------------------------------------------\n");
 #endif
 
 	return true;
@@ -196,7 +196,7 @@ bool CRMManager::LoadMission ( qboolean IsServer )
  ************************************************************************************************/
 bool CRMManager::IsMissionComplete(void)
 {
-	if ( NULL == mMission->GetCurrentObjective ( ) )
+	if (NULL == mMission->GetCurrentObjective())
 	{
 		return true;
 	}
@@ -218,7 +218,7 @@ bool CRMManager::IsMissionComplete(void)
  ************************************************************************************************/
 bool CRMManager::HasTimeExpired(void)
 {
-/*	if (mMission->GetTimeLimit() == 0 || !mUseTimeLimit)
+	/*	if (mMission->GetTimeLimit() == 0 || !mUseTimeLimit)
 	{	// no time limit set
 		return false;
 	}
@@ -245,9 +245,9 @@ bool CRMManager::HasTimeExpired(void)
  *	none
  *
  ************************************************************************************************/
-void CRMManager::UpdateStatisticCvars ( void )
+void CRMManager::UpdateStatisticCvars(void)
 {
-/*	// No player set then nothing more to do
+	/*	// No player set then nothing more to do
 	if ( mPlayer )
 	{
 		float accuracy;
@@ -317,7 +317,7 @@ void CRMManager::UpdateStatisticCvars ( void )
  ************************************************************************************************/
 void CRMManager::CompleteMission(void)
 {
-	UpdateStatisticCvars ( );
+	UpdateStatisticCvars();
 
 	mMission->CompleteMission();
 }
@@ -333,7 +333,7 @@ void CRMManager::CompleteMission(void)
  ************************************************************************************************/
 void CRMManager::FailedMission(bool TimeExpired)
 {
-	UpdateStatisticCvars ( );
+	UpdateStatisticCvars();
 
 	mMission->FailedMission(TimeExpired);
 }
@@ -349,11 +349,11 @@ void CRMManager::FailedMission(bool TimeExpired)
  *	none
  *
  ************************************************************************************************/
-void CRMManager::CompleteObjective ( CRMObjective *obj )
+void CRMManager::CompleteObjective(CRMObjective *obj)
 {
-	assert ( obj );
+	assert(obj);
 
-	mMission->CompleteObjective ( obj );
+	mMission->CompleteObjective(obj);
 }
 
 /************************************************************************************************
@@ -367,10 +367,10 @@ void CRMManager::CompleteObjective ( CRMObjective *obj )
  *	none
  *
  ************************************************************************************************/
-void CRMManager::Preview ( const vec3_t from )
+void CRMManager::Preview(const vec3_t from)
 {
 	// Dont bother if we havent reached our timer yet
-/*	if ( level.time < mPreviewTimer )
+	/*	if ( level.time < mPreviewTimer )
 	{
 		return;
 	}
@@ -393,10 +393,10 @@ void CRMManager::Preview ( const vec3_t from )
  *	none
  *
  ************************************************************************************************/
-bool CRMManager::SpawnMission ( qboolean IsServer )
+bool CRMManager::SpawnMission(qboolean IsServer)
 {
 	// Spawn the mission
-	mMission->Spawn ( mTerrain, IsServer );
+	mMission->Spawn(mTerrain, IsServer);
 
 	return true;
 }

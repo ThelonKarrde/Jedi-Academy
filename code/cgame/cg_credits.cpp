@@ -9,12 +9,11 @@
 //#include "cg_local.h"
 #include "cg_media.h"
 
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#define max(a, b) (((a) > (b)) ? (a) : (b))
 
-#define fCARD_FADESECONDS		1.0f	// fade up time, also fade down time
-#define fCARD_SUSTAINSECONDS	2.0f	// hold time before fade down
-#define fLINE_SECONDTOSCROLLUP	15.0f	// how long one line takes to scroll up the screen
-
+#define fCARD_FADESECONDS 1.0f		 // fade up time, also fade down time
+#define fCARD_SUSTAINSECONDS 2.0f	 // hold time before fade down
+#define fLINE_SECONDTOSCROLLUP 15.0f // how long one line takes to scroll up the screen
 
 #define MAX_LINE_BYTES 2048
 
@@ -37,7 +36,7 @@ struct StringAndSize_t
 		iStrLenPixels = -1;
 		str = psString;
 	}
-	StringAndSize_t & operator = (const char *psString)
+	StringAndSize_t &operator=(const char *psString)
 	{
 		iStrLenPixels = -1;
 		str = psString;
@@ -67,52 +66,51 @@ struct StringAndSize_t
 
 struct CreditCard_t
 {
-	int						iTime;
-	StringAndSize_t			strTitle;
+	int iTime;
+	StringAndSize_t strTitle;
 	vector<StringAndSize_t> vstrText;
 
 	CreditCard_t()
 	{
-		iTime = -1;	// flag "not set yet"
+		iTime = -1; // flag "not set yet"
 	}
 };
 
 struct CreditLine_t
 {
-	int						iLine;
-	StringAndSize_t			strText;
+	int iLine;
+	StringAndSize_t strText;
 	vector<StringAndSize_t> vstrText;
-	bool					bDotted;
+	bool bDotted;
 };
 
-typedef list <CreditLine_t>		CreditLines_t;
-typedef list <CreditCard_t>		CreditCards_t;
+typedef list<CreditLine_t> CreditLines_t;
+typedef list<CreditCard_t> CreditCards_t;
 
 struct CreditData_t
 {
-	int			iStartTime;
+	int iStartTime;
 
 	CreditCards_t CreditCards;
 	CreditLines_t CreditLines;
 
 	bool Running(void)
 	{
-		return !!( CreditCards.size() || CreditLines.size() );
+		return !!(CreditCards.size() || CreditLines.size());
 	}
 };
 
 CreditData_t CreditData;
 
-
 static LPCSTR Capitalize(LPCSTR psTest)
-{	
+{
 	static char sTemp[MAX_LINE_BYTES];
 
 	Q_strncpyz(sTemp, psTest, sizeof(sTemp));
-	
-//	if (!cgi_Language_IsAsian())	// we don't have asian credits, so this is ok to do now
+
+	//	if (!cgi_Language_IsAsian())	// we don't have asian credits, so this is ok to do now
 	{
-		strupr(sTemp);	// capitalise titles (if not asian!!!!)
+		strupr(sTemp); // capitalise titles (if not asian!!!!)
 	}
 
 	return sTemp;
@@ -120,48 +118,50 @@ static LPCSTR Capitalize(LPCSTR psTest)
 
 // cope with hyphenated names and initials (awkward gits)...
 //
-static bool CountsAsWhiteSpaceForCaps( unsigned /* avoid euro-char sign-extend assert within isspace()*/char c )
-{ 
-	return !!(isspace(c) || c == '-' || c == '.' || c == '(' || c == ')' || c=='\'');
+static bool CountsAsWhiteSpaceForCaps(unsigned /* avoid euro-char sign-extend assert within isspace()*/ char c)
+{
+	return !!(isspace(c) || c == '-' || c == '.' || c == '(' || c == ')' || c == '\'');
 }
 static LPCSTR UpperCaseFirstLettersOnly(LPCSTR psTest)
 {
 	static char sTemp[MAX_LINE_BYTES];
 
 	Q_strncpyz(sTemp, psTest, sizeof(sTemp));
-	
-//	if (!cgi_Language_IsAsian())	// we don't have asian credits, so this is ok to do now
+
+	//	if (!cgi_Language_IsAsian())	// we don't have asian credits, so this is ok to do now
 	{
 		strlwr(sTemp);
 
 		char *p = sTemp;
 		while (*p)
 		{
-			while (*p && CountsAsWhiteSpaceForCaps(*p)) p++;
+			while (*p && CountsAsWhiteSpaceForCaps(*p))
+				p++;
 			if (*p)
 			{
 				*p = toupper(*p);
-				while (*p && !CountsAsWhiteSpaceForCaps(*p)) p++;
+				while (*p && !CountsAsWhiteSpaceForCaps(*p))
+					p++;
 			}
 		}
 	}
 
 	// now restore any weird stuff...
 	//
-	char *p = strstr(sTemp," Mc");	// eg "Mcfarrell" should be "McFarrell"
+	char *p = strstr(sTemp, " Mc"); // eg "Mcfarrell" should be "McFarrell"
 	if (p && isalpha(p[3]))
 	{
 		p[3] = toupper(p[3]);
 	}
-	p = strstr(sTemp," O'");	// eg "O'flaherty" should be "O'Flaherty" (this is probably done automatically now, but wtf.
+	p = strstr(sTemp, " O'"); // eg "O'flaherty" should be "O'Flaherty" (this is probably done automatically now, but wtf.
 	if (p && isalpha(p[3]))
 	{
 		p[3] = toupper(p[3]);
 	}
-	p = strstr(sTemp,"Lucasarts");
+	p = strstr(sTemp, "Lucasarts");
 	if (p)
 	{
-		p[5] = 'A';	// capitalise the 'A' in LucasArts (jeez...)
+		p[5] = 'A'; // capitalise the 'A' in LucasArts (jeez...)
 	}
 
 	return sTemp;
@@ -173,16 +173,16 @@ static const char *GetSubString(string &strResult)
 
 	if (!strlen(strResult.c_str()))
 		return NULL;
-	
-	strncpy(sTemp,strResult.c_str(),sizeof(sTemp)-1);
-	sTemp[sizeof(sTemp)-1]='\0';
 
-	char *psSemiColon = strchr(sTemp,';');
-	if (  psSemiColon)
+	strncpy(sTemp, strResult.c_str(), sizeof(sTemp) - 1);
+	sTemp[sizeof(sTemp) - 1] = '\0';
+
+	char *psSemiColon = strchr(sTemp, ';');
+	if (psSemiColon)
 	{
-		 *psSemiColon = '\0';
+		*psSemiColon = '\0';
 
-		 strResult.erase(0,(psSemiColon-sTemp)+1);
+		strResult.erase(0, (psSemiColon - sTemp) + 1);
 	}
 	else
 	{
@@ -198,33 +198,35 @@ static const char *GetSubString(string &strResult)
 // ...
 static int SortBySurname(const void *elem1, const void *elem2)
 {
-	StringAndSize_t *p1 = (StringAndSize_t *) elem1;
-	StringAndSize_t *p2 = (StringAndSize_t *) elem2;
+	StringAndSize_t *p1 = (StringAndSize_t *)elem1;
+	StringAndSize_t *p2 = (StringAndSize_t *)elem2;
 
-	LPCSTR psSurName1 = p1->c_str() + (strlen(p1->c_str())-1);
-	LPCSTR psSurName2 = p2->c_str() + (strlen(p2->c_str())-1);
+	LPCSTR psSurName1 = p1->c_str() + (strlen(p1->c_str()) - 1);
+	LPCSTR psSurName2 = p2->c_str() + (strlen(p2->c_str()) - 1);
 
-	while (psSurName1 > p1->c_str() && !isspace(*psSurName1)) psSurName1--;
-	while (psSurName2 > p2->c_str() && !isspace(*psSurName2)) psSurName2--;
-	if (isspace(*psSurName1)) psSurName1++;
-	if (isspace(*psSurName2)) psSurName2++;
-		
+	while (psSurName1 > p1->c_str() && !isspace(*psSurName1))
+		psSurName1--;
+	while (psSurName2 > p2->c_str() && !isspace(*psSurName2))
+		psSurName2--;
+	if (isspace(*psSurName1))
+		psSurName1++;
+	if (isspace(*psSurName2))
+		psSurName2++;
+
 	return stricmp(psSurName1, psSurName2);
 }
 
-
-
-void CG_Credits_Init( LPCSTR psStripReference, vec4_t *pv4Color)
+void CG_Credits_Init(LPCSTR psStripReference, vec4_t *pv4Color)
 {
 	// Play the light side end credits music.
-	if ( g_entities[0].client->sess.mission_objectives[0].status != 2 )
+	if (g_entities[0].client->sess.mission_objectives[0].status != 2)
 	{
-		cgi_S_StartBackgroundTrack( "music/endcredits.mp3", NULL, false );
+		cgi_S_StartBackgroundTrack("music/endcredits.mp3", NULL, false);
 	}
 	// Play the dark side end credits music.
 	else
 	{
-		cgi_S_StartBackgroundTrack( "music/vjun3/vjun3_explore.mp3", NULL, false );
+		cgi_S_StartBackgroundTrack("music/vjun3/vjun3_explore.mp3", NULL, false);
 	}
 
 	// could make these into parameters later, but for now...
@@ -232,35 +234,35 @@ void CG_Credits_Init( LPCSTR psStripReference, vec4_t *pv4Color)
 	ghFontHandle = cgs.media.qhFontMedium;
 	gfFontScale = 1.0f;
 
-	memcpy(gv4Color,pv4Color,sizeof(gv4Color));	// memcpy so we can poke into alpha channel
+	memcpy(gv4Color, pv4Color, sizeof(gv4Color)); // memcpy so we can poke into alpha channel
 
 	// first, ask the strlen of the final string...
-	//	
-	int iStrLen = cgi_SP_GetStringTextString( psStripReference, NULL, 0 );
+	//
+	int iStrLen = cgi_SP_GetStringTextString(psStripReference, NULL, 0);
 	if (!iStrLen)
 	{
 #ifndef FINAL_BUILD
 		Com_Printf("WARNING: CG_Credits_Init(): invalid text key :'%s'\n", psStripReference);
 #endif
-		return; 
+		return;
 	}
 	//
 	// malloc space to hold it...
 	//
-	char *psMallocText = (char *) cgi_Z_Malloc( iStrLen+1, TAG_TEMP_WORKSPACE );
+	char *psMallocText = (char *)cgi_Z_Malloc(iStrLen + 1, TAG_TEMP_WORKSPACE);
 	//
 	// now get the string...
-	//	
-	iStrLen = cgi_SP_GetStringTextString( psStripReference, psMallocText, iStrLen+1 );
+	//
+	iStrLen = cgi_SP_GetStringTextString(psStripReference, psMallocText, iStrLen + 1);
 	//ensure we found a match
 	if (!iStrLen)
 	{
-		assert(0);	// should never get here now, but wtf?
+		assert(0); // should never get here now, but wtf?
 		cgi_Z_Free(psMallocText);
 #ifndef FINAL_BUILD
 		Com_Printf("WARNING: CG_Credits_Init(): invalid text key :'%s'\n", psStripReference);
 #endif
-		return; 
+		return;
 	}
 
 	// read whole string in and process as cards, lines etc...
@@ -282,9 +284,9 @@ void CG_Credits_Init( LPCSTR psStripReference, vec4_t *pv4Color)
 	while (*psTextParse != NULL)
 	{
 		// read a line...
-		//	
+		//
 		char sLine[MAX_LINE_BYTES];
-			 sLine[0]='\0';
+		sLine[0] = '\0';
 		qboolean bWasCommand = qtrue;
 		while (1)
 		{
@@ -297,14 +299,14 @@ void CG_Credits_Init( LPCSTR psStripReference, vec4_t *pv4Color)
 			//
 			if (uiLetter == 32 && sLine[0] == '\0')
 			{
-				continue;	// unless it's a space at the start of a line, in which case ignore it.
+				continue; // unless it's a space at the start of a line, in which case ignore it.
 			}
 
-			if (uiLetter == '\n' || uiLetter == '\0' )
+			if (uiLetter == '\n' || uiLetter == '\0')
 			{
 				// have we got a command word?...
 				//
-				if (!strnicmp(sLine,"(#",2))
+				if (!strnicmp(sLine, "(#", 2))
 				{
 					// yep...
 					//
@@ -316,29 +318,26 @@ void CG_Credits_Init( LPCSTR psStripReference, vec4_t *pv4Color)
 						}
 						else
 						{
-							#ifndef FINAL_BUILD
-							Com_Printf( S_COLOR_YELLOW "CG_Credits_Init(): No current support for cards after scroll!\n" );
-							#endif
+#ifndef FINAL_BUILD
+							Com_Printf(S_COLOR_YELLOW "CG_Credits_Init(): No current support for cards after scroll!\n");
+#endif
 							eMode = eNothing;
 						}
 						break;
 					}
-					else
-					if (!stricmp(sLine, "(#TITLE)"))
+					else if (!stricmp(sLine, "(#TITLE)"))
 					{
 						eMode = eTitle;
 						bCardsFinished = qtrue;
 						break;
 					}
-					else
-					if (!stricmp(sLine, "(#LINE)"))
+					else if (!stricmp(sLine, "(#LINE)"))
 					{
 						eMode = eLine;
 						bCardsFinished = qtrue;
 						break;
 					}
-					else
-					if (!stricmp(sLine, "(#DOTENTRY)"))
+					else if (!stricmp(sLine, "(#DOTENTRY)"))
 					{
 						eMode = eDotEntry;
 						bCardsFinished = qtrue;
@@ -346,9 +345,9 @@ void CG_Credits_Init( LPCSTR psStripReference, vec4_t *pv4Color)
 					}
 					else
 					{
-						#ifndef FINAL_BUILD
-						Com_Printf( S_COLOR_YELLOW "CG_Credits_Init(): bad keyword \"%s\"!\n", sLine );
-						#endif
+#ifndef FINAL_BUILD
+						Com_Printf(S_COLOR_YELLOW "CG_Credits_Init(): bad keyword \"%s\"!\n", sLine);
+#endif
 						eMode = eNothing;
 					}
 				}
@@ -366,14 +365,14 @@ void CG_Credits_Init( LPCSTR psStripReference, vec4_t *pv4Color)
 				//
 				if (uiLetter > 255)
 				{
-					assert(0);	// this means we're attempting to display asian credits, and we don't
-								//	support these now because the auto-capitalisation rules etc would have to
-								//	be inhibited.
-					Q_strcat(sLine, sizeof(sLine), va("%c%c",uiLetter >> 8, uiLetter & 0xFF));
+					assert(0); // this means we're attempting to display asian credits, and we don't
+							   //	support these now because the auto-capitalisation rules etc would have to
+							   //	be inhibited.
+					Q_strcat(sLine, sizeof(sLine), va("%c%c", uiLetter >> 8, uiLetter & 0xFF));
 				}
 				else
 				{
-					Q_strcat(sLine, sizeof(sLine), va("%c",uiLetter & 0xFF));
+					Q_strcat(sLine, sizeof(sLine), va("%c", uiLetter & 0xFF));
 				}
 			}
 		}
@@ -391,90 +390,91 @@ void CG_Credits_Init( LPCSTR psStripReference, vec4_t *pv4Color)
 			//
 			switch (eMode)
 			{
-				case eNothing:	break;
-				case eLine:		
-				{
-					CreditLine_t	CreditLine;
-									CreditLine.iLine	= iLineNumber++;									
-									CreditLine.strText	= sLine;
-
-					CreditData.CreditLines.push_back( CreditLine );
-				}
+			case eNothing:
 				break;
+			case eLine:
+			{
+				CreditLine_t CreditLine;
+				CreditLine.iLine = iLineNumber++;
+				CreditLine.strText = sLine;
 
-				case eDotEntry:	
+				CreditData.CreditLines.push_back(CreditLine);
+			}
+			break;
+
+			case eDotEntry:
+			{
+				CreditLine_t CreditLine;
+				CreditLine.iLine = iLineNumber;
+				CreditLine.bDotted = true;
+
+				string strResult(sLine);
+				const char *p;
+				while ((p = GetSubString(strResult)) != NULL)
 				{
-					CreditLine_t	CreditLine;
-									CreditLine.iLine	= iLineNumber;
-									CreditLine.bDotted	= true;
-
-					string strResult(sLine);
-					const char *p;
-					while ((p=GetSubString(strResult)) != NULL)
+					if (CreditLine.strText.IsEmpty())
 					{
-						if (CreditLine.strText.IsEmpty())
-						{
-							CreditLine.strText = p;
-						}
-						else
-						{
-							CreditLine.vstrText.push_back( UpperCaseFirstLettersOnly(p) );
-						}
+						CreditLine.strText = p;
 					}
-
-					if (!CreditLine.strText.IsEmpty() && CreditLine.vstrText.size())
+					else
 					{
-						// sort entries RHS dotted entries by alpha...
-						//
-						qsort(&CreditLine.vstrText[0], CreditLine.vstrText.size(), sizeof(CreditLine.vstrText[0]), SortBySurname);
-
-						CreditData.CreditLines.push_back( CreditLine );
-						iLineNumber += CreditLine.vstrText.size();
+						CreditLine.vstrText.push_back(UpperCaseFirstLettersOnly(p));
 					}
 				}
+
+				if (!CreditLine.strText.IsEmpty() && CreditLine.vstrText.size())
+				{
+					// sort entries RHS dotted entries by alpha...
+					//
+					qsort(&CreditLine.vstrText[0], CreditLine.vstrText.size(), sizeof(CreditLine.vstrText[0]), SortBySurname);
+
+					CreditData.CreditLines.push_back(CreditLine);
+					iLineNumber += CreditLine.vstrText.size();
+				}
+			}
+			break;
+
+			case eTitle:
+			{
+				iLineNumber++; // leading blank line
+
+				CreditLine_t CreditLine;
+				CreditLine.iLine = iLineNumber++;
+				CreditLine.strText = Capitalize(sLine);
+
+				CreditData.CreditLines.push_back(CreditLine);
+
+				iLineNumber++; // trailing blank line
 				break;
+			}
+			case eCard:
+			{
+				CreditCard_t CreditCard;
 
-				case eTitle:	
+				string strResult(sLine);
+				const char *p;
+				while ((p = GetSubString(strResult)) != NULL)
 				{
-					iLineNumber++;	// leading blank line
-
-					CreditLine_t	CreditLine;
-									CreditLine.iLine	= iLineNumber++;
-									CreditLine.strText	= Capitalize(sLine);
-
-					CreditData.CreditLines.push_back( CreditLine );
-
-					iLineNumber++;	// trailing blank line
-					break;
-				}
-				case eCard:
-				{
-					CreditCard_t CreditCard;
-	
-					string strResult(sLine);
-					const char *p;
-					while ((p=GetSubString(strResult)) != NULL)
+					if (CreditCard.strTitle.IsEmpty())
 					{
-						if (CreditCard.strTitle.IsEmpty())
-						{
-							CreditCard.strTitle = Capitalize( p );
-						}
-						else
-						{
-							CreditCard.vstrText.push_back( UpperCaseFirstLettersOnly( p ) );
-						}
+						CreditCard.strTitle = Capitalize(p);
 					}
-
-					if (!CreditCard.strTitle.IsEmpty())
+					else
 					{
-						// sort entries by alpha...
-						//
-						qsort(&CreditCard.vstrText[0], CreditCard.vstrText.size(), sizeof(CreditCard.vstrText[0]), SortBySurname);
-
-						CreditData.CreditCards.push_back(CreditCard);
+						CreditCard.vstrText.push_back(UpperCaseFirstLettersOnly(p));
 					}
 				}
-				break;
+
+				if (!CreditCard.strTitle.IsEmpty())
+				{
+					// sort entries by alpha...
+					//
+					qsort(&CreditCard.vstrText[0], CreditCard.vstrText.size(), sizeof(CreditCard.vstrText[0]), SortBySurname);
+
+					CreditData.CreditCards.push_back(CreditCard);
+				}
+			}
+			break;
 			}
 		}
 	}
@@ -483,20 +483,20 @@ void CG_Credits_Init( LPCSTR psStripReference, vec4_t *pv4Color)
 	CreditData.iStartTime = cg.time;
 }
 
-qboolean CG_Credits_Running( void )
+qboolean CG_Credits_Running(void)
 {
 	return CreditData.Running();
 }
 
 // returns qtrue if still drawing...
 //
-qboolean CG_Credits_Draw( void )
+qboolean CG_Credits_Draw(void)
 {
-	if ( CG_Credits_Running() )
+	if (CG_Credits_Running())
 	{
-		const int iFontHeight = (int) (1.5f * (float) cgi_R_Font_HeightPixels(ghFontHandle, gfFontScale));	// taiwanese & japanese need 1.5 fontheight spacing
+		const int iFontHeight = (int)(1.5f * (float)cgi_R_Font_HeightPixels(ghFontHandle, gfFontScale)); // taiwanese & japanese need 1.5 fontheight spacing
 
-//		cgi_R_SetColor( *gpv4Color );
+		//		cgi_R_SetColor( *gpv4Color );
 
 		// display cards first...
 		//
@@ -516,51 +516,50 @@ qboolean CG_Credits_Draw( void )
 			// play with the alpha channel for fade up/down...
 			//
 			const float fMilliSecondsElapsed = cg.time - CreditCard.iTime;
-			const float fSecondsElapsed		 = fMilliSecondsElapsed / 1000.0f;
+			const float fSecondsElapsed = fMilliSecondsElapsed / 1000.0f;
 			if (fSecondsElapsed < fCARD_FADESECONDS)
 			{
 				// fading up...
 				//
 				gv4Color[3] = fSecondsElapsed / fCARD_FADESECONDS;
-//				OutputDebugString(va("fade up: %f\n",gv4Color[3]));
+				//				OutputDebugString(va("fade up: %f\n",gv4Color[3]));
 			}
-			else
-			if (fSecondsElapsed > fCARD_FADESECONDS + fCARD_SUSTAINSECONDS)
+			else if (fSecondsElapsed > fCARD_FADESECONDS + fCARD_SUSTAINSECONDS)
 			{
 				// fading down...
 				//
 				const float fFadeDownSeconds = fSecondsElapsed - (fCARD_FADESECONDS + fCARD_SUSTAINSECONDS);
 				gv4Color[3] = 1.0f - (fFadeDownSeconds / fCARD_FADESECONDS);
-//				OutputDebugString(va("fade dw: %f\n",gv4Color[3]));
+				//				OutputDebugString(va("fade dw: %f\n",gv4Color[3]));
 			}
 			else
 			{
 				gv4Color[3] = 1.0f;
-//				OutputDebugString(va("normal: %f\n",gv4Color[3]));
+				//				OutputDebugString(va("normal: %f\n",gv4Color[3]));
 			}
 			if (gv4Color[3] < 0.0f)
-				gv4Color[3] = 0.0f;	// ... otherwise numbers that have dipped slightly -ve flash up fullbright after fade down
+				gv4Color[3] = 0.0f; // ... otherwise numbers that have dipped slightly -ve flash up fullbright after fade down
 
 			//
 			// how many lines is it?
 			//
-			int iLines = CreditCard.vstrText.size() + 2;	// +2 for title itself & one seperator line
+			int iLines = CreditCard.vstrText.size() + 2; // +2 for title itself & one seperator line
 			//
-			int iYpos = (SCREEN_HEIGHT - (iLines * iFontHeight))/2;
+			int iYpos = (SCREEN_HEIGHT - (iLines * iFontHeight)) / 2;
 			//
 			// draw it, title first...
 			//
 			int iWidth = CreditCard.strTitle.GetPixelLength();
-			int iXpos  = (SCREEN_WIDTH - iWidth)/2;
+			int iXpos = (SCREEN_WIDTH - iWidth) / 2;
 			cgi_R_Font_DrawString(iXpos, iYpos, CreditCard.strTitle.c_str(), gv4Color, ghFontHandle, -1, gfFontScale);
 			//
-			iYpos += iFontHeight*2;	// skip blank line then move to main pos
+			iYpos += iFontHeight * 2; // skip blank line then move to main pos
 			//
-			for (int i=0; i<CreditCard.vstrText.size(); i++)
+			for (int i = 0; i < CreditCard.vstrText.size(); i++)
 			{
 				StringAndSize_t &StringAndSize = CreditCard.vstrText[i];
 				iWidth = StringAndSize.GetPixelLength();
-				iXpos  = (SCREEN_WIDTH - iWidth)/2;
+				iXpos = (SCREEN_WIDTH - iWidth) / 2;
 				cgi_R_Font_DrawString(iXpos, iYpos, StringAndSize.c_str(), gv4Color, ghFontHandle, -1, gfFontScale);
 				iYpos += iFontHeight;
 			}
@@ -571,7 +570,7 @@ qboolean CG_Credits_Draw( void )
 			{
 				// yep, so erase the first entry (which will trigger the next one to be initialised on re-entry)...
 				//
-				CreditData.CreditCards.erase( CreditData.CreditCards.begin() );
+				CreditData.CreditCards.erase(CreditData.CreditCards.begin());
 
 				if (!CreditData.CreditCards.size())
 				{
@@ -592,7 +591,7 @@ qboolean CG_Credits_Draw( void )
 				// process all lines...
 				//
 				const float fMilliSecondsElapsed = cg.time - CreditData.iStartTime;
-				const float fSecondsElapsed		 = fMilliSecondsElapsed / 1000.0f;
+				const float fSecondsElapsed = fMilliSecondsElapsed / 1000.0f;
 
 				bool bEraseOccured = false;
 				for (CreditLines_t::iterator it = CreditData.CreditLines.begin(); it != CreditData.CreditLines.end(); bEraseOccured ? it : ++it)
@@ -603,25 +602,24 @@ qboolean CG_Credits_Draw( void )
 					static const float fPixelsPerSecond = ((float)SCREEN_HEIGHT / fLINE_SECONDTOSCROLLUP);
 
 					int iYpos = SCREEN_HEIGHT + (CreditLine.iLine * iFontHeight);
-						iYpos-= (int) (fPixelsPerSecond * fSecondsElapsed);
+					iYpos -= (int)(fPixelsPerSecond * fSecondsElapsed);
 
-					int iTextLinesThisItem = max(CreditLine.vstrText.size(),1);
+					int iTextLinesThisItem = max(CreditLine.vstrText.size(), 1);
 					if (iYpos + (iTextLinesThisItem * iFontHeight) < 0)
 					{
 						// scrolled off top of screen, so erase it...
 						//
-						it = CreditData.CreditLines.erase( it );
+						it = CreditData.CreditLines.erase(it);
 						bEraseOccured = true;
 					}
-					else
-					if (iYpos < SCREEN_HEIGHT)
+					else if (iYpos < SCREEN_HEIGHT)
 					{
 						// onscreen, so print it...
 						//
-						bool bIsDotted = !!CreditLine.vstrText.size();	// eg "STUNTS ...................... MR ED"
+						bool bIsDotted = !!CreditLine.vstrText.size(); // eg "STUNTS ...................... MR ED"
 
 						int iWidth = CreditLine.strText.GetPixelLength();
-						int iXpos  = bIsDotted ? 54 : (SCREEN_WIDTH - iWidth)/2;
+						int iXpos = bIsDotted ? 54 : (SCREEN_WIDTH - iWidth) / 2;
 
 						gv4Color[3] = 1.0f;
 
@@ -629,11 +627,11 @@ qboolean CG_Credits_Draw( void )
 
 						// now print any dotted members...
 						//
-						for (int i=0; i<CreditLine.vstrText.size(); i++)
+						for (int i = 0; i < CreditLine.vstrText.size(); i++)
 						{
 							StringAndSize_t &StringAndSize = CreditLine.vstrText[i];
 							iWidth = StringAndSize.GetPixelLength();
-							iXpos  = (SCREEN_WIDTH-4 - iWidth) - 50;
+							iXpos = (SCREEN_WIDTH - 4 - iWidth) - 50;
 							cgi_R_Font_DrawString(iXpos, iYpos, StringAndSize.c_str(), gv4Color, ghFontHandle, -1, gfFontScale);
 							iYpos += iFontHeight;
 						}
@@ -648,7 +646,4 @@ qboolean CG_Credits_Draw( void )
 	return qfalse;
 }
 
-
-
 ////////////////////// eof /////////////////////
-

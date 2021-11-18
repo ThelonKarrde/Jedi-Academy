@@ -4,7 +4,6 @@
 #ifndef CLIPBOARD_H
 #define CLIPBOARD_H
 
-
 BOOL Clipboard_SendString(LPCSTR psString);
 BOOL ClipBoard_SendDIB(LPVOID pvData, int iBytes);
 
@@ -17,4 +16,3 @@ void BMP_Free(void);
 #endif
 
 /////////////////// eof //////////////////
-

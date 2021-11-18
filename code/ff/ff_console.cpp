@@ -17,8 +17,6 @@
 #include "../namespace_end.h"
 #endif
 
-
-
 void FF_StopAll(void)
 {
 	Com_Printf("FF_StopAll: Please implement.\n");
@@ -27,24 +25,24 @@ void FF_StopAll(void)
 
 void FF_Stop(ffFX_e effect)
 {
-	Com_Printf("FF_Stop: Please implement fffx_id = %i\n",effect);
+	Com_Printf("FF_Stop: Please implement fffx_id = %i\n", effect);
 	// Do nothing
 }
 
 void FF_EnsurePlaying(ffFX_e effect)
 {
-	Com_Printf("FF_EnsurePlaying: Please implement fffx_id = %i\n",effect);
+	Com_Printf("FF_EnsurePlaying: Please implement fffx_id = %i\n", effect);
 	// Do nothing
 }
 
 void FF_Play(ffFX_e effect)
 {
-	int s;	// script id
+	int s;								   // script id
 	static int const_rumble[2] = {-1, -1}; // script id for constant rumble
 	int client;
 
 	// super huge switch for rumble effects
-	switch(effect)
+	switch (effect)
 	{
 	case fffx_AircraftCarrierTakeOff:
 	case fffx_BasketballDribble:
@@ -83,7 +81,7 @@ void FF_Play(ffFX_e effect)
 	case fffx_RocketLaunch:
 
 	case fffx_SecretDoor:
-	case fffx_SwitchClick:	// used by saber
+	case fffx_SwitchClick: // used by saber
 		s = IN_CreateRumbleScript(IN_GetMainController(), 1, true);
 		if (s != -1)
 		{
@@ -153,7 +151,7 @@ void FF_Play(ffFX_e effect)
 		s = IN_CreateRumbleScript(IN_GetMainController(), 1, true);
 		if (s != -1)
 		{
-			IN_AddRumbleState(s, 25000,10000, 230);
+			IN_AddRumbleState(s, 25000, 10000, 230);
 			IN_ExecuteRumbleScript(s);
 		}
 		break;
@@ -161,18 +159,18 @@ void FF_Play(ffFX_e effect)
 		s = IN_CreateRumbleScript(IN_GetMainController(), 1, true);
 		if (s != -1)
 		{
-			IN_AddRumbleState(s, 32000,10000, 230);
+			IN_AddRumbleState(s, 32000, 10000, 230);
 			IN_ExecuteRumbleScript(s);
 		}
 		break;
 	case fffx_StartConst:
 		client = 0;
-		if(const_rumble[client] == -1)
+		if (const_rumble[client] == -1)
 		{
 			const_rumble[client] = IN_CreateRumbleScript(IN_GetMainController(), 4, true);
 			if (const_rumble[client] != -1)
 			{
-				IN_AddEffectFade4(const_rumble[client], 0,0, 50000, 50000, 1000);
+				IN_AddEffectFade4(const_rumble[client], 0, 0, 50000, 50000, 1000);
 				//IN_AddRumbleState(const_rumble[client], 40000, 40000, 300);
 				//IN_AddEffectFade4(const_rumble[client], 50000,50000, 0, 0, 1000);
 				IN_ExecuteRumbleScript(const_rumble[client]);
@@ -187,7 +185,7 @@ void FF_Play(ffFX_e effect)
 		const_rumble[client] = -1;
 		break;
 	default:
-		Com_Printf("No rumble script is defined for fffx_id = %i\n",effect);
+		Com_Printf("No rumble script is defined for fffx_id = %i\n", effect);
 		break;
 	}
 }
@@ -198,23 +196,23 @@ FF_XboxShake
 intensity	- speed of rumble
 duration	- length of rumble
 *********/
-#define	FF_SH_MIN_MOTOR_SPEED		25000
-#define	FF_SH_MOTOR_SPEED_MODIFIER	(65535 - FF_SH_MIN_MOTOR_SPEED)
+#define FF_SH_MIN_MOTOR_SPEED 25000
+#define FF_SH_MOTOR_SPEED_MODIFIER (65535 - FF_SH_MIN_MOTOR_SPEED)
 void FF_XboxShake(float intensity, int duration)
 {
 
-		int s;
-		s = IN_CreateRumbleScript(IN_GetMainController(), 1, true);
-		if (s != -1)
-		{
-			int speed;
-			// figure out the speed
-			speed = (FF_SH_MIN_MOTOR_SPEED) + (FF_SH_MOTOR_SPEED_MODIFIER * intensity);
+	int s;
+	s = IN_CreateRumbleScript(IN_GetMainController(), 1, true);
+	if (s != -1)
+	{
+		int speed;
+		// figure out the speed
+		speed = (FF_SH_MIN_MOTOR_SPEED) + (FF_SH_MOTOR_SPEED_MODIFIER * intensity);
 
-			// Add the state and execute
-			IN_AddRumbleState(s, speed, speed, duration);
-			IN_ExecuteRumbleScript(s);
-		}
+		// Add the state and execute
+		IN_AddRumbleState(s, speed, speed, duration);
+		IN_ExecuteRumbleScript(s);
+	}
 }
 
 /*********
@@ -226,8 +224,8 @@ xpos	- x position for the damage ( -1.0 - 1.0 )
 The following function various the rumble based upon
 the amount of damage and the position of the damage.
 *********/
-#define FF_DA_MIN_MOTOR_SPEED		20000	// use this to vary the minimum intensity
-#define FF_DA_MOTOR_SPEED_MODIFIER	(65535 - FF_DA_MIN_MOTOR_SPEED)
+#define FF_DA_MIN_MOTOR_SPEED 20000 // use this to vary the minimum intensity
+#define FF_DA_MOTOR_SPEED_MODIFIER (65535 - FF_DA_MIN_MOTOR_SPEED)
 void FF_XboxDamage(int damage, float xpos)
 {
 	int s;
@@ -242,46 +240,46 @@ void FF_XboxDamage(int damage, float xpos)
 		duration = 175;
 
 		// how much damage?
-		if(damage > 100)
+		if (damage > 100)
 		{
 			per = 1.0;
 		}
 		else
 		{
-			per = damage/100;
+			per = damage / 100;
 		}
-		
-		if(xpos >= -0.2 && xpos <= 0.2)	// damge to center
+
+		if (xpos >= -0.2 && xpos <= 0.2) // damge to center
 		{
-			leftMotorSpeed = rightMotorSpeed = (FF_DA_MIN_MOTOR_SPEED)+(FF_DA_MOTOR_SPEED_MODIFIER * per);
+			leftMotorSpeed = rightMotorSpeed = (FF_DA_MIN_MOTOR_SPEED) + (FF_DA_MOTOR_SPEED_MODIFIER * per);
 		}
-		else if(xpos > 0.2)	// damage to right
+		else if (xpos > 0.2) // damage to right
 		{
-			rightMotorSpeed = (FF_DA_MIN_MOTOR_SPEED)+(FF_DA_MOTOR_SPEED_MODIFIER * per);
+			rightMotorSpeed = (FF_DA_MIN_MOTOR_SPEED) + (FF_DA_MOTOR_SPEED_MODIFIER * per);
 			leftMotorSpeed = 0;
 		}
-		else	// damage to left
+		else // damage to left
 		{
-			leftMotorSpeed = (FF_DA_MIN_MOTOR_SPEED)+(FF_DA_MOTOR_SPEED_MODIFIER * per);;
+			leftMotorSpeed = (FF_DA_MIN_MOTOR_SPEED) + (FF_DA_MOTOR_SPEED_MODIFIER * per);
+			;
 			rightMotorSpeed = 0;
 		}
-		
+
 		// Add the state and execute
 		IN_AddRumbleState(s, leftMotorSpeed, rightMotorSpeed, duration);
 		IN_ExecuteRumbleScript(s);
 	}
 }
 
-void FF_XboxSaberRumble( void )
+void FF_XboxSaberRumble(void)
 {
-	
-		int s;
-		s = IN_CreateRumbleScript(IN_GetMainController(), 1, true);
-		if (s != -1)
-		{
-			// Add the state and execute
-			IN_AddRumbleState(s, 55000, 55000, 100);
-			IN_ExecuteRumbleScript(s);
-		}
-}
 
+	int s;
+	s = IN_CreateRumbleScript(IN_GetMainController(), 1, true);
+	if (s != -1)
+	{
+		// Add the state and execute
+		IN_AddRumbleState(s, 55000, 55000, 100);
+		IN_ExecuteRumbleScript(s);
+	}
+}

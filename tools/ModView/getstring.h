@@ -12,30 +12,31 @@
 
 class CGetString : public CDialog
 {
-// Construction
+	// Construction
 public:
-	CGetString(LPCSTR pPrompt, CString *pFeedback, LPCSTR psDefault = NULL, CWnd* pParent = NULL);
+	CGetString(LPCSTR pPrompt, CString *pFeedback, LPCSTR psDefault = NULL, CWnd *pParent = NULL);
 
-// Dialog Data
+	// Dialog Data
 	//{{AFX_DATA(CGetString)
-	enum { IDD = IDD_DIALOG_GETSTRING };
-	CString	m_strEditBox;
+	enum
+	{
+		IDD = IDD_DIALOG_GETSTRING
+	};
+	CString m_strEditBox;
 	//}}AFX_DATA
 
-
-// Overrides
+	// Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CGetString)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
-
-// Implementation
 protected:
+	virtual void DoDataExchange(CDataExchange *pDX); // DDX/DDV support
+													 //}}AFX_VIRTUAL
 
+	// Implementation
+protected:
 	CString *m_pFeedback;
-	LPCSTR	 m_pPrompt;
-	LPCSTR	 m_pDefault;
+	LPCSTR m_pPrompt;
+	LPCSTR m_pDefault;
 
 	// Generated message map functions
 	//{{AFX_MSG(CGetString)

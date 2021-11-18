@@ -9,13 +9,13 @@
 
 #pragma optimize("", off)
 
-void R_LoadDataImage	( const char *name, byte **pic, int *width, int *height);
-void R_InvertImage		( byte *data, int width, int height, int depth);
-void R_Resample			( byte *source, int swidth, int sheight, byte *dest, int dwidth, int dheight, int components);
-void RE_GetModelBounds	(refEntity_t *refEnt, vec3_t bounds1, vec3_t bounds2);
+void R_LoadDataImage(const char *name, byte **pic, int *width, int *height);
+void R_InvertImage(byte *data, int width, int height, int depth);
+void R_Resample(byte *source, int swidth, int sheight, byte *dest, int dwidth, int dheight, int components);
+void RE_GetModelBounds(refEntity_t *refEnt, vec3_t bounds1, vec3_t bounds2);
 
-static CRMLandScape		*rm_landscape;
-static CCMLandScape		*origin_land;
+static CRMLandScape *rm_landscape;
+static CCMLandScape *origin_land;
 
 CRMLandScape::CRMLandScape(void)
 {
@@ -25,7 +25,7 @@ CRMLandScape::CRMLandScape(void)
 
 CRMLandScape::~CRMLandScape(void)
 {
-	if(mDensityMap)
+	if (mDensityMap)
 	{
 		Z_Free(mDensityMap);
 		mDensityMap = NULL;
@@ -34,7 +34,7 @@ CRMLandScape::~CRMLandScape(void)
 
 void CCGHeightDetails::AddModel(const CRandomModel *hd)
 {
-	if(mNumModels < MAX_RANDOM_MODELS)
+	if (mNumModels < MAX_RANDOM_MODELS)
 	{
 		mTotalFrequency += hd->GetFrequency();
 		mModels[mNumModels++] = *hd;
@@ -43,14 +43,14 @@ void CCGHeightDetails::AddModel(const CRandomModel *hd)
 
 void CRMLandScape::AddModel(const int height, int maxheight, const CRandomModel *hd)
 {
-	int		i;
+	int i;
 
-	if(maxheight > HEIGHT_RESOLUTION)
+	if (maxheight > HEIGHT_RESOLUTION)
 	{
 		maxheight = HEIGHT_RESOLUTION;
 	}
 
-	for(i = height; hd->GetModel() && (i < maxheight); i++)
+	for (i = height; hd->GetModel() && (i < maxheight); i++)
 	{
 		mHeightDetails[i].AddModel(hd);
 	}
@@ -58,18 +58,18 @@ void CRMLandScape::AddModel(const int height, int maxheight, const CRandomModel 
 
 void CRMLandScape::LoadMiscentDef(const char *td)
 {
-	char				miscentDef[MAX_QPATH];
-	CGenericParser2		parse;
-	CGPGroup			*basegroup, *classes, *items, *model;
-	CGPValue			*pair;
+	char miscentDef[MAX_QPATH];
+	CGenericParser2 parse;
+	CGPGroup *basegroup, *classes, *items, *model;
+	CGPValue *pair;
 
 	Com_sprintf(miscentDef, MAX_QPATH, "ext_data/RMG/%s.miscents", Info_ValueForKey(td, "miscentDef"));
 	Com_DPrintf("CG_Terrain: Loading and parsing miscentDef %s.....\n", Info_ValueForKey(td, "miscentDef"));
 
-	if(!Com_ParseTextFile(miscentDef, parse))
+	if (!Com_ParseTextFile(miscentDef, parse))
 	{
 		Com_sprintf(miscentDef, MAX_QPATH, "ext_data/arioche/%s.miscents", Info_ValueForKey(td, "miscentDef"));
-		if(!Com_ParseTextFile(miscentDef, parse))
+		if (!Com_ParseTextFile(miscentDef, parse))
 		{
 			Com_Printf("Could not open %s\n", miscentDef);
 			return;
@@ -80,25 +80,25 @@ void CRMLandScape::LoadMiscentDef(const char *td)
 
 	// The root { } struct
 	classes = basegroup->GetSubGroups();
-	while(classes)
+	while (classes)
 	{
 		items = classes->GetSubGroups();
-		while(items)
+		while (items)
 		{
-			if(!stricmp(items->GetName(), "miscent"))
+			if (!stricmp(items->GetName(), "miscent"))
 			{
-				int			height, maxheight;
+				int height, maxheight;
 
 				// Height must exist - the rest are optional
 				height = atol(items->FindPairValue("height", "0"));
 				maxheight = atol(items->FindPairValue("maxheight", "255"));
 
 				model = items->GetSubGroups();
-				while(model)
+				while (model)
 				{
-					if(!stricmp(model->GetName(), "model"))
+					if (!stricmp(model->GetName(), "model"))
 					{
-						CRandomModel	hd;
+						CRandomModel hd;
 
 						// Set defaults
 						hd.SetModel("");
@@ -107,21 +107,21 @@ void CRMLandScape::LoadMiscentDef(const char *td)
 						hd.SetMaxScale(1.0f);
 
 						pair = model->GetPairs();
-						while(pair)
+						while (pair)
 						{
-							if(!stricmp(pair->GetName(), "name"))
+							if (!stricmp(pair->GetName(), "name"))
 							{
 								hd.SetModel(pair->GetTopValue());
 							}
-							else if(!stricmp(pair->GetName(), "frequency"))
+							else if (!stricmp(pair->GetName(), "frequency"))
 							{
 								hd.SetFrequency((float)atof(pair->GetTopValue()));
 							}
-							else if(!stricmp(pair->GetName(), "minscale"))
+							else if (!stricmp(pair->GetName(), "minscale"))
 							{
 								hd.SetMinScale((float)atof(pair->GetTopValue()));
 							}
-							else if(!stricmp(pair->GetName(), "maxscale"))
+							else if (!stricmp(pair->GetName(), "maxscale"))
 							{
 								hd.SetMaxScale((float)atof(pair->GetTopValue()));
 							}
@@ -129,7 +129,7 @@ void CRMLandScape::LoadMiscentDef(const char *td)
 						}
 						AddModel(height, maxheight, &hd);
 					}
- 					model = (CGPGroup *)model->GetNext();
+					model = (CGPGroup *)model->GetNext();
 				}
 			}
 			items = (CGPGroup *)items->GetNext();
@@ -141,7 +141,7 @@ void CRMLandScape::LoadMiscentDef(const char *td)
 
 void CG_Decrease(byte *work, float lerp, int *info)
 {
-	int		val;
+	int val;
 
 	val = *work - origin_land->irand(2, 5);
 	*work = (byte)Com_Clamp(1, 255, val);
@@ -149,23 +149,23 @@ void CG_Decrease(byte *work, float lerp, int *info)
 
 void CRMLandScape::CreateRandomDensityMap(byte *density, int width, int height, int seed)
 {
-//	int			i, border, inc;
-	int			x, y, count;
-//	byte		*work, *work2;
-	CArea		*area;
-	vec3_t		derxelSize, pos;
-	ivec3_t		dmappos;
-	byte		*hm_map = common->GetHeightMap();
-	int			hm_width = common->GetRealWidth();
-	int			hm_height = common->GetRealHeight();
-	int			xpos, ypos, dx, dy;
-	byte		*densityPos = density;
-	bool		foundUneven;
+	//	int			i, border, inc;
+	int x, y, count;
+	//	byte		*work, *work2;
+	CArea *area;
+	vec3_t derxelSize, pos;
+	ivec3_t dmappos;
+	byte *hm_map = common->GetHeightMap();
+	int hm_width = common->GetRealWidth();
+	int hm_height = common->GetRealHeight();
+	int xpos, ypos, dx, dy;
+	byte *densityPos = density;
+	bool foundUneven;
 
 	// Init to linear spread
 	memset(density, 0, width * height);
 
-/*	// Make more prevalent towards the edges
+	/*	// Make more prevalent towards the edges
 	border = Com_Clamp(6, 12, (width + height) >> 4);
 
 	for(i = 0; i < border; i++)
@@ -198,31 +198,31 @@ void CRMLandScape::CreateRandomDensityMap(byte *density, int width, int height, 
 */
 	count = 0;
 
-	for(y=0;y<height;y++)
+	for (y = 0; y < height; y++)
 	{
-		for(x=0;x<width;x++,densityPos++)
+		for (x = 0; x < width; x++, densityPos++)
 		{
 			xpos = (x * hm_width / width);
 			ypos = (y * hm_height / height);
 			ypos = hm_height - ypos - 1;
 
-			if (hm_map[ypos*hm_width + xpos] < 150)
+			if (hm_map[ypos * hm_width + xpos] < 150)
 			{
 				continue;
 			}
 
 			foundUneven = false;
-			for(dx=-4;(dx<=4 && !foundUneven);dx++)
+			for (dx = -4; (dx <= 4 && !foundUneven); dx++)
 			{
-				for(dy=-4;(dy<=4 && !foundUneven);dy++)
+				for (dy = -4; (dy <= 4 && !foundUneven); dy++)
 				{
 					if (dx == 0 && dy == 0)
 					{
 						continue;
 					}
-					if ((xpos+dx) >= 0 && (xpos+dx) < hm_width && (ypos+dy) >= 0 && (ypos+dy) < hm_height)
+					if ((xpos + dx) >= 0 && (xpos + dx) < hm_width && (ypos + dy) >= 0 && (ypos + dy) < hm_height)
 					{
-						if (hm_map[(ypos+dy)*hm_width + (xpos+dx)] < 190)
+						if (hm_map[(ypos + dy) * hm_width + (xpos + dx)] < 190)
 						{
 							*densityPos = 205;
 							count++;
@@ -234,7 +234,7 @@ void CRMLandScape::CreateRandomDensityMap(byte *density, int width, int height, 
 		}
 	}
 
-/*	FILE	*FH;
+	/*	FILE	*FH;
 
 	FH = fopen("c:\o.raw", "wb");
 	fwrite(hm_map, 1, common->GetRealWidth() * common->GetRealHeight(), FH);
@@ -249,10 +249,10 @@ void CRMLandScape::CreateRandomDensityMap(byte *density, int width, int height, 
 
 	origin_land = common;
 	area = common->GetFirstArea();
-	while(area)
+	while (area)
 	{
 		// Skip group types since they encompass to much open area
-		if ( area->GetType ( ) == AT_GROUP )
+		if (area->GetType() == AT_GROUP)
 		{
 			area = common->GetNextArea();
 			continue;
@@ -265,7 +265,7 @@ void CRMLandScape::CreateRandomDensityMap(byte *density, int width, int height, 
 
 		count = ceilf(area->GetRadius() / derxelSize[1]);
 
-		while(count > 0)
+		while (count > 0)
 		{
 			CM_CircularIterate(density, width, height, dmappos[0], dmappos[1], 0, count, NULL, CG_Decrease);
 			count--;
@@ -276,10 +276,10 @@ void CRMLandScape::CreateRandomDensityMap(byte *density, int width, int height, 
 
 void CRMLandScape::LoadDensityMap(const char *td)
 {
-	char		densityMap[MAX_QPATH];
-	byte		*imageData;
-	int			iWidth, iHeight, seed;
-	char 		*ptr;
+	char densityMap[MAX_QPATH];
+	byte *imageData;
+	int iWidth, iHeight, seed;
+	char *ptr;
 
 	// Fill in with default values
 	mDensityMap = (byte *)Z_Malloc(common->GetBlockCount(), TAG_R_TERRAIN, qfalse);
@@ -287,15 +287,15 @@ void CRMLandScape::LoadDensityMap(const char *td)
 
 	// Load in density map (if any)
 	Com_sprintf(densityMap, MAX_QPATH, "%s", Info_ValueForKey(td, "densityMap"));
-	if(strlen(densityMap))
+	if (strlen(densityMap))
 	{
 		Com_DPrintf("CG_Terrain: Loading density map %s.....\n", densityMap);
 		R_LoadDataImage(densityMap, &imageData, &iWidth, &iHeight);
-		if(imageData)
+		if (imageData)
 		{
-			if(strstr(densityMap, "density_"))
+			if (strstr(densityMap, "density_"))
 			{
-				seed = strtoul(Info_ValueForKey(td, "seed"),&ptr,10);
+				seed = strtoul(Info_ValueForKey(td, "seed"), &ptr, 10);
 				CreateRandomDensityMap(imageData, iWidth, iHeight, seed);
 			}
 			R_Resample(imageData, iWidth, iHeight, mDensityMap, common->GetBlockWidth(), common->GetBlockHeight(), 1);
@@ -307,34 +307,34 @@ void CRMLandScape::LoadDensityMap(const char *td)
 
 CRandomModel *CCGHeightDetails::GetRandomModel(CCMLandScape *land)
 {
-	int		seek, i;
+	int seek, i;
 
 	seek = land->irand(0, mTotalFrequency);
-	for(i = 0; i < mNumModels; i++)
+	for (i = 0; i < mNumModels; i++)
 	{
 		seek -= mModels[i].GetFrequency();
-		if(seek <= 0)
+		if (seek <= 0)
 		{
-			return(mModels + i);
+			return (mModels + i);
 		}
 	}
 	assert(0);
-	return(NULL);
+	return (NULL);
 }
 #ifndef DEDICATED
 void CRMLandScape::Sprinkle(CCMPatch *patch, CCGHeightDetails *hd, int level)
 {
-	int				i, count, px, py;
-	float			density;
-	vec3_t			origin, scale, angles, bounds[2];
-	refEntity_t		refEnt;
-	CRandomModel	*rm;
-	CArea			area;
-//	int				areaTypes[] = { AT_BSP, AT_OBJECTIVE };
-//	TCGMiscEnt		*data = (TCGMiscEnt *)cl.mSharedMemory;
-//	TCGTrace		*td = (TCGTrace *)cl.mSharedMemory;
+	int i, count, px, py;
+	float density;
+	vec3_t origin, scale, angles, bounds[2];
+	refEntity_t refEnt;
+	CRandomModel *rm;
+	CArea area;
+	//	int				areaTypes[] = { AT_BSP, AT_OBJECTIVE };
+	//	TCGMiscEnt		*data = (TCGMiscEnt *)cl.mSharedMemory;
+	//	TCGTrace		*td = (TCGTrace *)cl.mSharedMemory;
 
-//	memset(&refEnt, 0, sizeof(refEntity_t));
+	//	memset(&refEnt, 0, sizeof(refEntity_t));
 
 	px = patch->GetHeightMapX() / common->GetTerxels();
 	py = patch->GetHeightMapY() / common->GetTerxels();
@@ -343,13 +343,13 @@ void CRMLandScape::Sprinkle(CCMPatch *patch, CCGHeightDetails *hd, int level)
 	// ..and multiply that into the count
 	count = Round(common->GetPatchScalarSize() * hd->GetAverageFrequency() * powf(2.0f, density) * 0.001);
 
-	for(i = 0; i < count; i++)
+	for (i = 0; i < count; i++)
 	{
-		if(!common->irand(0, 10))
+		if (!common->irand(0, 10))
 		{
 			vec3_t temp;
 			trace_t tr;
-			float  average;
+			float average;
 
 			rm = hd->GetRandomModel(common);
 
@@ -359,21 +359,21 @@ void CRMLandScape::Sprinkle(CCMPatch *patch, CCGHeightDetails *hd, int level)
 
 			// Calculate the scale using some magic to help ensure that the
 			// scales are never too different from eachother.  Otherwise you
-			// could get an entity that is really small on one axis but huge 
+			// could get an entity that is really small on one axis but huge
 			// on another.
 			temp[0] = common->flrand(rm->GetMinScale(), rm->GetMaxScale());
 			temp[1] = common->flrand(rm->GetMinScale(), rm->GetMaxScale());
 			temp[2] = common->flrand(rm->GetMinScale(), rm->GetMaxScale());
 
 			// Average of the three random numbers and divide that by two
-			average = ( ( temp[0] + temp[1] + temp[2] ) / 3) / 2;
+			average = ((temp[0] + temp[1] + temp[2]) / 3) / 2;
 
 			// Add in half of the other two numbers and then subtract half the average to prevent.
 			// any number from going beyond the range. If all three numbers were the same then
 			// they would remain unchanged after this calculation.
-			scale[0] = temp[0] + (temp[1]+temp[2]) / 2 - average;
-			scale[1] = temp[1] + (temp[0]+temp[2]) / 2 - average;
-			scale[2] = temp[2] + (temp[0]+temp[1]) / 2 - average;
+			scale[0] = temp[0] + (temp[1] + temp[2]) / 2 - average;
+			scale[1] = temp[1] + (temp[0] + temp[2]) / 2 - average;
+			scale[2] = temp[2] + (temp[0] + temp[1]) / 2 - average;
 
 			angles[0] = 0.0f;
 			angles[1] = common->flrand((float)-M_PI, (float)M_PI);
@@ -386,10 +386,10 @@ void CRMLandScape::Sprinkle(CCMPatch *patch, CCGHeightDetails *hd, int level)
 			float slope = common->GetWorldHeight(origin, bounds, true);
 
 			if (slope > 1.33)
-			{	// spot has too steep of a slope
+			{ // spot has too steep of a slope
 				continue;
 			}
-			if(origin[2] < common->GetWaterHeight())
+			if (origin[2] < common->GetWaterHeight())
 			{
 				continue;
 			}
@@ -400,17 +400,17 @@ void CRMLandScape::Sprinkle(CCMPatch *patch, CCGHeightDetails *hd, int level)
 			}
 
 			// Hack-ariffic, don't allow them to drop below the big player clip brush.
-			if (origin[2] < 1280 )
+			if (origin[2] < 1280)
 			{
 				continue;
 			}
-			// FIXME: shouldn't be using a hard-coded 1280 number, only allow to spawn if inside player clip brush? 
-	//		if( !(CONTENTS_PLAYERCLIP & VM_Call( cgvm, CG_POINT_CONTENTS )) )
-	//		{
-	//			continue;
-	//		}
+			// FIXME: shouldn't be using a hard-coded 1280 number, only allow to spawn if inside player clip brush?
+			//		if( !(CONTENTS_PLAYERCLIP & VM_Call( cgvm, CG_POINT_CONTENTS )) )
+			//		{
+			//			continue;
+			//		}
 			// Simple radius check for buildings
-/*			area.Init(origin, VectorLength(bounds[0]));
+			/*			area.Init(origin, VectorLength(bounds[0]));
 			if(common->AreaCollision(&area, areaTypes, sizeof(areaTypes) / sizeof(int)))
 			{
 				continue;
@@ -426,7 +426,7 @@ void CRMLandScape::Sprinkle(CCMPatch *patch, CCGHeightDetails *hd, int level)
 			td->mSkipNumber = -1;
 			td->mMask = MASK_PLAYERSOLID;
 			*/
-			SV_Trace(&tr, origin, bounds[0], bounds[1], origin, -1, (CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY|CONTENTS_TERRAIN));
+			SV_Trace(&tr, origin, bounds[0], bounds[1], origin, -1, (CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_BODY | CONTENTS_TERRAIN));
 
 			/*
 			VM_Call( cgvm, CG_TRACE );
@@ -445,7 +445,7 @@ void CRMLandScape::Sprinkle(CCMPatch *patch, CCGHeightDetails *hd, int level)
 			}
 			if (tr.startsolid)
 			{
-//				continue;
+				//				continue;
 			}
 
 			// Get minimum height of area
@@ -453,7 +453,7 @@ void CRMLandScape::Sprinkle(CCMPatch *patch, CCGHeightDetails *hd, int level)
 			// Account for relative origin
 			origin[2] -= bounds[0][2] * scale[2];
 			origin[2] -= common->flrand(2.0, (bounds[1][2] - bounds[0][2]) / 4);
-			
+
 			//rwwFIXMEFIXME: Do this properly
 			// Spawn the client model
 			/*
@@ -472,15 +472,15 @@ void CRMLandScape::Sprinkle(CCMPatch *patch, CCGHeightDetails *hd, int level)
 
 void CRMLandScape::SpawnPatchModels(CCMPatch *patch)
 {
-	int					i;
-	CCGHeightDetails	*hd;
+	int i;
+	CCGHeightDetails *hd;
 
 //	Rand_Init(10);
 #ifndef DEDICATED
-	for(i = 0; i < 4; i++)
+	for (i = 0; i < 4; i++)
 	{
 		hd = mHeightDetails + patch->GetHeight(i);
-		if(hd->GetNumModels())
+		if (hd->GetNumModels())
 		{
 			Sprinkle(patch, hd, patch->GetHeight(i));
 		}
@@ -496,7 +496,7 @@ void SpawnPatchModelsWrapper(CCMPatch *patch, void *userdata)
 
 void RM_CreateRandomModels(int terrainId, const char *terrainInfo)
 {
-	CRMLandScape	*landscape;
+	CRMLandScape *landscape;
 
 	landscape = rm_landscape = new CRMLandScape;
 	landscape->SetCommon(cmg.landScape);
@@ -517,12 +517,12 @@ void RM_InitTerrain(void)
 
 void RM_ShutdownTerrain(void)
 {
-	CRMLandScape 	*landscape;
+	CRMLandScape *landscape;
 
 	landscape = rm_landscape;
-	if(landscape)
+	if (landscape)
 	{
-//			CM_ShutdownTerrain(i);
+		//			CM_ShutdownTerrain(i);
 		delete landscape;
 		rm_landscape = NULL;
 	}

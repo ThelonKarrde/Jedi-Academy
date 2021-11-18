@@ -8,8 +8,8 @@
 #include <assert.h>
 
 #ifdef _TIMING
-int		totalInflateTime;
-int		totalInflateCount;
+int totalInflateTime;
+int totalInflateCount;
 #endif
 
 // If you use the zlib library in a product, an acknowledgment is welcome
@@ -74,7 +74,7 @@ static const char *inflate_error = "OK";
 //
 //    inflate() returns Z_OK if some progress has been made (more input processed
 //  or more output produced), Z_STREAM_END if the end of the compressed data has
-//  been reached and all uncompressed output has been produced, 
+//  been reached and all uncompressed output has been produced,
 //  Z_DATA_ERROR if the input data was
 //  corrupted (input stream not conforming to the zlib format or incorrect
 //  adler32 checksum), Z_STREAM_ERROR if the stream structure was inconsistent
@@ -145,198 +145,57 @@ static const char *inflate_error = "OK";
 //      the two sets of lengths.
 
 // And'ing with mask[n] masks the lower n bits
-static const ulong inflate_mask[17] = 
-{
-    0x0000,
-    0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,
-    0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff
-};
+static const ulong inflate_mask[17] =
+	{
+		0x0000,
+		0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,
+		0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff};
 
 // Order of the bit length code lengths
-static const ulong border[] = 
-{ 
-	16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15
-};
+static const ulong border[] =
+	{
+		16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
 
 // Copy lengths for literal codes 257..285 (see note #13 above about 258)
-static const ulong cplens[31] = 
-{ 
-	3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31,
-	35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0
-};
+static const ulong cplens[31] =
+	{
+		3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31,
+		35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0};
 
 // Extra bits for literal codes 257..285 (112 == invalid)
-static const ulong cplext[31] = 
-{ 
-	0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2,
-	3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 112, 112
-}; 
+static const ulong cplext[31] =
+	{
+		0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2,
+		3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 112, 112};
 
 // Copy offsets for distance codes 0..29
-static const ulong cpdist[30] = 
-{ 
-	1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193,
-	257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145,
-	8193, 12289, 16385, 24577
-};
+static const ulong cpdist[30] =
+	{
+		1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193,
+		257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145,
+		8193, 12289, 16385, 24577};
 
 static ulong fixed_bl = 9;
 static ulong fixed_bd = 5;
 
-static inflate_huft_t fixed_tl[] = 
-{
-    { 96, 7, 256 }, { 0, 8, 80  }, { 0, 8, 16 }, { 84,  8, 115 },
-    { 82, 7, 31  }, { 0, 8, 112 }, { 0, 8, 48 }, { 0,   9, 192 },
-    { 80, 7, 10  }, { 0, 8, 96  }, { 0, 8, 32 }, { 0,   9, 160 },
-    { 0,  8, 0   }, { 0, 8, 128 }, { 0, 8, 64 }, { 0,   9, 224 },
-    { 80, 7, 6   }, { 0, 8, 88  }, { 0, 8, 24 }, { 0,   9, 144 },
-    { 83, 7, 59  }, { 0, 8, 120 }, { 0, 8, 56 }, { 0,   9, 208 },
-    { 81, 7, 17  }, { 0, 8, 104 }, { 0, 8, 40 }, { 0,   9, 176 },
-    { 0,  8, 8   }, { 0, 8, 136 }, { 0, 8, 72 }, { 0,   9, 240 },
-    { 80, 7, 4   }, { 0, 8, 84  }, { 0, 8, 20 }, { 85,  8, 227 },
-    { 83, 7, 43  }, { 0, 8, 116 }, { 0, 8, 52 }, { 0,   9, 200 },
-    { 81, 7, 13  }, { 0, 8, 100 }, { 0, 8, 36 }, { 0,   9, 168 },
-    { 0,  8, 4   }, { 0, 8, 132 }, { 0, 8, 68 }, { 0,   9, 232 },
-    { 80, 7, 8   }, { 0, 8, 92  }, { 0, 8, 28 }, { 0,   9, 152 },
-    { 84, 7, 83  }, { 0, 8, 124 }, { 0, 8, 60 }, { 0,   9, 216 },
-    { 82, 7, 23  }, { 0, 8, 108 }, { 0, 8, 44 }, { 0,   9, 184 },
-    { 0,  8, 12  }, { 0, 8, 140 }, { 0, 8, 76 }, { 0,   9, 248 },
-    { 80, 7, 3   }, { 0, 8, 82  }, { 0, 8, 18 }, { 85,  8, 163 },
-    { 83, 7, 35  }, { 0, 8, 114 }, { 0, 8, 50 }, { 0,   9, 196 },
-    { 81, 7, 11  }, { 0, 8, 98  }, { 0, 8, 34 }, { 0,   9, 164 },
-    { 0,  8, 2   }, { 0, 8, 130 }, { 0, 8, 66 }, { 0,   9, 228 },
-    { 80, 7, 7   }, { 0, 8, 90  }, { 0, 8, 26 }, { 0,   9, 148 },
-    { 84, 7, 67  }, { 0, 8, 122 }, { 0, 8, 58 }, { 0,   9, 212 },
-    { 82, 7, 19  }, { 0, 8, 106 }, { 0, 8, 42 }, { 0,   9, 180 },
-    { 0,  8, 10  }, { 0, 8, 138 }, { 0, 8, 74 }, { 0,   9, 244 },
-    { 80, 7, 5   }, { 0, 8, 86  }, { 0, 8, 22 }, { 192, 8, 0   }, 
-    { 83, 7, 51  }, { 0, 8, 118 }, { 0, 8, 54 }, { 0,   9, 204 },
-    { 81, 7, 15  }, { 0, 8, 102 }, { 0, 8, 38 }, { 0,   9, 172 },
-    { 0,  8, 6   }, { 0, 8, 134 }, { 0, 8, 70 }, { 0,   9, 236 },
-    { 80, 7, 9   }, { 0, 8, 94  }, { 0, 8, 30 }, { 0,   9, 156 },
-    { 84, 7, 99  }, { 0, 8, 126 }, { 0, 8, 62 }, { 0,   9, 220 },
-    { 82, 7, 27  }, { 0, 8, 110 }, { 0, 8, 46 }, { 0,   9, 188 },
-    { 0,  8, 14  }, { 0, 8, 142 }, { 0, 8, 78 }, { 0,   9, 252 },
-    { 96, 7, 256 }, { 0, 8, 81  }, { 0, 8, 17 }, { 85,  8, 131 },
-    { 82, 7, 31  }, { 0, 8, 113 }, { 0, 8, 49 }, { 0,   9, 194 },
-    { 80, 7, 10  }, { 0, 8, 97  }, { 0, 8, 33 }, { 0,   9, 162 },
-    { 0,  8, 1   }, { 0, 8, 129 }, { 0, 8, 65 }, { 0,   9, 226 },
-    { 80, 7, 6   }, { 0, 8, 89  }, { 0, 8, 25 }, { 0,   9, 146 },
-    { 83, 7, 59  }, { 0, 8, 121 }, { 0, 8, 57 }, { 0,   9, 210 },
-    { 81, 7, 17  }, { 0, 8, 105 }, { 0, 8, 41 }, { 0,   9, 178 },
-    { 0,  8, 9   }, { 0, 8, 137 }, { 0, 8, 73 }, { 0,   9, 242 },
-    { 80, 7, 4   }, { 0, 8, 85  }, { 0, 8, 21 }, { 80,  8, 258 },
-    { 83, 7, 43  }, { 0, 8, 117 }, { 0, 8, 53 }, { 0,   9, 202 },
-    { 81, 7, 13  }, { 0, 8, 101 }, { 0, 8, 37 }, { 0,   9, 170 },
-    { 0,  8, 5   }, { 0, 8, 133 }, { 0, 8, 69 }, { 0,   9, 234 },
-    { 80, 7, 8   }, { 0, 8, 93  }, { 0, 8, 29 }, { 0,   9, 154 },
-    { 84, 7, 83  }, { 0, 8, 125 }, { 0, 8, 61 }, { 0,   9, 218 },
-    { 82, 7, 23  }, { 0, 8, 109 }, { 0, 8, 45 }, { 0,   9, 186 },
-    { 0,  8, 13  }, { 0, 8, 141 }, { 0, 8, 77 }, { 0,   9, 250 },
-    { 80, 7, 3   }, { 0, 8, 83  }, { 0, 8, 19 }, { 85,  8, 195 },
-    { 83, 7, 35  }, { 0, 8, 115 }, { 0, 8, 51 }, { 0,   9, 198 },
-    { 81, 7, 11  }, { 0, 8, 99  }, { 0, 8, 35 }, { 0,   9, 166 },
-    { 0,  8, 3   }, { 0, 8, 131 }, { 0, 8, 67 }, { 0,   9, 230 },
-    { 80, 7, 7   }, { 0, 8, 91  }, { 0, 8, 27 }, { 0,   9, 150 },
-    { 84, 7, 67  }, { 0, 8, 123 }, { 0, 8, 59 }, { 0,   9, 214 },
-    { 82, 7, 19  }, { 0, 8, 107 }, { 0, 8, 43 }, { 0,   9, 182 },
-    { 0,  8, 11  }, { 0, 8, 139 }, { 0, 8, 75 }, { 0,   9, 246 },
-    { 80, 7, 5   }, { 0, 8, 87  }, { 0, 8, 23 }, { 192, 8, 0   }, 
-    { 83, 7, 51  }, { 0, 8, 119 }, { 0, 8, 55 }, { 0,   9, 206 },
-    { 81, 7, 15  }, { 0, 8, 103 }, { 0, 8, 39 }, { 0,   9, 174 },
-    { 0,  8, 7   }, { 0, 8, 135 }, { 0, 8, 71 }, { 0,   9, 238 },
-    { 80, 7, 9   }, { 0, 8, 95  }, { 0, 8, 31 }, { 0,   9, 158 },
-    { 84, 7, 99  }, { 0, 8, 127 }, { 0, 8, 63 }, { 0,   9, 222 },
-    { 82, 7, 27  }, { 0, 8, 111 }, { 0, 8, 47 }, { 0,   9, 190 },
-    { 0,  8, 15  }, { 0, 8, 143 }, { 0, 8, 79 }, { 0,   9, 254 },
-    { 96, 7, 256 }, { 0, 8, 80  }, { 0, 8, 16 }, { 84,  8, 115 },
-    { 82, 7, 31  }, { 0, 8, 112 }, { 0, 8, 48 }, { 0,   9, 193 },
-    { 80, 7, 10  }, { 0, 8, 96  }, { 0, 8, 32 }, { 0,   9, 161 },
-    { 0,  8, 0   }, { 0, 8, 128 }, { 0, 8, 64 }, { 0,   9, 225 },
-    { 80, 7, 6   }, { 0, 8, 88  }, { 0, 8, 24 }, { 0,   9, 145 },
-    { 83, 7, 59  }, { 0, 8, 120 }, { 0, 8, 56 }, { 0,   9, 209 },
-    { 81, 7, 17  }, { 0, 8, 104 }, { 0, 8, 40 }, { 0,   9, 177 },
-    { 0,  8, 8   }, { 0, 8, 136 }, { 0, 8, 72 }, { 0,   9, 241 },
-    { 80, 7, 4   }, { 0, 8, 84  }, { 0, 8, 20 }, { 85,  8, 227 },
-    { 83, 7, 43  }, { 0, 8, 116 }, { 0, 8, 52 }, { 0,   9, 201 },
-    { 81, 7, 13  }, { 0, 8, 100 }, { 0, 8, 36 }, { 0,   9, 169 },
-    { 0,  8, 4   }, { 0, 8, 132 }, { 0, 8, 68 }, { 0,   9, 233 },
-    { 80, 7, 8   }, { 0, 8, 92  }, { 0, 8, 28 }, { 0,   9, 153 },
-    { 84, 7, 83  }, { 0, 8, 124 }, { 0, 8, 60 }, { 0,   9, 217 },
-    { 82, 7, 23  }, { 0, 8, 108 }, { 0, 8, 44 }, { 0,   9, 185 },
-    { 0,  8, 12  }, { 0, 8, 140 }, { 0, 8, 76 }, { 0,   9, 249 },
-    { 80, 7, 3   }, { 0, 8, 82  }, { 0, 8, 18 }, { 85,  8, 163 },
-    { 83, 7, 35  }, { 0, 8, 114 }, { 0, 8, 50 }, { 0,   9, 197 },
-    { 81, 7, 11  }, { 0, 8, 98  }, { 0, 8, 34 }, { 0,   9, 165 },
-    { 0,  8, 2   }, { 0, 8, 130 }, { 0, 8, 66 }, { 0,   9, 229 },
-    { 80, 7, 7   }, { 0, 8, 90  }, { 0, 8, 26 }, { 0,   9, 149 },
-    { 84, 7, 67  }, { 0, 8, 122 }, { 0, 8, 58 }, { 0,   9, 213 },
-    { 82, 7, 19  }, { 0, 8, 106 }, { 0, 8, 42 }, { 0,   9, 181 },
-    { 0,  8, 10  }, { 0, 8, 138 }, { 0, 8, 74 }, { 0,   9, 245 },
-    { 80, 7, 5   }, { 0, 8, 86  }, { 0, 8, 22 }, { 192, 8, 0   }, 
-    { 83, 7, 51  }, { 0, 8, 118 }, { 0, 8, 54 }, { 0,   9, 205 },
-    { 81, 7, 15  }, { 0, 8, 102 }, { 0, 8, 38 }, { 0,   9, 173 },
-    { 0,  8, 6   }, { 0, 8, 134 }, { 0, 8, 70 }, { 0,   9, 237 },
-    { 80, 7, 9   }, { 0, 8, 94  }, { 0, 8, 30 }, { 0,   9, 157 },
-    { 84, 7, 99  }, { 0, 8, 126 }, { 0, 8, 62 }, { 0,   9, 221 },
-    { 82, 7, 27  }, { 0, 8, 110 }, { 0, 8, 46 }, { 0,   9, 189 },
-    { 0,  8, 14  }, { 0, 8, 142 }, { 0, 8, 78 }, { 0,   9, 253 },
-    { 96, 7, 256 }, { 0, 8, 81  }, { 0, 8, 17 }, { 85,  8, 131 },
-    { 82, 7, 31  }, { 0, 8, 113 }, { 0, 8, 49 }, { 0,   9, 195 },
-    { 80, 7, 10  }, { 0, 8, 97  }, { 0, 8, 33 }, { 0,   9, 163 },
-    { 0,  8, 1   }, { 0, 8, 129 }, { 0, 8, 65 }, { 0,   9, 227 },
-    { 80, 7, 6   }, { 0, 8, 89  }, { 0, 8, 25 }, { 0,   9, 147 },
-    { 83, 7, 59  }, { 0, 8, 121 }, { 0, 8, 57 }, { 0,   9, 211 },
-    { 81, 7, 17  }, { 0, 8, 105 }, { 0, 8, 41 }, { 0,   9, 179 },
-    { 0,  8, 9   }, { 0, 8, 137 }, { 0, 8, 73 }, { 0,   9, 243 },
-    { 80, 7, 4   }, { 0, 8, 85  }, { 0, 8, 21 }, { 80,  8, 258 },
-    { 83, 7, 43  }, { 0, 8, 117 }, { 0, 8, 53 }, { 0,   9, 203 },
-    { 81, 7, 13  }, { 0, 8, 101 }, { 0, 8, 37 }, { 0,   9, 171 },
-    { 0,  8, 5   }, { 0, 8, 133 }, { 0, 8, 69 }, { 0,   9, 235 },
-    { 80, 7, 8   }, { 0, 8, 93  }, { 0, 8, 29 }, { 0,   9, 155 },
-    { 84, 7, 83  }, { 0, 8, 125 }, { 0, 8, 61 }, { 0,   9, 219 },
-    { 82, 7, 23  }, { 0, 8, 109 }, { 0, 8, 45 }, { 0,   9, 187 },
-    { 0,  8, 13  }, { 0, 8, 141 }, { 0, 8, 77 }, { 0,   9, 251 },
-    { 80, 7, 3   }, { 0, 8, 83  }, { 0, 8, 19 }, { 85,  8, 195 },
-    { 83, 7, 35  }, { 0, 8, 115 }, { 0, 8, 51 }, { 0,   9, 199 },
-    { 81, 7, 11  }, { 0, 8, 99  }, { 0, 8, 35 }, { 0,   9, 167 },
-    { 0,  8, 3   }, { 0, 8, 131 }, { 0, 8, 67 }, { 0,   9, 231 },
-    { 80, 7, 7   }, { 0, 8, 91  }, { 0, 8, 27 }, { 0,   9, 151 },
-    { 84, 7, 67  }, { 0, 8, 123 }, { 0, 8, 59 }, { 0,   9, 215 },
-    { 82, 7, 19  }, { 0, 8, 107 }, { 0, 8, 43 }, { 0,   9, 183 },
-    { 0,  8, 11  }, { 0, 8, 139 }, { 0, 8, 75 }, { 0,   9, 247 },
-    { 80, 7, 5   }, { 0, 8, 87  }, { 0, 8, 23 }, { 192, 8, 0   }, 
-    { 83, 7, 51  }, { 0, 8, 119 }, { 0, 8, 55 }, { 0,   9, 207 },
-    { 81, 7, 15  }, { 0, 8, 103 }, { 0, 8, 39 }, { 0,   9, 175 },
-    { 0,  8, 7   }, { 0, 8, 135 }, { 0, 8, 71 }, { 0,   9, 239 },
-    { 80, 7, 9   }, { 0, 8, 95  }, { 0, 8, 31 }, { 0,   9, 159 },
-    { 84, 7, 99  }, { 0, 8, 127 }, { 0, 8, 63 }, { 0,   9, 223 },
-    { 82, 7, 27  }, { 0, 8, 111 }, { 0, 8, 47 }, { 0,   9, 191 },
-    { 0,  8, 15  }, { 0, 8, 143 }, { 0, 8, 79 }, { 0,   9, 255 }
-};
+static inflate_huft_t fixed_tl[] =
+	{
+		{96, 7, 256}, {0, 8, 80}, {0, 8, 16}, {84, 8, 115}, {82, 7, 31}, {0, 8, 112}, {0, 8, 48}, {0, 9, 192}, {80, 7, 10}, {0, 8, 96}, {0, 8, 32}, {0, 9, 160}, {0, 8, 0}, {0, 8, 128}, {0, 8, 64}, {0, 9, 224}, {80, 7, 6}, {0, 8, 88}, {0, 8, 24}, {0, 9, 144}, {83, 7, 59}, {0, 8, 120}, {0, 8, 56}, {0, 9, 208}, {81, 7, 17}, {0, 8, 104}, {0, 8, 40}, {0, 9, 176}, {0, 8, 8}, {0, 8, 136}, {0, 8, 72}, {0, 9, 240}, {80, 7, 4}, {0, 8, 84}, {0, 8, 20}, {85, 8, 227}, {83, 7, 43}, {0, 8, 116}, {0, 8, 52}, {0, 9, 200}, {81, 7, 13}, {0, 8, 100}, {0, 8, 36}, {0, 9, 168}, {0, 8, 4}, {0, 8, 132}, {0, 8, 68}, {0, 9, 232}, {80, 7, 8}, {0, 8, 92}, {0, 8, 28}, {0, 9, 152}, {84, 7, 83}, {0, 8, 124}, {0, 8, 60}, {0, 9, 216}, {82, 7, 23}, {0, 8, 108}, {0, 8, 44}, {0, 9, 184}, {0, 8, 12}, {0, 8, 140}, {0, 8, 76}, {0, 9, 248}, {80, 7, 3}, {0, 8, 82}, {0, 8, 18}, {85, 8, 163}, {83, 7, 35}, {0, 8, 114}, {0, 8, 50}, {0, 9, 196}, {81, 7, 11}, {0, 8, 98}, {0, 8, 34}, {0, 9, 164}, {0, 8, 2}, {0, 8, 130}, {0, 8, 66}, {0, 9, 228}, {80, 7, 7}, {0, 8, 90}, {0, 8, 26}, {0, 9, 148}, {84, 7, 67}, {0, 8, 122}, {0, 8, 58}, {0, 9, 212}, {82, 7, 19}, {0, 8, 106}, {0, 8, 42}, {0, 9, 180}, {0, 8, 10}, {0, 8, 138}, {0, 8, 74}, {0, 9, 244}, {80, 7, 5}, {0, 8, 86}, {0, 8, 22}, {192, 8, 0}, {83, 7, 51}, {0, 8, 118}, {0, 8, 54}, {0, 9, 204}, {81, 7, 15}, {0, 8, 102}, {0, 8, 38}, {0, 9, 172}, {0, 8, 6}, {0, 8, 134}, {0, 8, 70}, {0, 9, 236}, {80, 7, 9}, {0, 8, 94}, {0, 8, 30}, {0, 9, 156}, {84, 7, 99}, {0, 8, 126}, {0, 8, 62}, {0, 9, 220}, {82, 7, 27}, {0, 8, 110}, {0, 8, 46}, {0, 9, 188}, {0, 8, 14}, {0, 8, 142}, {0, 8, 78}, {0, 9, 252}, {96, 7, 256}, {0, 8, 81}, {0, 8, 17}, {85, 8, 131}, {82, 7, 31}, {0, 8, 113}, {0, 8, 49}, {0, 9, 194}, {80, 7, 10}, {0, 8, 97}, {0, 8, 33}, {0, 9, 162}, {0, 8, 1}, {0, 8, 129}, {0, 8, 65}, {0, 9, 226}, {80, 7, 6}, {0, 8, 89}, {0, 8, 25}, {0, 9, 146}, {83, 7, 59}, {0, 8, 121}, {0, 8, 57}, {0, 9, 210}, {81, 7, 17}, {0, 8, 105}, {0, 8, 41}, {0, 9, 178}, {0, 8, 9}, {0, 8, 137}, {0, 8, 73}, {0, 9, 242}, {80, 7, 4}, {0, 8, 85}, {0, 8, 21}, {80, 8, 258}, {83, 7, 43}, {0, 8, 117}, {0, 8, 53}, {0, 9, 202}, {81, 7, 13}, {0, 8, 101}, {0, 8, 37}, {0, 9, 170}, {0, 8, 5}, {0, 8, 133}, {0, 8, 69}, {0, 9, 234}, {80, 7, 8}, {0, 8, 93}, {0, 8, 29}, {0, 9, 154}, {84, 7, 83}, {0, 8, 125}, {0, 8, 61}, {0, 9, 218}, {82, 7, 23}, {0, 8, 109}, {0, 8, 45}, {0, 9, 186}, {0, 8, 13}, {0, 8, 141}, {0, 8, 77}, {0, 9, 250}, {80, 7, 3}, {0, 8, 83}, {0, 8, 19}, {85, 8, 195}, {83, 7, 35}, {0, 8, 115}, {0, 8, 51}, {0, 9, 198}, {81, 7, 11}, {0, 8, 99}, {0, 8, 35}, {0, 9, 166}, {0, 8, 3}, {0, 8, 131}, {0, 8, 67}, {0, 9, 230}, {80, 7, 7}, {0, 8, 91}, {0, 8, 27}, {0, 9, 150}, {84, 7, 67}, {0, 8, 123}, {0, 8, 59}, {0, 9, 214}, {82, 7, 19}, {0, 8, 107}, {0, 8, 43}, {0, 9, 182}, {0, 8, 11}, {0, 8, 139}, {0, 8, 75}, {0, 9, 246}, {80, 7, 5}, {0, 8, 87}, {0, 8, 23}, {192, 8, 0}, {83, 7, 51}, {0, 8, 119}, {0, 8, 55}, {0, 9, 206}, {81, 7, 15}, {0, 8, 103}, {0, 8, 39}, {0, 9, 174}, {0, 8, 7}, {0, 8, 135}, {0, 8, 71}, {0, 9, 238}, {80, 7, 9}, {0, 8, 95}, {0, 8, 31}, {0, 9, 158}, {84, 7, 99}, {0, 8, 127}, {0, 8, 63}, {0, 9, 222}, {82, 7, 27}, {0, 8, 111}, {0, 8, 47}, {0, 9, 190}, {0, 8, 15}, {0, 8, 143}, {0, 8, 79}, {0, 9, 254}, {96, 7, 256}, {0, 8, 80}, {0, 8, 16}, {84, 8, 115}, {82, 7, 31}, {0, 8, 112}, {0, 8, 48}, {0, 9, 193}, {80, 7, 10}, {0, 8, 96}, {0, 8, 32}, {0, 9, 161}, {0, 8, 0}, {0, 8, 128}, {0, 8, 64}, {0, 9, 225}, {80, 7, 6}, {0, 8, 88}, {0, 8, 24}, {0, 9, 145}, {83, 7, 59}, {0, 8, 120}, {0, 8, 56}, {0, 9, 209}, {81, 7, 17}, {0, 8, 104}, {0, 8, 40}, {0, 9, 177}, {0, 8, 8}, {0, 8, 136}, {0, 8, 72}, {0, 9, 241}, {80, 7, 4}, {0, 8, 84}, {0, 8, 20}, {85, 8, 227}, {83, 7, 43}, {0, 8, 116}, {0, 8, 52}, {0, 9, 201}, {81, 7, 13}, {0, 8, 100}, {0, 8, 36}, {0, 9, 169}, {0, 8, 4}, {0, 8, 132}, {0, 8, 68}, {0, 9, 233}, {80, 7, 8}, {0, 8, 92}, {0, 8, 28}, {0, 9, 153}, {84, 7, 83}, {0, 8, 124}, {0, 8, 60}, {0, 9, 217}, {82, 7, 23}, {0, 8, 108}, {0, 8, 44}, {0, 9, 185}, {0, 8, 12}, {0, 8, 140}, {0, 8, 76}, {0, 9, 249}, {80, 7, 3}, {0, 8, 82}, {0, 8, 18}, {85, 8, 163}, {83, 7, 35}, {0, 8, 114}, {0, 8, 50}, {0, 9, 197}, {81, 7, 11}, {0, 8, 98}, {0, 8, 34}, {0, 9, 165}, {0, 8, 2}, {0, 8, 130}, {0, 8, 66}, {0, 9, 229}, {80, 7, 7}, {0, 8, 90}, {0, 8, 26}, {0, 9, 149}, {84, 7, 67}, {0, 8, 122}, {0, 8, 58}, {0, 9, 213}, {82, 7, 19}, {0, 8, 106}, {0, 8, 42}, {0, 9, 181}, {0, 8, 10}, {0, 8, 138}, {0, 8, 74}, {0, 9, 245}, {80, 7, 5}, {0, 8, 86}, {0, 8, 22}, {192, 8, 0}, {83, 7, 51}, {0, 8, 118}, {0, 8, 54}, {0, 9, 205}, {81, 7, 15}, {0, 8, 102}, {0, 8, 38}, {0, 9, 173}, {0, 8, 6}, {0, 8, 134}, {0, 8, 70}, {0, 9, 237}, {80, 7, 9}, {0, 8, 94}, {0, 8, 30}, {0, 9, 157}, {84, 7, 99}, {0, 8, 126}, {0, 8, 62}, {0, 9, 221}, {82, 7, 27}, {0, 8, 110}, {0, 8, 46}, {0, 9, 189}, {0, 8, 14}, {0, 8, 142}, {0, 8, 78}, {0, 9, 253}, {96, 7, 256}, {0, 8, 81}, {0, 8, 17}, {85, 8, 131}, {82, 7, 31}, {0, 8, 113}, {0, 8, 49}, {0, 9, 195}, {80, 7, 10}, {0, 8, 97}, {0, 8, 33}, {0, 9, 163}, {0, 8, 1}, {0, 8, 129}, {0, 8, 65}, {0, 9, 227}, {80, 7, 6}, {0, 8, 89}, {0, 8, 25}, {0, 9, 147}, {83, 7, 59}, {0, 8, 121}, {0, 8, 57}, {0, 9, 211}, {81, 7, 17}, {0, 8, 105}, {0, 8, 41}, {0, 9, 179}, {0, 8, 9}, {0, 8, 137}, {0, 8, 73}, {0, 9, 243}, {80, 7, 4}, {0, 8, 85}, {0, 8, 21}, {80, 8, 258}, {83, 7, 43}, {0, 8, 117}, {0, 8, 53}, {0, 9, 203}, {81, 7, 13}, {0, 8, 101}, {0, 8, 37}, {0, 9, 171}, {0, 8, 5}, {0, 8, 133}, {0, 8, 69}, {0, 9, 235}, {80, 7, 8}, {0, 8, 93}, {0, 8, 29}, {0, 9, 155}, {84, 7, 83}, {0, 8, 125}, {0, 8, 61}, {0, 9, 219}, {82, 7, 23}, {0, 8, 109}, {0, 8, 45}, {0, 9, 187}, {0, 8, 13}, {0, 8, 141}, {0, 8, 77}, {0, 9, 251}, {80, 7, 3}, {0, 8, 83}, {0, 8, 19}, {85, 8, 195}, {83, 7, 35}, {0, 8, 115}, {0, 8, 51}, {0, 9, 199}, {81, 7, 11}, {0, 8, 99}, {0, 8, 35}, {0, 9, 167}, {0, 8, 3}, {0, 8, 131}, {0, 8, 67}, {0, 9, 231}, {80, 7, 7}, {0, 8, 91}, {0, 8, 27}, {0, 9, 151}, {84, 7, 67}, {0, 8, 123}, {0, 8, 59}, {0, 9, 215}, {82, 7, 19}, {0, 8, 107}, {0, 8, 43}, {0, 9, 183}, {0, 8, 11}, {0, 8, 139}, {0, 8, 75}, {0, 9, 247}, {80, 7, 5}, {0, 8, 87}, {0, 8, 23}, {192, 8, 0}, {83, 7, 51}, {0, 8, 119}, {0, 8, 55}, {0, 9, 207}, {81, 7, 15}, {0, 8, 103}, {0, 8, 39}, {0, 9, 175}, {0, 8, 7}, {0, 8, 135}, {0, 8, 71}, {0, 9, 239}, {80, 7, 9}, {0, 8, 95}, {0, 8, 31}, {0, 9, 159}, {84, 7, 99}, {0, 8, 127}, {0, 8, 63}, {0, 9, 223}, {82, 7, 27}, {0, 8, 111}, {0, 8, 47}, {0, 9, 191}, {0, 8, 15}, {0, 8, 143}, {0, 8, 79}, {0, 9, 255}};
 
-static inflate_huft_t fixed_td[] = 
-{
-    { 80, 5, 1  }, { 87, 5, 257  }, { 83, 5, 17  }, { 91,  5, 4097  },
-    { 81, 5, 5  }, { 89, 5, 1025 }, { 85, 5, 65  }, { 93,  5, 16385 },
-    { 80, 5, 3  }, { 88, 5, 513  }, { 84, 5, 33  }, { 92,  5, 8193  },
-    { 82, 5, 9  }, { 90, 5, 2049 }, { 86, 5, 129 }, { 192, 5, 24577 },
-    { 80, 5, 2  }, { 87, 5, 385  }, { 83, 5, 25  }, { 91,  5, 6145  },
-    { 81, 5, 7  }, { 89, 5, 1537 }, { 85, 5, 97  }, { 93,  5, 24577 },
-    { 80, 5, 4  }, { 88, 5, 769  }, { 84, 5, 49  }, { 92,  5, 12289 },
-    { 82, 5, 13 }, { 90, 5, 3073 }, { 86, 5, 193 }, { 192, 5, 24577 }
-};
+static inflate_huft_t fixed_td[] =
+	{
+		{80, 5, 1}, {87, 5, 257}, {83, 5, 17}, {91, 5, 4097}, {81, 5, 5}, {89, 5, 1025}, {85, 5, 65}, {93, 5, 16385}, {80, 5, 3}, {88, 5, 513}, {84, 5, 33}, {92, 5, 8193}, {82, 5, 9}, {90, 5, 2049}, {86, 5, 129}, {192, 5, 24577}, {80, 5, 2}, {87, 5, 385}, {83, 5, 25}, {91, 5, 6145}, {81, 5, 7}, {89, 5, 1537}, {85, 5, 97}, {93, 5, 24577}, {80, 5, 4}, {88, 5, 769}, {84, 5, 49}, {92, 5, 12289}, {82, 5, 13}, {90, 5, 3073}, {86, 5, 193}, {192, 5, 24577}};
 
 // ===============================================================================
 // ===============================================================================
 
 static void inflate_blocks_reset(z_stream *z, inflate_blocks_state_t *s)
 {
-	if((s->mode == BTREE) || (s->mode == DTREE))
+	if ((s->mode == BTREE) || (s->mode == DTREE))
 	{
 		Z_Free(s->trees.blens);
 	}
-	if(s->mode == CODES)
+	if (s->mode == CODES)
 	{
 		Z_Free(s->decode.codes);
 	}
@@ -357,7 +216,7 @@ static int inflate_blocks_free(z_stream *z, inflate_blocks_state_t *s)
 	Z_Free(s->hufts);
 	s->hufts = NULL;
 	Z_Free(s);
-	return(Z_OK);
+	return (Z_OK);
 }
 
 // ===============================================================================
@@ -373,7 +232,7 @@ static inflate_blocks_state_t *inflate_blocks_new(z_stream *z, check_func check)
 	s->mode = TYPE;
 	inflate_blocks_reset(z, s);
 
-	return(s);
+	return (s);
 }
 
 // ===============================================================================
@@ -382,17 +241,17 @@ static inflate_blocks_state_t *inflate_blocks_new(z_stream *z, check_func check)
 
 static void inflate_flush_copy(z_stream *z, inflate_blocks_state_t *s, ulong count)
 {
-	if(count > z->avail_out)
+	if (count > z->avail_out)
 	{
 		count = z->avail_out;
 	}
-	if(count && (z->error == Z_BUF_ERROR))
+	if (count && (z->error == Z_BUF_ERROR))
 	{
 		z->error = Z_OK;
 	}
 
 	// Calculate the checksum if required
-	if(!z->istate->nowrap)
+	if (!z->istate->nowrap)
 	{
 		z->istate->adler = adler32(z->istate->adler, s->read, count);
 	}
@@ -412,7 +271,7 @@ static void inflate_flush_copy(z_stream *z, inflate_blocks_state_t *s, ulong cou
 
 static void inflate_flush(z_stream *z, inflate_blocks_state_t *s)
 {
-	ulong	count;
+	ulong count;
 
 	// compute number of bytes to copy as as end of window
 	count = (s->read <= s->write ? s->write : s->end) - s->read;
@@ -420,11 +279,11 @@ static void inflate_flush(z_stream *z, inflate_blocks_state_t *s)
 	inflate_flush_copy(z, s, count);
 
 	// see if more to copy at beginning of window
-	if(s->read == s->end)
+	if (s->read == s->end)
 	{
 		// wrap pointers
 		s->read = s->window;
-		if(s->write == s->end)
+		if (s->write == s->end)
 		{
 			s->write = s->window;
 		}
@@ -438,58 +297,58 @@ static void inflate_flush(z_stream *z, inflate_blocks_state_t *s)
 // get bytes and bits
 // ===============================================================================
 
-static bool getbits(z_stream *z, inflate_blocks_state_t *s, ulong bits)								 
-{			
-	while(s->bitk < bits) 							
-	{											
-		if(z->avail_in)
+static bool getbits(z_stream *z, inflate_blocks_state_t *s, ulong bits)
+{
+	while (s->bitk < bits)
+	{
+		if (z->avail_in)
 		{
 			z->error = Z_OK;
 		}
 		else
-		{										
+		{
 			inflate_flush(z, s);
-			return(false);
-		}		  
+			return (false);
+		}
 		z->avail_in--;
 		z->total_in++;
-		s->bitb |= *z->next_in++ << s->bitk;			
-		s->bitk += 8; 	 
-	}		
-	return(true);
+		s->bitb |= *z->next_in++ << s->bitk;
+		s->bitk += 8;
+	}
+	return (true);
 }
 
 // ===============================================================================
 // output bytes
 // ===============================================================================
 
-static ulong needout(z_stream *z, inflate_blocks_state_t *s, ulong bytesToEnd) 
-{ 
-	if(!bytesToEnd)
-	{ 
-		if((s->write == s->end) && (s->read != s->window)) 
-		{ 
+static ulong needout(z_stream *z, inflate_blocks_state_t *s, ulong bytesToEnd)
+{
+	if (!bytesToEnd)
+	{
+		if ((s->write == s->end) && (s->read != s->window))
+		{
 			s->write = s->window;
 			bytesToEnd = s->write < s->read ? s->read - s->write - 1 : s->end - s->write;
 		}
-		if(!bytesToEnd)
+		if (!bytesToEnd)
 		{
 			inflate_flush(z, s);
 			bytesToEnd = s->write < s->read ? s->read - s->write - 1 : s->end - s->write;
-			if((s->write == s->end) && (s->read != s->window))
+			if ((s->write == s->end) && (s->read != s->window))
 			{
 				s->write = s->window;
 				bytesToEnd = s->write < s->read ? s->read - s->write - 1 : s->end - s->write;
 			}
-			if(!bytesToEnd)
+			if (!bytesToEnd)
 			{
 				inflate_flush(z, s);
-				return(bytesToEnd);
+				return (bytesToEnd);
 			}
 		}
 	}
 	z->error = Z_OK;
-	return(bytesToEnd);
+	return (bytesToEnd);
 }
 
 // ===============================================================================
@@ -501,7 +360,7 @@ static ulong needout(z_stream *z, inflate_blocks_state_t *s, ulong bytesToEnd)
 
 inline byte *qcopy(byte *dst, byte *src, int count)
 {
-	byte 	*retval;
+	byte *retval;
 
 	_asm
 	{
@@ -519,33 +378,33 @@ inline byte *qcopy(byte *dst, byte *src, int count)
 		pop esi
 		pop ecx
 	}
-	return(retval);
+	return (retval);
 }
 
 inline ulong get_remaining(inflate_blocks_state_t *s)
 {
-	if(s->write < s->read)
+	if (s->write < s->read)
 	{
-		return(s->read - s->write - 1);
+		return (s->read - s->write - 1);
 	}
-	return(s->end - s->write); 
+	return (s->end - s->write);
 }
 
 static EStatus inflate_fast(ulong lengthMask, ulong distMask, inflate_huft_t *lengthTree, inflate_huft_t *distTree, inflate_blocks_state_t *s, z_stream *z)
 {
-	inflate_huft_t	*huft;			// temporary pointer
-	byte			*data;			
-	byte			*src; 			// copy source pointer
-	byte			*dst;			
-	ulong			extraBits;		// extra bits or operation
-	ulong			bytesToEnd;		// bytes to end of window or read pointer
-	ulong			count;			// bytes to copy
-	ulong			dist;			// distance back to copy from
-	ulong			bitb;
-	ulong			bitk;
-	ulong			availin;
-	ulong			morebits;
-	ulong			copymore;
+	inflate_huft_t *huft; // temporary pointer
+	byte *data;
+	byte *src; // copy source pointer
+	byte *dst;
+	ulong extraBits;  // extra bits or operation
+	ulong bytesToEnd; // bytes to end of window or read pointer
+	ulong count;	  // bytes to copy
+	ulong dist;		  // distance back to copy from
+	ulong bitb;
+	ulong bitk;
+	ulong availin;
+	ulong morebits;
+	ulong copymore;
 
 	// load input, output, bit values
 	data = z->next_in;
@@ -558,10 +417,10 @@ static EStatus inflate_fast(ulong lengthMask, ulong distMask, inflate_huft_t *le
 
 	// do until not enough input or output space for fast loop
 	// assume called with bytesToEnd >= 258 && availIn >= 10
-	while((bytesToEnd >= 258) && (availin >= 10))
-	{						   
+	while ((bytesToEnd >= 258) && (availin >= 10))
+	{
 		// get literal/length code
-		while(bitk < 20)
+		while (bitk < 20)
 		{
 			bitb |= *data++ << bitk;
 			bitk += 8;
@@ -569,7 +428,7 @@ static EStatus inflate_fast(ulong lengthMask, ulong distMask, inflate_huft_t *le
 		}
 
 		huft = lengthTree + (bitb & lengthMask);
-		if(!huft->Exop)
+		if (!huft->Exop)
 		{
 			bitb >>= huft->Bits;
 			bitk -= huft->Bits;
@@ -582,9 +441,9 @@ static EStatus inflate_fast(ulong lengthMask, ulong distMask, inflate_huft_t *le
 			morebits = 1;
 			do
 			{
-				bitb >>= huft->Bits; 
+				bitb >>= huft->Bits;
 				bitk -= huft->Bits;
-				if(extraBits & 16)
+				if (extraBits & 16)
 				{
 					// get extra bits for length
 					extraBits &= 15;
@@ -592,7 +451,7 @@ static EStatus inflate_fast(ulong lengthMask, ulong distMask, inflate_huft_t *le
 					bitb >>= extraBits;
 					bitk -= extraBits;
 					// decode distance base of block to copy
-					while(bitk < 15)
+					while (bitk < 15)
 					{
 						bitb |= *data++ << bitk;
 						bitk += 8;
@@ -600,16 +459,16 @@ static EStatus inflate_fast(ulong lengthMask, ulong distMask, inflate_huft_t *le
 					}
 					huft = distTree + (bitb & distMask);
 					extraBits = huft->Exop;
-	   				copymore = 1;
+					copymore = 1;
 					do
 					{
 						bitb >>= huft->Bits;
 						bitk -= huft->Bits;
-						if(extraBits & 16)
+						if (extraBits & 16)
 						{
 							// get extra bits to add to distance base
 							extraBits &= 15;
-							while(bitk < extraBits)
+							while (bitk < extraBits)
 							{
 								bitb |= *data++ << bitk;
 								bitk += 8;
@@ -622,26 +481,26 @@ static EStatus inflate_fast(ulong lengthMask, ulong distMask, inflate_huft_t *le
 							// do the copy
 							bytesToEnd -= count;
 							// offset before dest
-							if((dst - s->window) >= dist)	 
-							{								   
+							if ((dst - s->window) >= dist)
+							{
 								// just copy
 								src = dst - dist;
 							}
 							// else offset after destination
-							else						
+							else
 							{
 								// bytes from offset to end
 								extraBits = dist - (dst - s->window);
 								// pointer to offset
-								src = s->end - extraBits; 		  
-								// if source crosses,					  
-								if(count > extraBits)				  
+								src = s->end - extraBits;
+								// if source crosses,
+								if (count > extraBits)
 								{
 									// copy to end of window
 									dst = qcopy(dst, src, extraBits);
 									// copy rest from start of window
-									count -= extraBits; 				
-									src = s->window;			
+									count -= extraBits;
+									src = s->window;
 								}
 							}
 							// copy all or what's left
@@ -650,7 +509,7 @@ static EStatus inflate_fast(ulong lengthMask, ulong distMask, inflate_huft_t *le
 						}
 						else
 						{
-							if(!(extraBits & 64))
+							if (!(extraBits & 64))
 							{
 								huft += huft->base + (bitb & inflate_mask[extraBits]);
 								extraBits = huft->Exop;
@@ -658,20 +517,20 @@ static EStatus inflate_fast(ulong lengthMask, ulong distMask, inflate_huft_t *le
 							else
 							{
 								inflate_error = "Inflate data: Invalid distance code";
-								return(Z_DATA_ERROR);
+								return (Z_DATA_ERROR);
 							}
 						}
-					} while(copymore);
+					} while (copymore);
 
 					morebits = 0;
 				}
 				else
 				{
-					if(!(extraBits & 64))
+					if (!(extraBits & 64))
 					{
 						huft += huft->base + (bitb & inflate_mask[extraBits]);
 						extraBits = huft->Exop;
-						if(!extraBits)								   
+						if (!extraBits)
 						{
 							bitb >>= huft->Bits;
 							bitk -= huft->Bits;
@@ -680,7 +539,7 @@ static EStatus inflate_fast(ulong lengthMask, ulong distMask, inflate_huft_t *le
 							morebits = 0;
 						}
 					}
-					else if(extraBits & 32)									 
+					else if (extraBits & 32)
 					{
 						count = data - z->next_in;
 
@@ -696,16 +555,16 @@ static EStatus inflate_fast(ulong lengthMask, ulong distMask, inflate_huft_t *le
 						s->bitk = bitk - (count << 3);
 						z->avail_in += count;
 						z->total_in -= count;
-						z->next_in -= count ;
-						return(Z_STREAM_END);
+						z->next_in -= count;
+						return (Z_STREAM_END);
 					}
 					else
 					{
 						inflate_error = "Inflate data: Invalid literal/length code";
-						return(Z_DATA_ERROR);
+						return (Z_DATA_ERROR);
 					}
 				}
-			} while(morebits);
+			} while (morebits);
 		}
 	}
 
@@ -725,7 +584,7 @@ static EStatus inflate_fast(ulong lengthMask, ulong distMask, inflate_huft_t *le
 	z->total_in -= count;
 	z->next_in -= count;
 
-	return(Z_OK);
+	return (Z_OK);
 }
 
 // ===============================================================================
@@ -733,11 +592,11 @@ static EStatus inflate_fast(ulong lengthMask, ulong distMask, inflate_huft_t *le
 
 static void inflate_codes(z_stream *z, inflate_blocks_state_t *s)
 {
-	inflate_huft_t			*huft; 		// temporary pointer
-	ulong					extraBits;	// extra bits or operation
-	ulong					bytesToEnd;	// bytes to end of window or read pointer
-	byte					*src; 		// pointer to copy strings from
-	inflate_codes_state_t	*infCodes;	// codes state
+	inflate_huft_t *huft;			 // temporary pointer
+	ulong extraBits;				 // extra bits or operation
+	ulong bytesToEnd;				 // bytes to end of window or read pointer
+	byte *src;						 // pointer to copy strings from
+	inflate_codes_state_t *infCodes; // codes state
 
 	infCodes = s->decode.codes;
 
@@ -745,18 +604,18 @@ static void inflate_codes(z_stream *z, inflate_blocks_state_t *s)
 	bytesToEnd = get_remaining(s);
 
 	// process input and output based on current state
-	while(true)
+	while (true)
 	{
 		// waiting for "i:"=input, "o:"=output, "x:"=nothing
 		switch (infCodes->mode)
-		{			  
+		{
 		// x: set up for LEN
 		case START:
-			if((bytesToEnd >= 258) && (z->avail_in >= 10))
+			if ((bytesToEnd >= 258) && (z->avail_in >= 10))
 			{
 				z->error = inflate_fast(inflate_mask[infCodes->lbits], inflate_mask[infCodes->dbits], infCodes->ltree, infCodes->dtree, s, z);
 				bytesToEnd = get_remaining(s);
-				if(z->error != Z_OK)
+				if (z->error != Z_OK)
 				{
 					infCodes->mode = (z->error == Z_STREAM_END) ? WASH : BADCODE;
 					break;
@@ -766,11 +625,11 @@ static void inflate_codes(z_stream *z, inflate_blocks_state_t *s)
 			infCodes->code.tree = infCodes->ltree;
 			infCodes->mode = LEN;
 		// i: get length/literal/eob next
-		case LEN:			
-			if(!getbits(z, s, infCodes->code.need))
+		case LEN:
+			if (!getbits(z, s, infCodes->code.need))
 			{
 				// We could get here because we have run out of input data *or* the stream has ended
-				if(z->status == Z_BUF_ERROR)
+				if (z->status == Z_BUF_ERROR)
 				{
 					z->error = Z_STREAM_END;
 				}
@@ -778,17 +637,17 @@ static void inflate_codes(z_stream *z, inflate_blocks_state_t *s)
 			}
 			huft = infCodes->code.tree + (s->bitb & inflate_mask[infCodes->code.need]);
 			s->bitb >>= huft->Bits;
-			s->bitk -= huft->Bits; 
+			s->bitk -= huft->Bits;
 			extraBits = huft->Exop;
 			// literal
-			if(!extraBits)				 
+			if (!extraBits)
 			{
 				infCodes->lit = huft->base;
 				infCodes->mode = LIT;
 				break;
 			}
 			// length
-			if(extraBits & 16) 			  
+			if (extraBits & 16)
 			{
 				infCodes->copy.get = extraBits & 15;
 				infCodes->len = huft->base;
@@ -796,27 +655,27 @@ static void inflate_codes(z_stream *z, inflate_blocks_state_t *s)
 				break;
 			}
 			// next table
-			if(!(extraBits & 64))
+			if (!(extraBits & 64))
 			{
 				infCodes->code.need = extraBits;
 				infCodes->code.tree = huft + huft->base;
 				break;
 			}
 			// end of block
-			if(extraBits & 32) 			  
+			if (extraBits & 32)
 			{
 				infCodes->mode = WASH;
 				break;
 			}
 			// invalid code
-			infCodes->mode = BADCODE;		  
+			infCodes->mode = BADCODE;
 			inflate_error = "Inflate data: Invalid literal/length code";
 			z->error = Z_DATA_ERROR;
 			inflate_flush(z, s);
 			return;
 		// i: getting length extra (have base)
-		case LENEXT:		
-			if(!getbits(z, s, infCodes->copy.get))
+		case LENEXT:
+			if (!getbits(z, s, infCodes->copy.get))
 			{
 				return;
 			}
@@ -827,8 +686,8 @@ static void inflate_codes(z_stream *z, inflate_blocks_state_t *s)
 			infCodes->code.tree = infCodes->dtree;
 			infCodes->mode = DIST;
 		// i: get distance next
-		case DIST:			
-			if(!getbits(z, s, infCodes->code.need))
+		case DIST:
+			if (!getbits(z, s, infCodes->code.need))
 			{
 				return;
 			}
@@ -837,7 +696,7 @@ static void inflate_codes(z_stream *z, inflate_blocks_state_t *s)
 			s->bitk -= huft->Bits;
 			extraBits = huft->Exop;
 			// distance
-			if(extraBits & 16) 			  
+			if (extraBits & 16)
 			{
 				infCodes->copy.get = extraBits & 15;
 				infCodes->copy.dist = huft->base;
@@ -845,21 +704,21 @@ static void inflate_codes(z_stream *z, inflate_blocks_state_t *s)
 				break;
 			}
 			// next table
-			if(!(extraBits & 64))
+			if (!(extraBits & 64))
 			{
 				infCodes->code.need = extraBits;
 				infCodes->code.tree = huft + huft->base;
 				break;
 			}
 			// invalid code
-			infCodes->mode = BADCODE;		  
+			infCodes->mode = BADCODE;
 			inflate_error = "Inflate data: Invalid distance code";
 			z->error = Z_DATA_ERROR;
 			inflate_flush(z, s);
 			return;
 		// i: getting distance extra
-		case DISTEXT:		
-			if(!getbits(z, s, infCodes->copy.get))
+		case DISTEXT:
+			if (!getbits(z, s, infCodes->copy.get))
 			{
 				return;
 			}
@@ -868,8 +727,8 @@ static void inflate_codes(z_stream *z, inflate_blocks_state_t *s)
 			s->bitk -= infCodes->copy.get;
 			infCodes->mode = COPY;
 		// o: copying bytes in window, waiting for space
-		case COPY:			
-			if(s->write - s->window < infCodes->copy.dist)
+		case COPY:
+			if (s->write - s->window < infCodes->copy.dist)
 			{
 				src = s->end - (infCodes->copy.dist - (s->write - s->window));
 			}
@@ -877,16 +736,16 @@ static void inflate_codes(z_stream *z, inflate_blocks_state_t *s)
 			{
 				src = s->write - infCodes->copy.dist;
 			}
-			while(infCodes->len)
+			while (infCodes->len)
 			{
 				bytesToEnd = needout(z, s, bytesToEnd);
-				if(!bytesToEnd)
+				if (!bytesToEnd)
 				{
 					return;
 				}
 				*s->write++ = (byte)(*src++);
 				bytesToEnd--;
-				if(src == s->end)
+				if (src == s->end)
 				{
 					src = s->window;
 				}
@@ -895,30 +754,30 @@ static void inflate_codes(z_stream *z, inflate_blocks_state_t *s)
 			infCodes->mode = START;
 			break;
 		// o: got literal, waiting for output space
-		case LIT:			
+		case LIT:
 			bytesToEnd = needout(z, s, bytesToEnd);
-			if(!bytesToEnd)
+			if (!bytesToEnd)
 			{
 				return;
 			}
-			*s->write++ = (byte)infCodes->lit; 
+			*s->write++ = (byte)infCodes->lit;
 			bytesToEnd--;
 			infCodes->mode = START;
 			break;
 		// o: got eob, possibly more output
-		case WASH:			
+		case WASH:
 			// return unused byte, if any
-			if(s->bitk > 7)		  
+			if (s->bitk > 7)
 			{
 				s->bitk -= 8;
 				z->avail_in++;
 				z->total_in--;
 				// can always return one
-				z->next_in--;			
+				z->next_in--;
 			}
 			inflate_flush(z, s);
 			bytesToEnd = get_remaining(s);
-			if(s->read != s->write)
+			if (s->read != s->write)
 			{
 				inflate_error = "Inflate data: read != write while in WASH";
 				inflate_flush(z, s);
@@ -930,7 +789,7 @@ static void inflate_codes(z_stream *z, inflate_blocks_state_t *s)
 			inflate_flush(z, s);
 			return;
 		// x: got error
-		case BADCODE:		
+		case BADCODE:
 			z->error = Z_DATA_ERROR;
 			inflate_flush(z, s);
 			return;
@@ -947,7 +806,7 @@ static void inflate_codes(z_stream *z, inflate_blocks_state_t *s)
 
 static inflate_codes_state_t *inflate_codes_new(z_stream *z, ulong bl, ulong bd, inflate_huft_t *lengthTree, inflate_huft_t *distTree)
 {
-	inflate_codes_state_t		*c;
+	inflate_codes_state_t *c;
 
 	c = (inflate_codes_state_t *)Z_Malloc(sizeof(inflate_codes_state_t), TAG_INFLATE, qtrue);
 	c->mode = START;
@@ -956,7 +815,7 @@ static inflate_codes_state_t *inflate_codes_new(z_stream *z, ulong bl, ulong bd,
 	c->ltree = lengthTree;
 	c->dtree = distTree;
 
-	return(c);
+	return (c);
 }
 
 // ===============================================================================
@@ -1012,87 +871,87 @@ static inflate_codes_state_t *inflate_codes_new(z_stream *z, ulong bl, ulong bd,
 
 static EStatus huft_build(ulong *b, ulong numCodes, ulong s, const ulong *d, const ulong *e, inflate_huft_t **t, ulong *m, inflate_huft_t *hp, ulong *hn, ulong *workspace)
 {
-	ulong			codeCounter;					// counter for codes of length bitsPerCode
-	ulong			bitLengths[BMAX + 1] = { 0 };	// bit length count table
-	ulong			bitOffsets[BMAX + 1];			// bit offsets, then code stack
-	ulong			f;								// i repeats in table every f entries
-	int 			maxCodeLen;						// maximum code length
-	int 			tableLevel;						// table level
-	ulong			i;								// counter, current code
-	ulong			j;								// counter
-	int 			bitsPerCode;					// number of bits in current code
-	ulong 			bitsPerTable;					// bits per table (returned in m)
-	int 			bitsBeforeTable;				// bits before this table == (bitsPerTable * tableLevel)
-	ulong			*p; 							// pointer into bitLengths[], b[], or workspace[]
-	inflate_huft_t	*q; 							// points to current table
-	inflate_huft_t	r;								// table entry for structure assignment
-	inflate_huft_t	*tableStack[BMAX];				// table stack
-	ulong			*xp;							// pointer into bitOffsets
-	int 			dummyCodes;						// number of dummy codes added
-	ulong			entryCount;						// number of entries in current table
+	ulong codeCounter;				  // counter for codes of length bitsPerCode
+	ulong bitLengths[BMAX + 1] = {0}; // bit length count table
+	ulong bitOffsets[BMAX + 1];		  // bit offsets, then code stack
+	ulong f;						  // i repeats in table every f entries
+	int maxCodeLen;					  // maximum code length
+	int tableLevel;					  // table level
+	ulong i;						  // counter, current code
+	ulong j;						  // counter
+	int bitsPerCode;				  // number of bits in current code
+	ulong bitsPerTable;				  // bits per table (returned in m)
+	int bitsBeforeTable;			  // bits before this table == (bitsPerTable * tableLevel)
+	ulong *p;						  // pointer into bitLengths[], b[], or workspace[]
+	inflate_huft_t *q;				  // points to current table
+	inflate_huft_t r;				  // table entry for structure assignment
+	inflate_huft_t *tableStack[BMAX]; // table stack
+	ulong *xp;						  // pointer into bitOffsets
+	int dummyCodes;					  // number of dummy codes added
+	ulong entryCount;				  // number of entries in current table
 
 	// Generate counts for each bit length
 	// assume all entries <= BMAX
-	p = b;	
+	p = b;
 	i = numCodes;
 	do
 	{
-		bitLengths[*p++]++;					
-	} while(--i);
+		bitLengths[*p++]++;
+	} while (--i);
 
 	// null input--all zero length codes
-	if(bitLengths[0] == numCodes)				  
+	if (bitLengths[0] == numCodes)
 	{
 		*t = NULL;
 		*m = 0;
-		return(Z_OK);
+		return (Z_OK);
 	}
 
 	// Find minimum and maximum length, bound *m by those
 	bitsPerTable = *m;
-	for(j = 1; j <= BMAX; j++)
+	for (j = 1; j <= BMAX; j++)
 	{
-		if(bitLengths[j])
+		if (bitLengths[j])
 		{
 			break;
 		}
 	}
 	// minimum code length
-	bitsPerCode = j;						  
+	bitsPerCode = j;
 
-	if(bitsPerTable < j)
+	if (bitsPerTable < j)
 	{
 		bitsPerTable = j;
 	}
-	for(i = BMAX; i; i--)
+	for (i = BMAX; i; i--)
 	{
-		if(bitLengths[i])
+		if (bitLengths[i])
 		{
 			break;
 		}
 	}
 	// maximum code length
-	maxCodeLen = i;						  
+	maxCodeLen = i;
 
-	if(bitsPerTable > i)
+	if (bitsPerTable > i)
 	{
 		bitsPerTable = i;
 	}
 	*m = bitsPerTable;
 
 	// Adjust last length count to fill out codes, if needed
-	for(dummyCodes = 1 << j; j < i; j++, dummyCodes <<= 1)
+	for (dummyCodes = 1 << j; j < i; j++, dummyCodes <<= 1)
 	{
 		dummyCodes -= bitLengths[j];
-		if(dummyCodes < 0)
+		if (dummyCodes < 0)
 		{
-			return(Z_DATA_ERROR);
+			return (Z_DATA_ERROR);
 		}
 	}
 	dummyCodes -= bitLengths[i];
-	if(dummyCodes < 0)
+	if (dummyCodes < 0)
 	{
-		return(Z_DATA_ERROR);
+		return (Z_DATA_ERROR);
 	}
 	bitLengths[i] += dummyCodes;
 
@@ -1102,8 +961,8 @@ static EStatus huft_build(ulong *b, ulong numCodes, ulong s, const ulong *d, con
 	p = bitLengths + 1;
 	xp = bitOffsets + 2;
 	// note that i == maxCodeLen from above
-	while(--i) 
-	{			 
+	while (--i)
+	{
 		j += *p++;
 		*xp++ = j;
 	}
@@ -1114,134 +973,134 @@ static EStatus huft_build(ulong *b, ulong numCodes, ulong s, const ulong *d, con
 	do
 	{
 		j = *p++;
-		if(j)
+		if (j)
 		{
 			workspace[bitOffsets[j]++] = i;
 		}
-	} while(++i < numCodes);
+	} while (++i < numCodes);
 
 	// set numCodes to length of workspace
-	numCodes = bitOffsets[maxCodeLen];					  
+	numCodes = bitOffsets[maxCodeLen];
 
 	// Generate the Huffman codes and for each, make the table entries
-	bitOffsets[0] = 0;						// first Huffman code is zero
-	i = 0;							
-	p = workspace;							// grab values in bit order
-	tableLevel = -1; 						// no tables yet--level -1
-	bitsBeforeTable = bitsPerTable; 						// bits decoded == (bitsPerTable * tableLevel)
+	bitOffsets[0] = 0; // first Huffman code is zero
+	i = 0;
+	p = workspace;					// grab values in bit order
+	tableLevel = -1;				// no tables yet--level -1
+	bitsBeforeTable = bitsPerTable; // bits decoded == (bitsPerTable * tableLevel)
 	bitsBeforeTable = -bitsBeforeTable;
-	tableStack[0] = NULL;	// just to keep compilers happy
-	q = NULL;		// ditto
-	entryCount = 0;							// ditto
+	tableStack[0] = NULL; // just to keep compilers happy
+	q = NULL;			  // ditto
+	entryCount = 0;		  // ditto
 
 	// go through the bit lengths (bitsPerCode already is bits in shortest code)
-	for(; bitsPerCode <= maxCodeLen; bitsPerCode++)
+	for (; bitsPerCode <= maxCodeLen; bitsPerCode++)
 	{
 		codeCounter = bitLengths[bitsPerCode];
-		while(codeCounter--)
+		while (codeCounter--)
 		{
 			// here i is the Huffman code of length bitsPerCode bits for value *p
 			// make tables up to required level
-			while(bitsPerCode > bitsBeforeTable + bitsPerTable)
+			while (bitsPerCode > bitsBeforeTable + bitsPerTable)
 			{
 				tableLevel++;
-				bitsBeforeTable += bitsPerTable; 			// previous table always bitsPerTable bits
+				bitsBeforeTable += bitsPerTable; // previous table always bitsPerTable bits
 
 				// compute minimum size table less than or equal to bitsPerTable bits
 				entryCount = maxCodeLen - bitsBeforeTable;
-				entryCount = entryCount > bitsPerTable ? bitsPerTable : entryCount;				// table size upper limit
+				entryCount = entryCount > bitsPerTable ? bitsPerTable : entryCount; // table size upper limit
 				j = bitsPerCode - bitsBeforeTable;
 				f = 1 << j;
-				if(f > codeCounter + 1)							// try a bitsPerCode-bitsBeforeTable bit table
-				{										// too few codes for bitsPerCode-bitsBeforeTable bit table
-					f -= codeCounter + 1; 						// deduct codes from patterns left
+				if (f > codeCounter + 1)  // try a bitsPerCode-bitsBeforeTable bit table
+				{						  // too few codes for bitsPerCode-bitsBeforeTable bit table
+					f -= codeCounter + 1; // deduct codes from patterns left
 					xp = bitLengths + bitsPerCode;
-					if(j < entryCount)
+					if (j < entryCount)
 					{
-						while(++j < entryCount) 					// try smaller tables up to entryCount bits
+						while (++j < entryCount) // try smaller tables up to entryCount bits
 						{
 							f <<= 1;
-							if(f <= *++xp)
+							if (f <= *++xp)
 							{
-								break;					// enough codes to use up j bits
+								break; // enough codes to use up j bits
 							}
-							f -= *xp;					// else deduct codes from patterns
+							f -= *xp; // else deduct codes from patterns
 						}
 					}
 				}
-				entryCount = 1 << j; 							// table entries for j-bit table
+				entryCount = 1 << j; // table entries for j-bit table
 
 				// allocate new table
-				if(*hn + entryCount > MANY) 						// (note: doesn't matter for fixed)
+				if (*hn + entryCount > MANY) // (note: doesn't matter for fixed)
 				{
-					return(Z_DATA_ERROR);				// not enough memory
+					return (Z_DATA_ERROR); // not enough memory
 				}
 				q = hp + *hn;
 				tableStack[tableLevel] = q;
 				*hn += entryCount;
 
 				// connect to last table, if there is one
-				if(tableLevel)
+				if (tableLevel)
 				{
-					bitOffsets[tableLevel] = i;							// save pattern for backing up
-					r.Bits = (byte)bitsPerTable;   	 					// bits to dump before this table
-					r.Exop = (byte)j;									// bits in this table
+					bitOffsets[tableLevel] = i;	 // save pattern for backing up
+					r.Bits = (byte)bitsPerTable; // bits to dump before this table
+					r.Exop = (byte)j;			 // bits in this table
 					j = i >> (bitsBeforeTable - bitsPerTable);
 					r.base = q - tableStack[tableLevel - 1] - j; // offset to this table
-					tableStack[tableLevel - 1][j] = r;					// connect to last table
+					tableStack[tableLevel - 1][j] = r;			 // connect to last table
 				}
-				else						   
+				else
 				{
-					*t = q; 							// first table is returned result
+					*t = q; // first table is returned result
 				}
 			}
 
 			// set up table entry in r
 			r.Bits = (byte)(bitsPerCode - bitsBeforeTable);
-			if(p >= workspace + numCodes)
+			if (p >= workspace + numCodes)
 			{
-				r.Exop = 128 + 64;						// out of values--invalid code
+				r.Exop = 128 + 64; // out of values--invalid code
 			}
-			else if(*p < s)
+			else if (*p < s)
 			{
-				r.Exop = (byte)(*p < 256 ? 0 : 32 + 64);		// 256 is end-of-block
-				r.base = *p++;							// simple code is just the value
+				r.Exop = (byte)(*p < 256 ? 0 : 32 + 64); // 256 is end-of-block
+				r.base = *p++;							 // simple code is just the value
 			}
 			else
 			{
-				r.Exop = (byte)(e[*p - s] + 16 + 64);		 	// non-simple--look up in lists
+				r.Exop = (byte)(e[*p - s] + 16 + 64); // non-simple--look up in lists
 				r.base = d[*p++ - s];
 			}
 
 			// fill code-like entries with r
 			f = 1 << (bitsPerCode - bitsBeforeTable);
-			for(j = i >> bitsBeforeTable; j < entryCount; j += f)
+			for (j = i >> bitsBeforeTable; j < entryCount; j += f)
 			{
 				q[j] = r;
 			}
 
 			// backwards increment the bitsPerCode-bit code i
-			for(j = 1 << (bitsPerCode - 1); i & j; j >>= 1)
+			for (j = 1 << (bitsPerCode - 1); i & j; j >>= 1)
 			{
 				i ^= j;
 			}
 			i ^= j;
 
 			// backup over finished tables
-			while((i & ((1 << bitsBeforeTable) - 1)) != bitOffsets[tableLevel])
+			while ((i & ((1 << bitsBeforeTable) - 1)) != bitOffsets[tableLevel])
 			{
-				tableLevel--;									// don't need to update q
+				tableLevel--; // don't need to update q
 				bitsBeforeTable -= bitsPerTable;
 			}
 		}
 	}
 
 	// Return Z_BUF_ERROR if we were given an incomplete table
-	if(dummyCodes && (maxCodeLen != 1))
+	if (dummyCodes && (maxCodeLen != 1))
 	{
-		return(Z_BUF_ERROR);
+		return (Z_BUF_ERROR);
 	}
-	return(Z_OK);
+	return (Z_OK);
 }
 
 // ===============================================================================
@@ -1253,15 +1112,15 @@ static EStatus huft_build(ulong *b, ulong numCodes, ulong s, const ulong *d, con
 
 static void inflate_trees_bits(z_stream *z, ulong *c, ulong *bb, inflate_huft_t **tb, inflate_huft_t *hp)
 {
-	ulong	hn = 0;				// hufts used in space
-	ulong	workspace[19];		// work area for huft_build
+	ulong hn = 0;		 // hufts used in space
+	ulong workspace[19]; // work area for huft_build
 
 	z->error = huft_build(c, 19, 19, NULL, NULL, tb, bb, hp, &hn, workspace);
-	if(z->error == Z_DATA_ERROR)
+	if (z->error == Z_DATA_ERROR)
 	{
 		inflate_error = "Inflate data: Oversubscribed dynamic bit lengths tree";
 	}
-	else if((z->error == Z_BUF_ERROR) || !*bb)
+	else if ((z->error == Z_BUF_ERROR) || !*bb)
 	{
 		inflate_error = "Inflate data: Incomplete dynamic bit lengths tree";
 		z->error = Z_DATA_ERROR;
@@ -1279,12 +1138,12 @@ static void inflate_trees_bits(z_stream *z, ulong *c, ulong *bb, inflate_huft_t 
 
 static void inflate_trees_dynamic(z_stream *z, ulong numLiteral, ulong numDist, ulong *c, ulong *bl, ulong *bd, inflate_huft_t **tl, inflate_huft_t **td, inflate_huft_t *hp)
 {
-	ulong		hn = 0;				// hufts used in space
-	ulong		workspace[288]; 	// work area for huft_build
+	ulong hn = 0;		  // hufts used in space
+	ulong workspace[288]; // work area for huft_build
 
 	// build literal/length tree
 	z->error = huft_build(c, numLiteral, 257, cplens, cplext, tl, bl, hp, &hn, workspace);
-	if(z->error != Z_OK || !*bl)
+	if (z->error != Z_OK || !*bl)
 	{
 		inflate_error = "Inflate data: Erroneous literal/length tree";
 		z->error = Z_DATA_ERROR;
@@ -1292,7 +1151,7 @@ static void inflate_trees_dynamic(z_stream *z, ulong numLiteral, ulong numDist, 
 	}
 	// build distance tree
 	z->error = huft_build(c + numLiteral, numDist, 0, cpdist, extra_dbits, td, bd, hp, &hn, workspace);
-	if((z->error != Z_OK) || (!*bd && numLiteral > 257))
+	if ((z->error != Z_OK) || (!*bd && numLiteral > 257))
 	{
 		inflate_error = "Inflate data: Erroneous distance tree";
 		z->error = Z_DATA_ERROR;
@@ -1323,23 +1182,23 @@ static void inflate_trees_fixed(z_stream *z, ulong *bl, ulong *bd, inflate_huft_
 
 static void inflate_blocks(inflate_blocks_state_t *s, z_stream *z)
 {
-	ulong					t;				// temporary storage
-	ulong					bytesToEnd;		// bytes to end of window or read pointer
-	ulong					bl, bd;
-	inflate_huft_t			*lengthTree = NULL;
-	inflate_huft_t			*distTree = NULL;
-	inflate_codes_state_t	*c;
+	ulong t;		  // temporary storage
+	ulong bytesToEnd; // bytes to end of window or read pointer
+	ulong bl, bd;
+	inflate_huft_t *lengthTree = NULL;
+	inflate_huft_t *distTree = NULL;
+	inflate_codes_state_t *c;
 
 	// copy input/output information to locals (UPDATE macro restores)
-	bytesToEnd = s->write < s->read ? s->read - s->write - 1 : s->end - s->write; 
+	bytesToEnd = s->write < s->read ? s->read - s->write - 1 : s->end - s->write;
 
 	// process input based on current state
-	while(true)
+	while (true)
 	{
 		switch (s->mode)
 		{
 		case TYPE:
-			if(!getbits(z, s, 3))
+			if (!getbits(z, s, 3))
 			{
 				return;
 			}
@@ -1351,10 +1210,10 @@ static void inflate_blocks(inflate_blocks_state_t *s, z_stream *z)
 			case STORED_BLOCK:
 				s->bitb >>= 3;
 				s->bitk -= 3;
-				t = s->bitk & 7;				// go to byte boundary
+				t = s->bitk & 7; // go to byte boundary
 				s->bitb >>= t;
 				s->bitk -= t;
-				s->mode = LENS; 				// get length of stored block
+				s->mode = LENS; // get length of stored block
 				break;
 			case STATIC_TREES:
 				inflate_trees_fixed(z, &bl, &bd, &lengthTree, &distTree);
@@ -1379,11 +1238,11 @@ static void inflate_blocks(inflate_blocks_state_t *s, z_stream *z)
 			}
 			break;
 		case LENS:
-			if(!getbits(z, s, 32))
+			if (!getbits(z, s, 32))
 			{
 				return;
 			}
-			if(((~s->bitb) >> 16) != (s->bitb & 0xffff))
+			if (((~s->bitb) >> 16) != (s->bitb & 0xffff))
 			{
 				s->mode = BAD;
 				inflate_error = "Inflate data: Invalid stored block lengths";
@@ -1393,26 +1252,26 @@ static void inflate_blocks(inflate_blocks_state_t *s, z_stream *z)
 			}
 			s->left = s->bitb & 0xffff;
 			s->bitb = 0;
-			s->bitk = 0;								// dump bits
+			s->bitk = 0; // dump bits
 			s->mode = s->left ? STORED : (s->last ? DRY : TYPE);
 			break;
 		case STORED:
-			if(!z->avail_in)
+			if (!z->avail_in)
 			{
 				inflate_flush(z, s);
 				return;
 			}
 			bytesToEnd = needout(z, s, bytesToEnd);
-			if(!bytesToEnd)
+			if (!bytesToEnd)
 			{
 				return;
 			}
 			t = s->left;
-			if(t > z->avail_in) 
+			if (t > z->avail_in)
 			{
 				t = z->avail_in;
 			}
-			if(t > bytesToEnd) 
+			if (t > bytesToEnd)
 			{
 				t = bytesToEnd;
 			}
@@ -1423,20 +1282,20 @@ static void inflate_blocks(inflate_blocks_state_t *s, z_stream *z)
 			s->write += t;
 			bytesToEnd -= t;
 			s->left -= t;
-			if(s->left)
+			if (s->left)
 			{
 				break;
 			}
 			s->mode = s->last ? DRY : TYPE;
 			break;
 		case TABLE:
-			if(!getbits(z, s, 14))
+			if (!getbits(z, s, 14))
 			{
 				return;
 			}
 			t = s->bitb & 0x3fff;
 			s->trees.table = t;
-			if((t & 0x1f) > 29 || ((t >> 5) & 0x1f) > 29)
+			if ((t & 0x1f) > 29 || ((t >> 5) & 0x1f) > 29)
 			{
 				s->mode = BAD;
 				inflate_error = "Inflate data: Too many length or distance symbols";
@@ -1451,9 +1310,9 @@ static void inflate_blocks(inflate_blocks_state_t *s, z_stream *z)
 			s->trees.index = 0;
 			s->mode = BTREE;
 		case BTREE:
-			while(s->trees.index < 4 + (s->trees.table >> 10))
+			while (s->trees.index < 4 + (s->trees.table >> 10))
 			{
-				if(!getbits(z, s, 3))
+				if (!getbits(z, s, 3))
 				{
 					return;
 				}
@@ -1461,13 +1320,13 @@ static void inflate_blocks(inflate_blocks_state_t *s, z_stream *z)
 				s->bitb >>= 3;
 				s->bitk -= 3;
 			}
-			while(s->trees.index < 19)
+			while (s->trees.index < 19)
 			{
 				s->trees.blens[border[s->trees.index++]] = 0;
 			}
 			s->trees.bb = 7;
 			inflate_trees_bits(z, s->trees.blens, &s->trees.bb, &s->trees.tb, s->hufts);
-			if(z->error != Z_OK)
+			if (z->error != Z_OK)
 			{
 				Z_Free(s->trees.blens);
 				s->mode = BAD;
@@ -1477,30 +1336,30 @@ static void inflate_blocks(inflate_blocks_state_t *s, z_stream *z)
 			s->trees.index = 0;
 			s->mode = DTREE;
 		case DTREE:
-			while(t = s->trees.table, s->trees.index < 258 + (t & 0x1f) + ((t >> 5) & 0x1f))
+			while (t = s->trees.table, s->trees.index < 258 + (t & 0x1f) + ((t >> 5) & 0x1f))
 			{
 				inflate_huft_t *h;
 				ulong i, j, c;
 
 				t = s->trees.bb;
-				if(!getbits(z, s, t))
+				if (!getbits(z, s, t))
 				{
 					return;
 				}
 				h = s->trees.tb + (s->bitb & inflate_mask[t]);
 				t = h->Bits;
 				c = h->base;
-				if(c < 16)
+				if (c < 16)
 				{
 					s->bitb >>= t;
 					s->bitk -= t;
 					s->trees.blens[s->trees.index++] = c;
 				}
-				else	// c == 16..18
+				else // c == 16..18
 				{
 					i = (c == 18) ? 7 : c - 14;
 					j = (c == 18) ? 11 : 3;
-					if(!getbits(z, s, t + i))
+					if (!getbits(z, s, t + i))
 					{
 						return;
 					}
@@ -1511,7 +1370,7 @@ static void inflate_blocks(inflate_blocks_state_t *s, z_stream *z)
 					s->bitk -= i;
 					i = s->trees.index;
 					t = s->trees.table;
-					if(i + j > 258 + (t & 0x1f) + ((t >> 5) & 0x1f) || (c == 16 && i < 1))
+					if (i + j > 258 + (t & 0x1f) + ((t >> 5) & 0x1f) || (c == 16 && i < 1))
 					{
 						Z_Free(s->trees.blens);
 						s->mode = BAD;
@@ -1524,18 +1383,18 @@ static void inflate_blocks(inflate_blocks_state_t *s, z_stream *z)
 					do
 					{
 						s->trees.blens[i++] = c;
-					} while(--j);
+					} while (--j);
 					s->trees.index = i;
 				}
 			}
 			s->trees.tb = NULL;
 
-			bl = 9; 					// must be <= 9 for lookahead assumptions
-			bd = 6; 					// must be <= 9 for lookahead assumptions
+			bl = 9; // must be <= 9 for lookahead assumptions
+			bd = 6; // must be <= 9 for lookahead assumptions
 			t = s->trees.table;
 			inflate_trees_dynamic(z, 257 + (t & 0x1f), 1 + ((t >> 5) & 0x1f), s->trees.blens, &bl, &bd, &lengthTree, &distTree, s->hufts);
 			Z_Free(s->trees.blens);
-			if(z->error != Z_OK)
+			if (z->error != Z_OK)
 			{
 				s->mode = BAD;
 				inflate_flush(z, s);
@@ -1546,15 +1405,15 @@ static void inflate_blocks(inflate_blocks_state_t *s, z_stream *z)
 			s->mode = CODES;
 		case CODES:
 			inflate_codes(z, s);
-			if(z->error != Z_STREAM_END)
+			if (z->error != Z_STREAM_END)
 			{
 				inflate_flush(z, s);
 				return;
 			}
 			z->error = Z_OK;
 			Z_Free(s->decode.codes);
-			bytesToEnd = s->write < s->read ? s->read - s->write - 1 : s->end - s->write; 
-			if(!s->last)
+			bytesToEnd = s->write < s->read ? s->read - s->write - 1 : s->end - s->write;
+			if (!s->last)
 			{
 				s->mode = TYPE;
 				break;
@@ -1563,7 +1422,7 @@ static void inflate_blocks(inflate_blocks_state_t *s, z_stream *z)
 		case DRY:
 			inflate_flush(z, s);
 			bytesToEnd = s->write < s->read ? s->read - s->write - 1 : s->end - s->write;
-			if(s->read != s->write)
+			if (s->read != s->write)
 			{
 				inflate_error = "Inflate data: read != write in DRY";
 				inflate_flush(z, s);
@@ -1591,17 +1450,17 @@ EStatus inflateEnd(z_stream *z)
 {
 	assert(z);
 
-	if(z->istate->blocks)
+	if (z->istate->blocks)
 	{
 		inflate_blocks_free(z, z->istate->blocks);
 		z->istate->blocks = NULL;
 	}
-	if(z->istate)
+	if (z->istate)
 	{
 		Z_Free(z->istate);
 		z->istate = NULL;
 	}
-	return(Z_OK);
+	return (Z_OK);
 }
 
 // ===============================================================================
@@ -1625,19 +1484,19 @@ EStatus inflateInit(z_stream *z, EFlush flush, int noWrap)
 	z->istate->blocks = inflate_blocks_new(z, NULL);
 
 	z->status = Z_OK;
-	if(flush == Z_FINISH)
+	if (flush == Z_FINISH)
 	{
 		z->status = Z_BUF_ERROR;
 	}
 
 	// reset state
 	z->istate->mode = imMETHOD;
-	if(z->istate->nowrap)
+	if (z->istate->nowrap)
 	{
 		z->istate->mode = imBLOCKS;
 	}
 	inflate_blocks_reset(z, z->istate->blocks);
-	return(Z_OK);
+	return (Z_OK);
 }
 
 // ===============================================================================
@@ -1645,71 +1504,71 @@ EStatus inflateInit(z_stream *z, EFlush flush, int noWrap)
 
 EStatus inflate(z_stream *z)
 {
-	ulong		b;
+	ulong b;
 
 	// Sanity check data
 	assert(z);
 	assert(z->istate);
 
-	while(true)
+	while (true)
 	{
 		switch (z->istate->mode)
 		{
 		case imMETHOD:
-			if(!z->avail_in)
+			if (!z->avail_in)
 			{
-				return(z->status);
+				return (z->status);
 			}
 			z->istate->method = *z->next_in++;
 			z->avail_in--;
 			z->total_in++;
-			if((z->istate->method & 0xf) != ZF_DEFLATED)
+			if ((z->istate->method & 0xf) != ZF_DEFLATED)
 			{
 				z->istate->mode = imBAD;
 				inflate_error = "Inflate data: Unknown compression method";
-				return(Z_DATA_ERROR);
+				return (Z_DATA_ERROR);
 			}
-			if((z->istate->method >> 4) + 8 > z->istate->wbits)
+			if ((z->istate->method >> 4) + 8 > z->istate->wbits)
 			{
 				z->istate->mode = imBAD;
 				inflate_error = "Inflate data: Invalid window size";
-				return(Z_DATA_ERROR);
+				return (Z_DATA_ERROR);
 			}
 			z->istate->mode = imFLAG;
 			break;
 		case imFLAG:
-			if(!z->avail_in)
+			if (!z->avail_in)
 			{
-				return(z->status);
+				return (z->status);
 			}
 			b = *z->next_in++;
 			z->avail_in--;
 			z->total_in++;
-			if(((z->istate->method << 8) + b) % 31)
+			if (((z->istate->method << 8) + b) % 31)
 			{
 				z->istate->mode = imBAD;
 				inflate_error = "Inflate data: Incorrect header check";
-				return(Z_DATA_ERROR);
+				return (Z_DATA_ERROR);
 			}
 			z->istate->mode = imBLOCKS;
 			break;
 		case imBLOCKS:
 			inflate_blocks(z->istate->blocks, z);
-			
+
 			// Make sure everything processed ok
-			if(z->error == Z_DATA_ERROR)
+			if (z->error == Z_DATA_ERROR)
 			{
 				z->istate->mode = imBAD;
-				return(Z_DATA_ERROR);
+				return (Z_DATA_ERROR);
 			}
 
-			if(z->error != Z_STREAM_END)
+			if (z->error != Z_STREAM_END)
 			{
-				return(z->status);
+				return (z->status);
 			}
 			z->istate->calcadler = z->istate->adler;
 			inflate_blocks_reset(z, z->istate->blocks);
-			if(z->istate->nowrap)
+			if (z->istate->nowrap)
 			{
 				z->istate->mode = imDONE;
 				break;
@@ -1717,9 +1576,9 @@ EStatus inflate(z_stream *z)
 			z->istate->mode = imCHECK4;
 			break;
 		case imCHECK4:
-			if(!z->avail_in)
+			if (!z->avail_in)
 			{
-				return(z->status);
+				return (z->status);
 			}
 			z->istate->adler = *z->next_in++ << 24;
 			z->avail_in--;
@@ -1727,9 +1586,9 @@ EStatus inflate(z_stream *z)
 			z->istate->mode = imCHECK3;
 			break;
 		case imCHECK3:
-			if(!z->avail_in)
+			if (!z->avail_in)
 			{
-				return(z->status);
+				return (z->status);
 			}
 			z->istate->adler += *z->next_in++ << 16;
 			z->avail_in--;
@@ -1737,9 +1596,9 @@ EStatus inflate(z_stream *z)
 			z->istate->mode = imCHECK2;
 			break;
 		case imCHECK2:
-			if(!z->avail_in)
+			if (!z->avail_in)
 			{
-				return(z->status);
+				return (z->status);
 			}
 			z->istate->adler += *z->next_in++ << 8;
 			z->avail_in--;
@@ -1747,15 +1606,15 @@ EStatus inflate(z_stream *z)
 			z->istate->mode = imCHECK1;
 			break;
 		case imCHECK1:
-			if(!z->avail_in)
+			if (!z->avail_in)
 			{
-				return(z->status);
+				return (z->status);
 			}
 			z->istate->adler += *z->next_in++;
 			z->avail_in--;
 			z->total_in++;
 
-			if(z->istate->calcadler != z->istate->adler)
+			if (z->istate->calcadler != z->istate->adler)
 			{
 				inflate_error = "Inflate data: Failed Adler checksum";
 				z->istate->mode = imBAD;
@@ -1764,15 +1623,15 @@ EStatus inflate(z_stream *z)
 			z->istate->mode = imDONE;
 			break;
 		case imDONE:
-			return(Z_STREAM_END);
+			return (Z_STREAM_END);
 		case imBAD:
-			return(Z_DATA_ERROR);
+			return (Z_DATA_ERROR);
 		default:
-			return(Z_STREAM_ERROR);
+			return (Z_STREAM_ERROR);
 		}
 	}
 	assert(0);
-	return(Z_OK);
+	return (Z_OK);
 }
 
 // ===============================================================================
@@ -1780,7 +1639,7 @@ EStatus inflate(z_stream *z)
 
 const char *inflateError(void)
 {
-	return(inflate_error);
+	return (inflate_error);
 }
 
 // ===============================================================================
@@ -1789,7 +1648,7 @@ const char *inflateError(void)
 
 bool InflateFile(byte *src, ulong compressedSize, byte *dst, ulong uncompressedSize, int noWrap)
 {
-	z_stream	z = { 0 };
+	z_stream z = {0};
 
 	inflateInit(&z, Z_FINISH, noWrap);
 
@@ -1801,43 +1660,43 @@ bool InflateFile(byte *src, ulong compressedSize, byte *dst, ulong uncompressedS
 #ifdef _TIMING
 	int temp = timeGetTime();
 #endif
-	if(inflate(&z) != Z_STREAM_END)
+	if (inflate(&z) != Z_STREAM_END)
 	{
 		inflate_error = "Inflate data: Stream did not end";
 		inflateEnd(&z);
-		return(false);
+		return (false);
 	}
 #ifdef _TIMING
 	totalInflateTime += timeGetTime() - temp;
 	totalInflateCount++;
 #endif
 
-	if(z.avail_in)
+	if (z.avail_in)
 	{
 		inflate_error = "Inflate data: Remaining input data at stream end";
 		inflateEnd(&z);
-		return(false);
+		return (false);
 	}
-	if(z.avail_out)
+	if (z.avail_out)
 	{
 		inflate_error = "Inflate data: Remaining output space at stream end";
 		inflateEnd(&z);
-		return(false);
+		return (false);
 	}
-	if(z.total_in != compressedSize)
+	if (z.total_in != compressedSize)
 	{
 		inflate_error = "Inflate data: Number of processed bytes != compressed size";
 		inflateEnd(&z);
-		return(false);
+		return (false);
 	}
-	if(z.total_out != uncompressedSize)
+	if (z.total_out != uncompressedSize)
 	{
 		inflate_error = "Inflate data: Number of bytes output != uncompressed size";
 		inflateEnd(&z);
-		return(false);
+		return (false);
 	}
 	inflateEnd(&z);
-	return(true);
+	return (true);
 }
 
 // end

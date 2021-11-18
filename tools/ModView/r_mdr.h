@@ -4,14 +4,11 @@
 //
 
 #ifndef R_MDR_H
-#define	R_MDR_H
+#define R_MDR_H
 
+extern qboolean R_LoadMD4(model_t *mod, void *buffer, const char *name);
+void R_AddAnimSurfaces(trRefEntity_t *ent);
 
-extern qboolean R_LoadMD4 (model_t *mod, void *buffer, const char *name );
-void R_AddAnimSurfaces( trRefEntity_t *ent );
-
-
-#endif	// #ifndef R_MDR_H
+#endif // #ifndef R_MDR_H
 
 /////////////////////// eof /////////////////////
-

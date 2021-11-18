@@ -9,10 +9,10 @@
 #endif // _MSC_VER > 1000
 
 #ifndef __AFXWIN_H__
-	#error include 'stdafx.h' before including this file for PCH
+#error include 'stdafx.h' before including this file for PCH
 #endif
 
-#include "resource.h"       // main symbols
+#include "resource.h" // main symbols
 
 /////////////////////////////////////////////////////////////////////////////
 // CModViewApp:
@@ -22,25 +22,24 @@
 class CModViewApp : public CWinApp
 {
 public:
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual BOOL PreTranslateMessage(MSG *pMsg);
 	CModViewApp();
 
-// Overrides
+	// Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CModViewApp)
-	public:
+public:
 	virtual BOOL InitInstance();
 	virtual BOOL OnIdle(LONG lCount);
 	virtual int ExitInstance();
 	//}}AFX_VIRTUAL
 
-// Implementation
+	// Implementation
 	//{{AFX_MSG(CModViewApp)
 	afx_msg void OnAppAbout();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
-
 
 /////////////////////////////////////////////////////////////////////////////
 

@@ -17,7 +17,7 @@ class FFSet
 	//	Types
 	//
 public:
-	typedef map<string, CImmProject*> TProject;
+	typedef map<string, CImmProject *> TProject;
 	typedef vector<TProject> TInclude;
 	typedef vector<string> TIncludePath;
 
@@ -34,31 +34,30 @@ protected:
 	//	Functions
 	//
 public:
-	FFSet( FFConfigParser &ConfigParser, CImmDevice *Device );
+	FFSet(FFConfigParser &ConfigParser, CImmDevice *Device);
 	~FFSet();
-	MultiEffect* Register( const char *path, qboolean create = qtrue );
-	void GetRegisteredNames( TNameTable &NameTable );
-	qboolean StopAll( void );
+	MultiEffect *Register(const char *path, qboolean create = qtrue);
+	void GetRegisteredNames(TNameTable &NameTable);
+	qboolean StopAll(void);
 
 protected:
-	void InitIncludes( const char *setname = NULL );
+	void InitIncludes(const char *setname = NULL);
 
 	//
 	//	Optional
 	//
 #ifdef FF_ACCESSOR
 public:
-	CImmDevice* GetDevice( void ) { return mDevice; }
+	CImmDevice *GetDevice(void) { return mDevice; }
 #endif
 
 #ifdef FF_CONSOLECOMMAND
 public:
-	void Display( TNameTable &Unprocessed, TNameTable &Processed );
-	void DisplaySearchOrder( void );
-	void DisplayLoadedFiles( void );
-	static void GetDisplayTokens( TNameTable &Tokens );
+	void Display(TNameTable &Unprocessed, TNameTable &Processed);
+	void DisplaySearchOrder(void);
+	void DisplayLoadedFiles(void);
+	static void GetDisplayTokens(TNameTable &Tokens);
 #endif
-
 };
 
 #endif // FFSET_H

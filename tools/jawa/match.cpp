@@ -6,35 +6,29 @@
 //-----------------------------------------------------------------------------
 #include "match.h"
 
-
-
-
 #ifdef _DEBUG
 //-----------------------------------------------------------------------------
 // Name: Print
 // Desc: Write formatted debug output
 //-----------------------------------------------------------------------------
-static VOID __cdecl Print( const WCHAR* strFormat, ... )
+static VOID __cdecl Print(const WCHAR *strFormat, ...)
 {
     const int MAX_OUTPUT_STR = 80;
-    WCHAR strBuffer[ MAX_OUTPUT_STR ];
+    WCHAR strBuffer[MAX_OUTPUT_STR];
     va_list pArglist;
-    va_start( pArglist, strFormat );
+    va_start(pArglist, strFormat);
 
-    INT iChars= wvsprintfW( strBuffer, strFormat, pArglist );
-    assert( iChars < MAX_OUTPUT_STR );
+    INT iChars = wvsprintfW(strBuffer, strFormat, pArglist);
+    assert(iChars < MAX_OUTPUT_STR);
     (VOID) iChars; // Avoid compiler warning
 
-    OutputDebugStringW( L"\n*** Matchmaking: " );
-    OutputDebugStringW( strBuffer );
-    OutputDebugStringW( L"\n\n" );
+    OutputDebugStringW(L"\n*** Matchmaking: ");
+    OutputDebugStringW(strBuffer);
+    OutputDebugStringW(L"\n\n");
 
-    va_end( pArglist );
+    va_end(pArglist);
 }
 #endif
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: CSession
@@ -50,9 +44,6 @@ CSession::CSession()
     SetupAttributes();
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: ~CSession
 // Desc: Destructor
@@ -62,9 +53,6 @@ CSession::~CSession()
     Reset();
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: Reset
 // Desc: Reset the Session
@@ -72,17 +60,14 @@ CSession::~CSession()
 VOID CSession::Reset()
 {
     Close();
-    Listen( FALSE, NO_WAIT );
-    PurgeSessionQ( TRUE );
-    if( m_bKeyRegistered )
+    Listen(FALSE, NO_WAIT);
+    PurgeSessionQ(TRUE);
+    if (m_bKeyRegistered)
     {
-        XNetUnregisterKey( &SessionID );
+        XNetUnregisterKey(&SessionID);
         m_bKeyRegistered = FALSE;
     }
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: Create
@@ -90,30 +75,26 @@ VOID CSession::Reset()
 //-----------------------------------------------------------------------------
 HRESULT CSession::Create()
 {
-    assert( m_State == STATE_IDLE );
+    assert(m_State == STATE_IDLE);
 
-    HRESULT hr = XOnlineMatchSessionCreate( PublicFilled, PublicOpen,
-        PrivateFilled, PrivateOpen, NUM_ATTRIBUTES, m_Attributes, NULL,
-        &m_hSessionTask );
+    HRESULT hr = XOnlineMatchSessionCreate(PublicFilled, PublicOpen,
+                                           PrivateFilled, PrivateOpen, NUM_ATTRIBUTES, m_Attributes, NULL,
+                                           &m_hSessionTask);
 
-    if( hr == S_OK )
+    if (hr == S_OK)
     {
         m_State = STATE_CREATING;
     }
     else
     {
 #ifdef _DEBUG
-        Print( L"Session Creation Failed with 0x%%x", hr );
+        Print(L"Session Creation Failed with 0x%%x", hr);
 
 #endif
     }
 
     return hr;
-
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: Update
@@ -121,7 +102,7 @@ HRESULT CSession::Create()
 //-----------------------------------------------------------------------------
 HRESULT CSession::Update()
 {
-    switch ( m_State )
+    switch (m_State)
     {
     case STATE_IDLE:
     case STATE_DELETING:
@@ -134,40 +115,36 @@ HRESULT CSession::Update()
         m_bUpdate = TRUE;
         return S_OK;
     case STATE_ACTIVE:
+    {
+        XOnlineTaskClose(m_hSessionTask);
+        m_hSessionTask = NULL;
+
+        HRESULT hr = XOnlineMatchSessionUpdate(SessionID,
+                                               PublicFilled, PublicOpen, PrivateFilled,
+                                               PrivateOpen, NUM_ATTRIBUTES, m_Attributes, NULL,
+                                               &m_hSessionTask);
+
+        m_bUpdate = FALSE; // Clear update flag since we just updated
+
+        if (SUCCEEDED(hr))
         {
-            XOnlineTaskClose( m_hSessionTask );
-            m_hSessionTask = NULL;
-
-            HRESULT hr = XOnlineMatchSessionUpdate( SessionID,
-                PublicFilled, PublicOpen, PrivateFilled,
-                PrivateOpen, NUM_ATTRIBUTES, m_Attributes, NULL,
-                &m_hSessionTask );
-
-            m_bUpdate = FALSE;  // Clear update flag since we just updated
-
-            if( SUCCEEDED( hr ) )
-            {
-                m_State = STATE_UPDATING;
-            }
-            else
-            {
-#ifdef _DEBUG
-                Print( L"Session Update Failed with 0x%%x", hr );
-#endif
-                Close();
-            }
-
-            return hr;
+            m_State = STATE_UPDATING;
         }
+        else
+        {
+#ifdef _DEBUG
+            Print(L"Session Update Failed with 0x%%x", hr);
+#endif
+            Close();
+        }
+
+        return hr;
+    }
     default:
         assert(0);
         return E_UNEXPECTED;
-
     }
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: Delete
@@ -177,42 +154,41 @@ HRESULT CSession::Delete()
 {
     HRESULT hr = S_OK;
 
-
-    switch( m_State )
+    switch (m_State)
     {
     case STATE_IDLE:
         break;
     case STATE_CREATING:
-        Close();  // Close down create task
+        Close(); // Close down create task
         break;
     case STATE_UPDATING:
-        Close();  // Close down update task
-        Listen( FALSE );  // Send go-aways
+        Close();       // Close down update task
+        Listen(FALSE); // Send go-aways
         break;
     case STATE_DELETING:
         break;
     case STATE_ACTIVE:
-        if( m_bListening )
+        if (m_bListening)
         {
-            Listen( FALSE );
+            Listen(FALSE);
         }
         else
         {
-            INT iResult = XNetUnregisterKey( &SessionID );
-            assert( iResult == 0 );
+            INT iResult = XNetUnregisterKey(&SessionID);
+            assert(iResult == 0);
             (VOID) iResult; // Avoid compiler warning
         }
         m_bKeyRegistered = FALSE;
         Close();
-        hr = XOnlineMatchSessionDelete( SessionID, NULL, &m_hSessionTask );
-        if(SUCCEEDED( hr ) )
+        hr = XOnlineMatchSessionDelete(SessionID, NULL, &m_hSessionTask);
+        if (SUCCEEDED(hr))
         {
             m_State = STATE_DELETING;
         }
         else
         {
 #ifdef _DEBUG
-            Print( L"Session Delete Failed with 0x%x", hr );
+            Print(L"Session Delete Failed with 0x%x", hr);
 #endif
         }
 
@@ -222,58 +198,55 @@ HRESULT CSession::Delete()
     return hr;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: ProcessStateCreateSession
 // Desc: Continue servicing the creation task
 //-----------------------------------------------------------------------------
 HRESULT CSession::ProcessStateCreateSession()
 {
-    HRESULT hr  = XOnlineTaskContinue( m_hSessionTask );
-    if( hr != XONLINETASK_S_RUNNING )
+    HRESULT hr = XOnlineTaskContinue(m_hSessionTask);
+    if (hr != XONLINETASK_S_RUNNING)
     {
-        if( FAILED( hr ) )
+        if (FAILED(hr))
         {
             Close();
 #ifdef _DEBUG
-            Print( L"Session Creation Failed with 0x%x", hr );
+            Print(L"Session Creation Failed with 0x%x", hr);
 #endif
         }
         else
         {
- 
+
             // Extract the new session ID and Key-Exchange Key
             HRESULT hrGet = XOnlineMatchSessionGetInfo(
-                m_hSessionTask,  &SessionID, &KeyExchangeKey );
-            assert( SUCCEEDED( hrGet ) );
-            (VOID)hrGet; // Avoid compiler warning
+                m_hSessionTask, &SessionID, &KeyExchangeKey);
+            assert(SUCCEEDED(hrGet));
+            (VOID) hrGet; // Avoid compiler warning
             m_State = STATE_ACTIVE;
 
-            INT iKeyRegistered = XNetRegisterKey( &SessionID, 
-                &KeyExchangeKey );
-            if( iKeyRegistered == WSAENOMORE )
+            INT iKeyRegistered = XNetRegisterKey(&SessionID,
+                                                 &KeyExchangeKey);
+            if (iKeyRegistered == WSAENOMORE)
             {
 #ifdef _DEBUG
-                Print( L"Out of keys... Purging SessionQ and trying again" );
+                Print(L"Out of keys... Purging SessionQ and trying again");
 #endif
                 // Too many keys have been registered, remove
                 // the registered key on the session queue and try again
                 PurgeSessionQHead();
-                iKeyRegistered = XNetRegisterKey( &SessionID, 
-                    &KeyExchangeKey );
+                iKeyRegistered = XNetRegisterKey(&SessionID,
+                                                 &KeyExchangeKey);
             }
-            assert( iKeyRegistered == NO_ERROR );
-            m_bKeyRegistered = ( iKeyRegistered == NO_ERROR);
+            assert(iKeyRegistered == NO_ERROR);
+            m_bKeyRegistered = (iKeyRegistered == NO_ERROR);
 
             // Start listening for Qos probes for this new session
-            Listen( TRUE );
+            Listen(TRUE);
 
             // If a call to Update() was made while the session
             // was being created, call Update to send the new
             // information.
-            if( m_bUpdate )
+            if (m_bUpdate)
             {
                 hr = Update();
             }
@@ -283,23 +256,20 @@ HRESULT CSession::ProcessStateCreateSession()
     return hr;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: ProcessStateUpdateSession
 // Desc: Continue servicing the session update task
 //-----------------------------------------------------------------------------
 HRESULT CSession::ProcessStateUpdateSession()
 {
-    HRESULT hr  = XOnlineTaskContinue( m_hSessionTask );
-    if( hr != XONLINETASK_S_RUNNING )
+    HRESULT hr = XOnlineTaskContinue(m_hSessionTask);
+    if (hr != XONLINETASK_S_RUNNING)
     {
-        if( FAILED( hr ) )
+        if (FAILED(hr))
         {
             Close();
 #ifdef _DEBUG
-            Print( L"Session Update Failed with 0x%x", hr );
+            Print(L"Session Update Failed with 0x%x", hr);
 #endif
         }
         else
@@ -309,7 +279,7 @@ HRESULT CSession::ProcessStateUpdateSession()
             // If a call to Update() was made while the session
             // was already being updated, call Update to send the new
             // information.
-            if( m_bUpdate )
+            if (m_bUpdate)
             {
                 hr = Update();
             }
@@ -319,22 +289,19 @@ HRESULT CSession::ProcessStateUpdateSession()
     return hr;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: ProcessStateDeleteSession
 // Desc: Continue servicing the session deletion task
 //-----------------------------------------------------------------------------
 HRESULT CSession::ProcessStateDeleteSession()
 {
-    HRESULT hr  = XOnlineTaskContinue( m_hSessionTask );
-    if( hr != XONLINETASK_S_RUNNING )
+    HRESULT hr = XOnlineTaskContinue(m_hSessionTask);
+    if (hr != XONLINETASK_S_RUNNING)
     {
-        if( FAILED( hr ) )
+        if (FAILED(hr))
         {
 #ifdef _DEBUG
-            Print( L"Session Delete Failed with 0x%%x", hr );
+            Print(L"Session Delete Failed with 0x%%x", hr);
 #endif
         }
 
@@ -344,29 +311,23 @@ HRESULT CSession::ProcessStateDeleteSession()
     return hr;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: ProcessStateActiveSession
 // Desc: Continue servicing the session task
 //-----------------------------------------------------------------------------
 HRESULT CSession::ProcessStateActiveSession()
 {
-    HRESULT hr  = XOnlineTaskContinue( m_hSessionTask );
-    if( FAILED( hr ) )
+    HRESULT hr = XOnlineTaskContinue(m_hSessionTask);
+    if (FAILED(hr))
     {
         Close();
 #ifdef _DEBUG
-        Print( L"Session Task Failed with 0x%%x", hr );
+        Print(L"Session Task Failed with 0x%%x", hr);
 #endif
     }
 
     return hr;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: Process
@@ -377,17 +338,29 @@ HRESULT CSession::Process()
     PurgeSessionQ();
     HRESULT hr;
 
-    switch( m_State )
+    switch (m_State)
     {
-    case STATE_IDLE:       hr = XONLINETASK_S_SUCCESS;       break;
-    case STATE_CREATING:   hr = ProcessStateCreateSession(); break;
-    case STATE_UPDATING:   hr = ProcessStateUpdateSession(); break;
-    case STATE_DELETING:   hr = ProcessStateDeleteSession(); break;
-    case STATE_ACTIVE:     hr = ProcessStateActiveSession(); break;
-    default: assert(0);    return E_UNEXPECTED;
+    case STATE_IDLE:
+        hr = XONLINETASK_S_SUCCESS;
+        break;
+    case STATE_CREATING:
+        hr = ProcessStateCreateSession();
+        break;
+    case STATE_UPDATING:
+        hr = ProcessStateUpdateSession();
+        break;
+    case STATE_DELETING:
+        hr = ProcessStateDeleteSession();
+        break;
+    case STATE_ACTIVE:
+        hr = ProcessStateActiveSession();
+        break;
+    default:
+        assert(0);
+        return E_UNEXPECTED;
     }
 
-    if( FAILED( hr ) )
+    if (FAILED(hr))
     {
         Reset();
     }
@@ -395,18 +368,15 @@ HRESULT CSession::Process()
     return hr;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: Close
 // Desc: Close down any session tasks
 //-----------------------------------------------------------------------------
 VOID CSession::Close()
 {
-    if( m_hSessionTask )
+    if (m_hSessionTask)
     {
-        XOnlineTaskClose( m_hSessionTask);
+        XOnlineTaskClose(m_hSessionTask);
         m_hSessionTask = NULL;
         m_State = STATE_IDLE;
     }
@@ -414,27 +384,24 @@ VOID CSession::Close()
     m_bUpdate = FALSE;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: PurgeSessionQ
 // Desc: Cease Qos listening, and unregister, old SessionIDs
 //-----------------------------------------------------------------------------
-VOID CSession::PurgeSessionQ( BOOL fRemoveAll )
+VOID CSession::PurgeSessionQ(BOOL fRemoveAll)
 {
-    // Cleanup any registered SessionIDs which are sending 
+    // Cleanup any registered SessionIDs which are sending
     // go-away qos responses
     const DWORD QOS_PROBE_REJECT_TIMELIMIT = 15000; // timeout in ms
 
     const QosQEntry *pItem;
-    // Entries in the queue are in reverse chronological order, 
+    // Entries in the queue are in reverse chronological order,
     // so we can stop once we encounter an entry that has not reached
     // the time limit
-    while( ( pItem = m_SessionQosQ.Head() ) != NULL )
+    while ((pItem = m_SessionQosQ.Head()) != NULL)
     {
-        if( fRemoveAll || 
-            GetTickCount() - pItem->dwStartTick >= QOS_PROBE_REJECT_TIMELIMIT )
+        if (fRemoveAll ||
+            GetTickCount() - pItem->dwStartTick >= QOS_PROBE_REJECT_TIMELIMIT)
         {
             PurgeSessionQHead();
         }
@@ -443,9 +410,6 @@ VOID CSession::PurgeSessionQ( BOOL fRemoveAll )
     }
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: PurgeSessionQHead
 // Desc: Cease Qos listening, and unregister, the first session on the queue
@@ -453,27 +417,24 @@ VOID CSession::PurgeSessionQ( BOOL fRemoveAll )
 VOID CSession::PurgeSessionQHead()
 {
     const QosQEntry *pItem;
-    if ( ( pItem = m_SessionQosQ.Head() ) != NULL )
+    if ((pItem = m_SessionQosQ.Head()) != NULL)
     {
 #ifdef _DEBUG
-        Print( L"Qos listening rejection period expired for 0x%x", pItem );
+        Print(L"Qos listening rejection period expired for 0x%x", pItem);
 #endif
-        INT iQos = XNetQosListen( &pItem->SessionID, NULL, 0, 0, XNET_QOS_LISTEN_RELEASE );
-        assert( iQos == 0 );
+        INT iQos = XNetQosListen(&pItem->SessionID, NULL, 0, 0, XNET_QOS_LISTEN_RELEASE);
+        assert(iQos == 0);
         (VOID) iQos;
         // If this SessionID is not in use, unregister it
-        if( !m_bKeyRegistered || memcmp( &pItem->SessionID, &SessionID, sizeof( XNKID ) ) != 0 )
+        if (!m_bKeyRegistered || memcmp(&pItem->SessionID, &SessionID, sizeof(XNKID)) != 0)
         {
-            INT iResult = XNetUnregisterKey( &pItem->SessionID );
-            assert( iResult == 0 );
+            INT iResult = XNetUnregisterKey(&pItem->SessionID);
+            assert(iResult == 0);
             (VOID) iResult;
         }
         m_SessionQosQ.Dequeue();
     }
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: Listen
@@ -484,54 +445,51 @@ VOID CSession::PurgeSessionQHead()
 // FALSE       Bandwidth setting (zero is default, NO_WAIT means shut down
 //             immediately)
 //-----------------------------------------------------------------------------
-VOID CSession::Listen( BOOL bEnable, DWORD dwBitsPerSec )
+VOID CSession::Listen(BOOL bEnable, DWORD dwBitsPerSec)
 {
-    if( bEnable )
+    if (bEnable)
     {
-        m_SessionQosQ.Remove( SessionID );
-        INT iQos = XNetQosListen( &SessionID, (BYTE *) m_QosResponse.Data,
-            m_QosResponse.Length, dwBitsPerSec, 
-            XNET_QOS_LISTEN_ENABLE | XNET_QOS_LISTEN_SET_DATA |
-            XNET_QOS_LISTEN_SET_BITSPERSEC );
-        assert( iQos == 0 );
-        (VOID)iQos; // Avoid compiler warning
+        m_SessionQosQ.Remove(SessionID);
+        INT iQos = XNetQosListen(&SessionID, (BYTE *)m_QosResponse.Data,
+                                 m_QosResponse.Length, dwBitsPerSec,
+                                 XNET_QOS_LISTEN_ENABLE | XNET_QOS_LISTEN_SET_DATA |
+                                     XNET_QOS_LISTEN_SET_BITSPERSEC);
+        assert(iQos == 0);
+        (VOID) iQos; // Avoid compiler warning
         m_bListening = TRUE;
     }
     else
     {
-        if( m_bListening )
+        if (m_bListening)
         {
             INT iQos;
             m_bListening = FALSE;
-            if( dwBitsPerSec == NO_WAIT ) // Stop listening, and release Qos resources
+            if (dwBitsPerSec == NO_WAIT) // Stop listening, and release Qos resources
             {
 #ifdef _DEBUG
-                Print( L"Qos listening stopped" );
+                Print(L"Qos listening stopped");
 #endif
-                iQos = XNetQosListen( &SessionID, NULL, 0, 0, XNET_QOS_LISTEN_RELEASE );
-                assert( iQos == 0 );
+                iQos = XNetQosListen(&SessionID, NULL, 0, 0, XNET_QOS_LISTEN_RELEASE);
+                assert(iQos == 0);
             }
             else
             {
                 // Start rejecting probes for a period of time by sending a "go away"
                 // response.  Then, after a certain period of time, actually stop
                 // listening by releasing Qos resources
-                m_SessionQosQ.Add( SessionID, GetTickCount() );
-                iQos = XNetQosListen( &SessionID, NULL, 0, 
-                    dwBitsPerSec, 
-                    XNET_QOS_LISTEN_DISABLE | XNET_QOS_LISTEN_SET_BITSPERSEC );
-                assert( iQos == 0 );
+                m_SessionQosQ.Add(SessionID, GetTickCount());
+                iQos = XNetQosListen(&SessionID, NULL, 0,
+                                     dwBitsPerSec,
+                                     XNET_QOS_LISTEN_DISABLE | XNET_QOS_LISTEN_SET_BITSPERSEC);
+                assert(iQos == 0);
 #ifdef _DEBUG
-                Print( L"Qos probe rejection period started for 0x%x", m_SessionQosQ.Tail() );
+                Print(L"Qos probe rejection period started for 0x%x", m_SessionQosQ.Tail());
 #endif
             }
-            (VOID)iQos; // Avoid compiler warning
+            (VOID) iQos; // Avoid compiler warning
         }
     }
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: GetQosResponse
@@ -542,28 +500,22 @@ CBlob CSession::GetQosResponse()
     return m_QosResponse;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: SetQosResponse
 // Desc: Set data to be sent in response to Qos probes
 //-----------------------------------------------------------------------------
-VOID  CSession::SetQosResponse( CBlob Value )
+VOID CSession::SetQosResponse(CBlob Value)
 {
     m_QosResponse = Value;
-    if( m_bListening )
+    if (m_bListening)
     {
         // Call XNetQosListen to set the new value
-        INT iQos = XNetQosListen(&SessionID, (BYTE *) m_QosResponse.Data,
-            m_QosResponse.Length, 0, XNET_QOS_LISTEN_SET_DATA  );
-        assert( iQos == 0 );
-        (VOID)iQos; // Avoid compiler warning
+        INT iQos = XNetQosListen(&SessionID, (BYTE *)m_QosResponse.Data,
+                                 m_QosResponse.Length, 0, XNET_QOS_LISTEN_SET_DATA);
+        assert(iQos == 0);
+        (VOID) iQos; // Avoid compiler warning
     }
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: SetupAttributes
@@ -571,7 +523,7 @@ VOID  CSession::SetQosResponse( CBlob Value )
 //-----------------------------------------------------------------------------
 VOID CSession::SetupAttributes()
 {
-    ZeroMemory( &m_Attributes, sizeof( m_Attributes ) );
+    ZeroMemory(&m_Attributes, sizeof(m_Attributes));
     m_Attributes[GAME_TYPE_INDEX].dwAttributeID = XATTRIB_GAME_TYPE;
     m_Attributes[CURRENT_MAP_INDEX].dwAttributeID = XATTRIB_CURRENT_MAP;
     m_Attributes[SESSION_NAME_INDEX].dwAttributeID = XATTRIB_SESSION_NAME;
@@ -584,8 +536,6 @@ VOID CSession::SetupAttributes()
     m_Attributes[DEDICATED_INDEX].dwAttributeID = XATTRIB_DEDICATED;
 }
 
-
-
 //-----------------------------------------------------------------------------
 // Name: GetGameType
 // Desc: Return the value of the 'GameType' attribute
@@ -595,21 +545,15 @@ ULONGLONG CSession::GetGameType()
     return m_Attributes[GAME_TYPE_INDEX].info.integer.qwValue;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: SetGameType
 // Desc: Set the 'GameType' attribute
 //-----------------------------------------------------------------------------
-VOID  CSession::SetGameType( ULONGLONG Value )
+VOID CSession::SetGameType(ULONGLONG Value)
 {
     m_Attributes[GAME_TYPE_INDEX].info.integer.qwValue = Value;
     m_Attributes[GAME_TYPE_INDEX].fChanged = TRUE;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: GetCurrentMap
@@ -620,46 +564,34 @@ ULONGLONG CSession::GetCurrentMap()
     return m_Attributes[CURRENT_MAP_INDEX].info.integer.qwValue;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: SetCurrentMap
 // Desc: Set the 'CurrentMap' attribute
 //-----------------------------------------------------------------------------
-VOID  CSession::SetCurrentMap( ULONGLONG Value )
+VOID CSession::SetCurrentMap(ULONGLONG Value)
 {
     m_Attributes[CURRENT_MAP_INDEX].info.integer.qwValue = Value;
     m_Attributes[CURRENT_MAP_INDEX].fChanged = TRUE;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: GetSessionName
 // Desc: Return the value of the 'SessionName' attribute
 //-----------------------------------------------------------------------------
-const WCHAR * CSession::GetSessionName()
+const WCHAR *CSession::GetSessionName()
 {
     return m_strSessionName;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: SetSessionName
 // Desc: Set the 'SessionName' attribute
 //-----------------------------------------------------------------------------
-VOID  CSession::SetSessionName( const WCHAR * Value )
+VOID CSession::SetSessionName(const WCHAR *Value)
 {
-    wcscpy( m_strSessionName, Value );
+    wcscpy(m_strSessionName, Value);
     m_Attributes[SESSION_NAME_INDEX].fChanged = TRUE;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: GetFriendlyFire
@@ -670,21 +602,15 @@ ULONGLONG CSession::GetFriendlyFire()
     return m_Attributes[FRIENDLY_FIRE_INDEX].info.integer.qwValue;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: SetFriendlyFire
 // Desc: Set the 'FriendlyFire' attribute
 //-----------------------------------------------------------------------------
-VOID  CSession::SetFriendlyFire( ULONGLONG Value )
+VOID CSession::SetFriendlyFire(ULONGLONG Value)
 {
     m_Attributes[FRIENDLY_FIRE_INDEX].info.integer.qwValue = Value;
     m_Attributes[FRIENDLY_FIRE_INDEX].fChanged = TRUE;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: GetJediMastery
@@ -695,21 +621,15 @@ ULONGLONG CSession::GetJediMastery()
     return m_Attributes[JEDI_MASTERY_INDEX].info.integer.qwValue;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: SetJediMastery
 // Desc: Set the 'JediMastery' attribute
 //-----------------------------------------------------------------------------
-VOID  CSession::SetJediMastery( ULONGLONG Value )
+VOID CSession::SetJediMastery(ULONGLONG Value)
 {
     m_Attributes[JEDI_MASTERY_INDEX].info.integer.qwValue = Value;
     m_Attributes[JEDI_MASTERY_INDEX].fChanged = TRUE;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: GetTotalPlayers
@@ -720,21 +640,15 @@ ULONGLONG CSession::GetTotalPlayers()
     return m_Attributes[TOTAL_PLAYERS_INDEX].info.integer.qwValue;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: SetTotalPlayers
 // Desc: Set the 'TotalPlayers' attribute
 //-----------------------------------------------------------------------------
-VOID  CSession::SetTotalPlayers( ULONGLONG Value )
+VOID CSession::SetTotalPlayers(ULONGLONG Value)
 {
     m_Attributes[TOTAL_PLAYERS_INDEX].info.integer.qwValue = Value;
     m_Attributes[TOTAL_PLAYERS_INDEX].fChanged = TRUE;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: GetSaberOnly
@@ -745,21 +659,15 @@ ULONGLONG CSession::GetSaberOnly()
     return m_Attributes[SABER_ONLY_INDEX].info.integer.qwValue;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: SetSaberOnly
 // Desc: Set the 'SaberOnly' attribute
 //-----------------------------------------------------------------------------
-VOID  CSession::SetSaberOnly( ULONGLONG Value )
+VOID CSession::SetSaberOnly(ULONGLONG Value)
 {
     m_Attributes[SABER_ONLY_INDEX].info.integer.qwValue = Value;
     m_Attributes[SABER_ONLY_INDEX].fChanged = TRUE;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: GetDedicated
@@ -770,21 +678,15 @@ ULONGLONG CSession::GetDedicated()
     return m_Attributes[DEDICATED_INDEX].info.integer.qwValue;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: SetDedicated
 // Desc: Set the 'Dedicated' attribute
 //-----------------------------------------------------------------------------
-VOID  CSession::SetDedicated( ULONGLONG Value )
+VOID CSession::SetDedicated(ULONGLONG Value)
 {
     m_Attributes[DEDICATED_INDEX].info.integer.qwValue = Value;
     m_Attributes[DEDICATED_INDEX].fChanged = TRUE;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: CSessionQosQ
@@ -795,45 +697,39 @@ CSession::CSessionQosQ::CSessionQosQ()
     m_pHead = m_pTail = NULL;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: Add
 // Desc: Add a session id to the qos go-away response queue
 //-----------------------------------------------------------------------------
 
-VOID CSession::CSessionQosQ::Add( XNKID & SessionID, DWORD dwStartTick )
+VOID CSession::CSessionQosQ::Add(XNKID &SessionID, DWORD dwStartTick)
 {
-    assert( m_pHead && m_pTail || !m_pHead && !m_pTail );
+    assert(m_pHead && m_pTail || !m_pHead && !m_pTail);
     QosQEntry *pItem = new QosQEntry;
     pItem->SessionID = SessionID;
     pItem->dwStartTick = dwStartTick;
     pItem->pNext = NULL;
-    if( m_pTail )
+    if (m_pTail)
         m_pTail->pNext = pItem;
     m_pTail = pItem;
-    if( !m_pHead )
+    if (!m_pHead)
         m_pHead = pItem;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: Remove
 // Desc: Remove a session from the qos go-away response queue
 //-----------------------------------------------------------------------------
-VOID CSession::CSessionQosQ::Remove( XNKID &SessionID )
+VOID CSession::CSessionQosQ::Remove(XNKID &SessionID)
 {
-    assert( m_pHead && m_pTail || !m_pHead && !m_pTail );
+    assert(m_pHead && m_pTail || !m_pHead && !m_pTail);
     QosQEntry *pPrev = NULL;
 
-    for( QosQEntry *pItem = m_pHead; pItem != NULL; pItem = pItem->pNext )
+    for (QosQEntry *pItem = m_pHead; pItem != NULL; pItem = pItem->pNext)
     {
-        if( memcmp(&pItem->SessionID, &SessionID, sizeof( XNKID ) ) == 0 )
+        if (memcmp(&pItem->SessionID, &SessionID, sizeof(XNKID)) == 0)
         {
-            if( pPrev )
+            if (pPrev)
             {
                 pPrev->pNext = pItem->pNext;
             }
@@ -841,7 +737,7 @@ VOID CSession::CSessionQosQ::Remove( XNKID &SessionID )
             {
                 m_pHead = pItem->pNext;
             }
-            if( pItem == m_pTail )
+            if (pItem == m_pTail)
             {
                 m_pTail = pPrev;
             }
@@ -852,45 +748,36 @@ VOID CSession::CSessionQosQ::Remove( XNKID &SessionID )
     }
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // Name: Dequeue
 // Desc: Remove the head of the qos go-away response queue
 //-----------------------------------------------------------------------------
 VOID CSession::CSessionQosQ::Dequeue()
 {
-    assert( m_pHead && m_pTail || !m_pHead && !m_pTail );
+    assert(m_pHead && m_pTail || !m_pHead && !m_pTail);
     QosQEntry *pItem = m_pHead;
-    if( pItem )
+    if (pItem)
     {
         m_pHead = pItem->pNext;
         delete pItem;
-        if( !m_pHead )
+        if (!m_pHead)
             m_pTail = NULL;
     }
 }
 
-
-
 // Attribute layout for OptiMatch return attributes.
 // This must match the order of both the query return attributes
 // and the fields specified in the COptiMatchResult class.
-static const
-XONLINE_ATTRIBUTE_SPEC OptiMatchAttributeSpec[]=
-{
-    { X_ATTRIBUTE_DATATYPE_INTEGER, sizeof( ULONGLONG ) }, // GameType
-    { X_ATTRIBUTE_DATATYPE_INTEGER, sizeof( ULONGLONG ) }, // CurrentMap
-    { X_ATTRIBUTE_DATATYPE_STRING, ( XATTRIB_SESSION_NAME_MAX_LEN + 1 ) * sizeof( WCHAR ) }, // SessionName
-    { X_ATTRIBUTE_DATATYPE_INTEGER, sizeof( ULONGLONG ) }, // FriendlyFire
-    { X_ATTRIBUTE_DATATYPE_INTEGER, sizeof( ULONGLONG ) }, // JediMastery
-    { X_ATTRIBUTE_DATATYPE_INTEGER, sizeof( ULONGLONG ) }, // SaberOnly
-    { X_ATTRIBUTE_DATATYPE_INTEGER, sizeof( ULONGLONG ) }, // Dedicated
+static const XONLINE_ATTRIBUTE_SPEC OptiMatchAttributeSpec[] =
+    {
+        {X_ATTRIBUTE_DATATYPE_INTEGER, sizeof(ULONGLONG)},                                 // GameType
+        {X_ATTRIBUTE_DATATYPE_INTEGER, sizeof(ULONGLONG)},                                 // CurrentMap
+        {X_ATTRIBUTE_DATATYPE_STRING, (XATTRIB_SESSION_NAME_MAX_LEN + 1) * sizeof(WCHAR)}, // SessionName
+        {X_ATTRIBUTE_DATATYPE_INTEGER, sizeof(ULONGLONG)},                                 // FriendlyFire
+        {X_ATTRIBUTE_DATATYPE_INTEGER, sizeof(ULONGLONG)},                                 // JediMastery
+        {X_ATTRIBUTE_DATATYPE_INTEGER, sizeof(ULONGLONG)},                                 // SaberOnly
+        {X_ATTRIBUTE_DATATYPE_INTEGER, sizeof(ULONGLONG)},                                 // Dedicated
 };
-
-
-
 
 //-----------------------------------------------------------------------------
 // Name: COptiMatchQuery
@@ -904,8 +791,6 @@ COptiMatchQuery::COptiMatchQuery()
     m_pXnQos = NULL;
 }
 
-
-
 //-----------------------------------------------------------------------------
 // Name: COptiMatchQuery()
 // Desc: Destructor
@@ -915,25 +800,23 @@ COptiMatchQuery::~COptiMatchQuery()
     Cancel();
 }
 
-
-
 //-----------------------------------------------------------------------------
 // Name: Cancel
 // Desc: Cancel a OptiMatch query
 //-----------------------------------------------------------------------------
 void COptiMatchQuery::Cancel()
 {
-    switch( m_State )
+    switch (m_State)
     {
     case STATE_IDLE:
-       break;
+        break;
     case STATE_RUNNING:
     case STATE_PROBING_BANDWIDTH:
     case STATE_PROBING_CONNECTIVITY:
     case STATE_DONE:
-        if( m_hSearchTask )
+        if (m_hSearchTask)
         {
-            XOnlineTaskClose( m_hSearchTask );
+            XOnlineTaskClose(m_hSearchTask);
             m_hSearchTask = NULL;
         }
         Clear();
@@ -945,81 +828,74 @@ void COptiMatchQuery::Cancel()
     }
 }
 
-
-
 //-----------------------------------------------------------------------------
 // Name: Clear
 // Desc: Release resources
 //-----------------------------------------------------------------------------
 void COptiMatchQuery::Clear()
 {
-    if( m_pXnQos )
+    if (m_pXnQos)
     {
-        XNetQosRelease( m_pXnQos );
+        XNetQosRelease(m_pXnQos);
         m_pXnQos = NULL;
     }
     Results.Clear();
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Name: Query
 // Desc: Execute the OptiMatch query (id 0x1)
 //-----------------------------------------------------------------------------
 HRESULT COptiMatchQuery::Query(
-                  ULONGLONG GameType, // Optional: X_MATCH_NULL_INTEGER to omit
-                  ULONGLONG CurrentMap, // Optional: X_MATCH_NULL_INTEGER to omit
-                  ULONGLONG MinimumPlayers,
-                  ULONGLONG MaximumPlayers,
-                  ULONGLONG FriendlyFire, // Optional: X_MATCH_NULL_INTEGER to omit
-                  ULONGLONG JediMastery, // Optional: X_MATCH_NULL_INTEGER to omit
-                  ULONGLONG SaberOnly, // Optional: X_MATCH_NULL_INTEGER to omit
-                  ULONGLONG Dedicated // Optional: X_MATCH_NULL_INTEGER to omit
-                  )
+    ULONGLONG GameType,   // Optional: X_MATCH_NULL_INTEGER to omit
+    ULONGLONG CurrentMap, // Optional: X_MATCH_NULL_INTEGER to omit
+    ULONGLONG MinimumPlayers,
+    ULONGLONG MaximumPlayers,
+    ULONGLONG FriendlyFire, // Optional: X_MATCH_NULL_INTEGER to omit
+    ULONGLONG JediMastery,  // Optional: X_MATCH_NULL_INTEGER to omit
+    ULONGLONG SaberOnly,    // Optional: X_MATCH_NULL_INTEGER to omit
+    ULONGLONG Dedicated     // Optional: X_MATCH_NULL_INTEGER to omit
+)
 {
     const DWORD SEARCH_PROC_ID = 0x1;
 
-    if( m_State == STATE_DONE ) // Clear existing results
+    if (m_State == STATE_DONE) // Clear existing results
     {
         Clear();
         m_State = STATE_IDLE;
     }
-    assert( m_State == STATE_IDLE );
+    assert(m_State == STATE_IDLE);
     if (m_State != STATE_IDLE)
         return E_UNEXPECTED;
 
-    XONLINE_ATTRIBUTE QueryParameters[8] = { 0 };
-    QueryParameters[0].dwAttributeID = ( GameType == X_MATCH_NULL_INTEGER ) ? X_ATTRIBUTE_DATATYPE_NULL : X_ATTRIBUTE_DATATYPE_INTEGER;
+    XONLINE_ATTRIBUTE QueryParameters[8] = {0};
+    QueryParameters[0].dwAttributeID = (GameType == X_MATCH_NULL_INTEGER) ? X_ATTRIBUTE_DATATYPE_NULL : X_ATTRIBUTE_DATATYPE_INTEGER;
     QueryParameters[0].info.integer.qwValue = GameType;
-    QueryParameters[1].dwAttributeID = ( CurrentMap == X_MATCH_NULL_INTEGER ) ? X_ATTRIBUTE_DATATYPE_NULL : X_ATTRIBUTE_DATATYPE_INTEGER;
+    QueryParameters[1].dwAttributeID = (CurrentMap == X_MATCH_NULL_INTEGER) ? X_ATTRIBUTE_DATATYPE_NULL : X_ATTRIBUTE_DATATYPE_INTEGER;
     QueryParameters[1].info.integer.qwValue = CurrentMap;
     QueryParameters[2].dwAttributeID = X_ATTRIBUTE_DATATYPE_INTEGER;
     QueryParameters[2].info.integer.qwValue = MinimumPlayers;
     QueryParameters[3].dwAttributeID = X_ATTRIBUTE_DATATYPE_INTEGER;
     QueryParameters[3].info.integer.qwValue = MaximumPlayers;
-    QueryParameters[4].dwAttributeID = ( FriendlyFire == X_MATCH_NULL_INTEGER ) ? X_ATTRIBUTE_DATATYPE_NULL : X_ATTRIBUTE_DATATYPE_INTEGER;
+    QueryParameters[4].dwAttributeID = (FriendlyFire == X_MATCH_NULL_INTEGER) ? X_ATTRIBUTE_DATATYPE_NULL : X_ATTRIBUTE_DATATYPE_INTEGER;
     QueryParameters[4].info.integer.qwValue = FriendlyFire;
-    QueryParameters[5].dwAttributeID = ( JediMastery == X_MATCH_NULL_INTEGER ) ? X_ATTRIBUTE_DATATYPE_NULL : X_ATTRIBUTE_DATATYPE_INTEGER;
+    QueryParameters[5].dwAttributeID = (JediMastery == X_MATCH_NULL_INTEGER) ? X_ATTRIBUTE_DATATYPE_NULL : X_ATTRIBUTE_DATATYPE_INTEGER;
     QueryParameters[5].info.integer.qwValue = JediMastery;
-    QueryParameters[6].dwAttributeID = ( SaberOnly == X_MATCH_NULL_INTEGER ) ? X_ATTRIBUTE_DATATYPE_NULL : X_ATTRIBUTE_DATATYPE_INTEGER;
+    QueryParameters[6].dwAttributeID = (SaberOnly == X_MATCH_NULL_INTEGER) ? X_ATTRIBUTE_DATATYPE_NULL : X_ATTRIBUTE_DATATYPE_INTEGER;
     QueryParameters[6].info.integer.qwValue = SaberOnly;
-    QueryParameters[7].dwAttributeID = ( Dedicated == X_MATCH_NULL_INTEGER ) ? X_ATTRIBUTE_DATATYPE_NULL : X_ATTRIBUTE_DATATYPE_INTEGER;
+    QueryParameters[7].dwAttributeID = (Dedicated == X_MATCH_NULL_INTEGER) ? X_ATTRIBUTE_DATATYPE_NULL : X_ATTRIBUTE_DATATYPE_INTEGER;
     QueryParameters[7].info.integer.qwValue = Dedicated;
 
     // Calculate maximum space required to hold results
-    DWORD dwResultsLen = XOnlineMatchSearchResultsLen( MAX_OPTI_MATCH_RESULTS, sizeof( OptiMatchAttributeSpec ) / sizeof( OptiMatchAttributeSpec[0] ), OptiMatchAttributeSpec );
+    DWORD dwResultsLen = XOnlineMatchSearchResultsLen(MAX_OPTI_MATCH_RESULTS, sizeof(OptiMatchAttributeSpec) / sizeof(OptiMatchAttributeSpec[0]), OptiMatchAttributeSpec);
 
-    HRESULT hr = XOnlineMatchSearch( SEARCH_PROC_ID, MAX_OPTI_MATCH_RESULTS,
-                                    8, QueryParameters, dwResultsLen, NULL, &m_hSearchTask );
-    if( SUCCEEDED( hr ) )
+    HRESULT hr = XOnlineMatchSearch(SEARCH_PROC_ID, MAX_OPTI_MATCH_RESULTS,
+                                    8, QueryParameters, dwResultsLen, NULL, &m_hSearchTask);
+    if (SUCCEEDED(hr))
         m_State = STATE_RUNNING;
 
     return hr;
-
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Name: Probe
@@ -1027,43 +903,40 @@ HRESULT COptiMatchQuery::Query(
 //-----------------------------------------------------------------------------
 HRESULT COptiMatchQuery::Probe()
 {
-    assert( m_State == STATE_DONE );
+    assert(m_State == STATE_DONE);
     if (m_State != STATE_DONE)
-       return E_UNEXPECTED;
+        return E_UNEXPECTED;
 
     // Clean up any earlier probes
-    if( m_pXnQos )
+    if (m_pXnQos)
     {
-        XNetQosRelease( m_pXnQos );
+        XNetQosRelease(m_pXnQos);
         m_pXnQos = NULL;
     }
 
     DWORD dwNumSessions = Results.Size();
-    if( dwNumSessions )
+    if (dwNumSessions)
     {
-        for( DWORD i = 0; i < dwNumSessions; ++i )
+        for (DWORD i = 0; i < dwNumSessions; ++i)
         {
             Results[i].pQosInfo = NULL;
             m_rgpXnAddr[i] = &Results[i].HostAddress;
-            m_rgpXnKid[i]  = &Results[i].SessionID;
-            m_rgpXnKey[i]  = &Results[i].KeyExchangeKey;
+            m_rgpXnKid[i] = &Results[i].SessionID;
+            m_rgpXnKey[i] = &Results[i].KeyExchangeKey;
         }
-        INT iQos = XNetQosLookup( dwNumSessions, m_rgpXnAddr,
-            m_rgpXnKid, m_rgpXnKey, 0, NULL, NULL,
-            NUM_QOS_PROBES, QOS_BITS_PER_SEC, 0, NULL,
-            &m_pXnQos );
-        assert( iQos == 0 );
-        if( iQos == 0 )
+        INT iQos = XNetQosLookup(dwNumSessions, m_rgpXnAddr,
+                                 m_rgpXnKid, m_rgpXnKey, 0, NULL, NULL,
+                                 NUM_QOS_PROBES, QOS_BITS_PER_SEC, 0, NULL,
+                                 &m_pXnQos);
+        assert(iQos == 0);
+        if (iQos == 0)
             m_State = STATE_PROBING_BANDWIDTH;
         else
             return E_FAIL;
     }
 
     return S_OK;
-
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Name: Process
@@ -1072,27 +945,27 @@ HRESULT COptiMatchQuery::Probe()
 HRESULT COptiMatchQuery::Process()
 {
 
-    if( m_State == STATE_IDLE )
+    if (m_State == STATE_IDLE)
         return S_OK;
 
-    if( m_State == STATE_DONE )
+    if (m_State == STATE_DONE)
         return m_hrQuery;
 
-    if( m_State == STATE_PROBING_BANDWIDTH )
+    if (m_State == STATE_PROBING_BANDWIDTH)
     {
         // Update any completed Qos info for sessions
         // as they finish
-        for( DWORD iResult = 0; iResult < Results.Size(); ++iResult )
+        for (DWORD iResult = 0; iResult < Results.Size(); ++iResult)
         {
-            if( !Results[iResult].pQosInfo && 
-               ( m_pXnQos->axnqosinfo[iResult].bFlags & XNET_XNQOSINFO_COMPLETE ) )
+            if (!Results[iResult].pQosInfo &&
+                (m_pXnQos->axnqosinfo[iResult].bFlags & XNET_XNQOSINFO_COMPLETE))
             {
                 Results[iResult].pQosInfo = &m_pXnQos->axnqosinfo[iResult];
             }
         }
 
         // Check if all probing is complete
-        if( m_pXnQos->cxnqosPending == 0 )
+        if (m_pXnQos->cxnqosPending == 0)
         {
             m_State = STATE_DONE;
             return m_hrQuery;
@@ -1101,19 +974,19 @@ HRESULT COptiMatchQuery::Process()
         return XONLINETASK_S_RUNNING;
     }
 
-    if (m_State == STATE_PROBING_CONNECTIVITY ) 
+    if (m_State == STATE_PROBING_CONNECTIVITY)
     {
         // Check if probing is complete
-        if( m_pXnQos->cxnqosPending == 0 )
+        if (m_pXnQos->cxnqosPending == 0)
         {
             // Copy QoS info into individual result objects, removing
             // any entries which are not reachable
             DWORD dwNumQosResults = Results.Size();
             DWORD iResult = 0;
-            for( DWORD iQos = 0; iQos < dwNumQosResults; ++iQos )
+            for (DWORD iQos = 0; iQos < dwNumQosResults; ++iQos)
             {
-                if( ( m_pXnQos->axnqosinfo[iQos].bFlags & XNET_XNQOSINFO_TARGET_CONTACTED ) &&
-                    !( m_pXnQos->axnqosinfo[iQos].bFlags & XNET_XNQOSINFO_TARGET_DISABLED ) )
+                if ((m_pXnQos->axnqosinfo[iQos].bFlags & XNET_XNQOSINFO_TARGET_CONTACTED) &&
+                    !(m_pXnQos->axnqosinfo[iQos].bFlags & XNET_XNQOSINFO_TARGET_DISABLED))
                 {
                     Results[iResult].pQosInfo = &m_pXnQos->axnqosinfo[iQos];
                     iResult++;
@@ -1121,10 +994,10 @@ HRESULT COptiMatchQuery::Process()
                 else
                 {
 #ifdef _DEBUG
-                    Print( L"Removing Matching Session %lu (host not reachable or disabled)\n", iResult );
+                    Print(L"Removing Matching Session %lu (host not reachable or disabled)\n", iResult);
 #endif
                     // Target not contacted, or is disabled, so remove result
-                    Results.Remove( iResult );
+                    Results.Remove(iResult);
                 }
             }
             m_State = STATE_DONE;
@@ -1134,24 +1007,24 @@ HRESULT COptiMatchQuery::Process()
         return XONLINETASK_S_RUNNING;
     }
 
-    HRESULT hr = XOnlineTaskContinue( m_hSearchTask );
-    if( hr != XONLINETASK_S_RUNNING )
+    HRESULT hr = XOnlineTaskContinue(m_hSearchTask);
+    if (hr != XONLINETASK_S_RUNNING)
     {
         m_hrQuery = hr;
         m_State = STATE_DONE;
-        if( SUCCEEDED( hr ) )
+        if (SUCCEEDED(hr))
         {
             // Fetch results
-            XONLINE_MATCH_SEARCHRESULT** ppSearchResults;
+            XONLINE_MATCH_SEARCHRESULT **ppSearchResults;
             DWORD dwNumSessions;
-            hr= XOnlineMatchSearchGetResults( m_hSearchTask,
-                &ppSearchResults, &dwNumSessions );
-            if( SUCCEEDED( hr ) )
+            hr = XOnlineMatchSearchGetResults(m_hSearchTask,
+                                              &ppSearchResults, &dwNumSessions);
+            if (SUCCEEDED(hr))
             {
-                Results.SetSize( dwNumSessions );
-                for( DWORD i=0; i < dwNumSessions; ++i )
+                Results.SetSize(dwNumSessions);
+                for (DWORD i = 0; i < dwNumSessions; ++i)
                 {
-                    XONLINE_MATCH_SEARCHRESULT* pxms = ppSearchResults[i];
+                    XONLINE_MATCH_SEARCHRESULT *pxms = ppSearchResults[i];
 
                     Results.v[i].SessionID = pxms->SessionID;
                     Results.v[i].KeyExchangeKey = pxms->KeyExchangeKey;
@@ -1160,37 +1033,35 @@ HRESULT COptiMatchQuery::Process()
                     Results.v[i].PrivateOpen = pxms->dwPrivateOpen;
                     Results.v[i].PublicFilled = pxms->dwPublicFilled;
                     Results.v[i].PrivateFilled = pxms->dwPrivateFilled;
-                    hr = XOnlineMatchSearchParse( ppSearchResults[i],
-                        sizeof( OptiMatchAttributeSpec ) / sizeof( OptiMatchAttributeSpec[0] ),
-                        OptiMatchAttributeSpec, &Results.v[i] );
+                    hr = XOnlineMatchSearchParse(ppSearchResults[i],
+                                                 sizeof(OptiMatchAttributeSpec) / sizeof(OptiMatchAttributeSpec[0]),
+                                                 OptiMatchAttributeSpec, &Results.v[i]);
                     assert(SUCCEEDED(hr));
-                   // Save data for Qos probing
+                    // Save data for Qos probing
                     Results.v[i].pQosInfo = NULL;
                     m_rgpXnAddr[i] = &Results.v[i].HostAddress;
-                    m_rgpXnKid[i]  = &Results.v[i].SessionID;
-                    m_rgpXnKey[i]  = &Results.v[i].KeyExchangeKey;
+                    m_rgpXnKid[i] = &Results.v[i].SessionID;
+                    m_rgpXnKey[i] = &Results.v[i].KeyExchangeKey;
                 }
-                if( dwNumSessions )
+                if (dwNumSessions)
                 {
-                    INT iQos = XNetQosLookup( dwNumSessions, m_rgpXnAddr,
-                        m_rgpXnKid, m_rgpXnKey, 0, NULL, NULL,
-                        0, QOS_BITS_PER_SEC, 0, NULL,
-                        &m_pXnQos );
-                    assert( iQos == 0 );
-                    if( iQos == 0 )
+                    INT iQos = XNetQosLookup(dwNumSessions, m_rgpXnAddr,
+                                             m_rgpXnKid, m_rgpXnKey, 0, NULL, NULL,
+                                             0, QOS_BITS_PER_SEC, 0, NULL,
+                                             &m_pXnQos);
+                    assert(iQos == 0);
+                    if (iQos == 0)
                         m_State = STATE_PROBING_CONNECTIVITY;
                 }
             }
         }
 
-        XOnlineTaskClose( m_hSearchTask );
+        XOnlineTaskClose(m_hSearchTask);
         m_hSearchTask = NULL;
     }
 
     return hr;
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Name: CJoinSessionByIDQuery
@@ -1204,8 +1075,6 @@ CJoinSessionByIDQuery::CJoinSessionByIDQuery()
     m_pXnQos = NULL;
 }
 
-
-
 //-----------------------------------------------------------------------------
 // Name: CJoinSessionByIDQuery()
 // Desc: Destructor
@@ -1215,25 +1084,23 @@ CJoinSessionByIDQuery::~CJoinSessionByIDQuery()
     Cancel();
 }
 
-
-
 //-----------------------------------------------------------------------------
 // Name: Cancel
 // Desc: Cancel a JoinSessionByID query
 //-----------------------------------------------------------------------------
 void CJoinSessionByIDQuery::Cancel()
 {
-    switch( m_State )
+    switch (m_State)
     {
     case STATE_IDLE:
-       break;
+        break;
     case STATE_RUNNING:
     case STATE_PROBING_BANDWIDTH:
     case STATE_PROBING_CONNECTIVITY:
     case STATE_DONE:
-        if( m_hSearchTask )
+        if (m_hSearchTask)
         {
-            XOnlineTaskClose( m_hSearchTask );
+            XOnlineTaskClose(m_hSearchTask);
             m_hSearchTask = NULL;
         }
         Clear();
@@ -1245,60 +1112,52 @@ void CJoinSessionByIDQuery::Cancel()
     }
 }
 
-
-
 //-----------------------------------------------------------------------------
 // Name: Clear
 // Desc: Release resources
 //-----------------------------------------------------------------------------
 void CJoinSessionByIDQuery::Clear()
 {
-    if( m_pXnQos )
+    if (m_pXnQos)
     {
-        XNetQosRelease( m_pXnQos );
+        XNetQosRelease(m_pXnQos);
         m_pXnQos = NULL;
     }
     Results.Clear();
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Name: Query
 // Desc: Execute the JoinSessionByID query (id 0x2)
 //-----------------------------------------------------------------------------
 HRESULT CJoinSessionByIDQuery::Query(
-                  ULONGLONG SessionID
-                  )
+    ULONGLONG SessionID)
 {
     const DWORD SEARCH_PROC_ID = 0x2;
 
-    if( m_State == STATE_DONE ) // Clear existing results
+    if (m_State == STATE_DONE) // Clear existing results
     {
         Clear();
         m_State = STATE_IDLE;
     }
-    assert( m_State == STATE_IDLE );
+    assert(m_State == STATE_IDLE);
     if (m_State != STATE_IDLE)
         return E_UNEXPECTED;
 
-    XONLINE_ATTRIBUTE QueryParameters[1] = { 0 };
+    XONLINE_ATTRIBUTE QueryParameters[1] = {0};
     QueryParameters[0].dwAttributeID = X_ATTRIBUTE_DATATYPE_INTEGER;
     QueryParameters[0].info.integer.qwValue = SessionID;
 
     // Calculate maximum space required to hold results
-    DWORD dwResultsLen = XOnlineMatchSearchResultsLen( MAX_JOIN_SESSION_BY_ID_RESULTS, 0, NULL );
+    DWORD dwResultsLen = XOnlineMatchSearchResultsLen(MAX_JOIN_SESSION_BY_ID_RESULTS, 0, NULL);
 
-    HRESULT hr = XOnlineMatchSearch( SEARCH_PROC_ID, MAX_JOIN_SESSION_BY_ID_RESULTS,
-                                    1, QueryParameters, dwResultsLen, NULL, &m_hSearchTask );
-    if( SUCCEEDED( hr ) )
+    HRESULT hr = XOnlineMatchSearch(SEARCH_PROC_ID, MAX_JOIN_SESSION_BY_ID_RESULTS,
+                                    1, QueryParameters, dwResultsLen, NULL, &m_hSearchTask);
+    if (SUCCEEDED(hr))
         m_State = STATE_RUNNING;
 
     return hr;
-
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Name: Probe
@@ -1306,43 +1165,40 @@ HRESULT CJoinSessionByIDQuery::Query(
 //-----------------------------------------------------------------------------
 HRESULT CJoinSessionByIDQuery::Probe()
 {
-    assert( m_State == STATE_DONE );
+    assert(m_State == STATE_DONE);
     if (m_State != STATE_DONE)
-       return E_UNEXPECTED;
+        return E_UNEXPECTED;
 
     // Clean up any earlier probes
-    if( m_pXnQos )
+    if (m_pXnQos)
     {
-        XNetQosRelease( m_pXnQos );
+        XNetQosRelease(m_pXnQos);
         m_pXnQos = NULL;
     }
 
     DWORD dwNumSessions = Results.Size();
-    if( dwNumSessions )
+    if (dwNumSessions)
     {
-        for( DWORD i = 0; i < dwNumSessions; ++i )
+        for (DWORD i = 0; i < dwNumSessions; ++i)
         {
             Results[i].pQosInfo = NULL;
             m_rgpXnAddr[i] = &Results[i].HostAddress;
-            m_rgpXnKid[i]  = &Results[i].SessionID;
-            m_rgpXnKey[i]  = &Results[i].KeyExchangeKey;
+            m_rgpXnKid[i] = &Results[i].SessionID;
+            m_rgpXnKey[i] = &Results[i].KeyExchangeKey;
         }
-        INT iQos = XNetQosLookup( dwNumSessions, m_rgpXnAddr,
-            m_rgpXnKid, m_rgpXnKey, 0, NULL, NULL,
-            NUM_QOS_PROBES, QOS_BITS_PER_SEC, 0, NULL,
-            &m_pXnQos );
-        assert( iQos == 0 );
-        if( iQos == 0 )
+        INT iQos = XNetQosLookup(dwNumSessions, m_rgpXnAddr,
+                                 m_rgpXnKid, m_rgpXnKey, 0, NULL, NULL,
+                                 NUM_QOS_PROBES, QOS_BITS_PER_SEC, 0, NULL,
+                                 &m_pXnQos);
+        assert(iQos == 0);
+        if (iQos == 0)
             m_State = STATE_PROBING_BANDWIDTH;
         else
             return E_FAIL;
     }
 
     return S_OK;
-
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Name: Process
@@ -1351,27 +1207,27 @@ HRESULT CJoinSessionByIDQuery::Probe()
 HRESULT CJoinSessionByIDQuery::Process()
 {
 
-    if( m_State == STATE_IDLE )
+    if (m_State == STATE_IDLE)
         return S_OK;
 
-    if( m_State == STATE_DONE )
+    if (m_State == STATE_DONE)
         return m_hrQuery;
 
-    if( m_State == STATE_PROBING_BANDWIDTH )
+    if (m_State == STATE_PROBING_BANDWIDTH)
     {
         // Update any completed Qos info for sessions
         // as they finish
-        for( DWORD iResult = 0; iResult < Results.Size(); ++iResult )
+        for (DWORD iResult = 0; iResult < Results.Size(); ++iResult)
         {
-            if( !Results[iResult].pQosInfo && 
-               ( m_pXnQos->axnqosinfo[iResult].bFlags & XNET_XNQOSINFO_COMPLETE ) )
+            if (!Results[iResult].pQosInfo &&
+                (m_pXnQos->axnqosinfo[iResult].bFlags & XNET_XNQOSINFO_COMPLETE))
             {
                 Results[iResult].pQosInfo = &m_pXnQos->axnqosinfo[iResult];
             }
         }
 
         // Check if all probing is complete
-        if( m_pXnQos->cxnqosPending == 0 )
+        if (m_pXnQos->cxnqosPending == 0)
         {
             m_State = STATE_DONE;
             return m_hrQuery;
@@ -1380,19 +1236,19 @@ HRESULT CJoinSessionByIDQuery::Process()
         return XONLINETASK_S_RUNNING;
     }
 
-    if (m_State == STATE_PROBING_CONNECTIVITY ) 
+    if (m_State == STATE_PROBING_CONNECTIVITY)
     {
         // Check if probing is complete
-        if( m_pXnQos->cxnqosPending == 0 )
+        if (m_pXnQos->cxnqosPending == 0)
         {
             // Copy QoS info into individual result objects, removing
             // any entries which are not reachable
             DWORD dwNumQosResults = Results.Size();
             DWORD iResult = 0;
-            for( DWORD iQos = 0; iQos < dwNumQosResults; ++iQos )
+            for (DWORD iQos = 0; iQos < dwNumQosResults; ++iQos)
             {
-                if( ( m_pXnQos->axnqosinfo[iQos].bFlags & XNET_XNQOSINFO_TARGET_CONTACTED ) &&
-                    !( m_pXnQos->axnqosinfo[iQos].bFlags & XNET_XNQOSINFO_TARGET_DISABLED ) )
+                if ((m_pXnQos->axnqosinfo[iQos].bFlags & XNET_XNQOSINFO_TARGET_CONTACTED) &&
+                    !(m_pXnQos->axnqosinfo[iQos].bFlags & XNET_XNQOSINFO_TARGET_DISABLED))
                 {
                     Results[iResult].pQosInfo = &m_pXnQos->axnqosinfo[iQos];
                     iResult++;
@@ -1400,10 +1256,10 @@ HRESULT CJoinSessionByIDQuery::Process()
                 else
                 {
 #ifdef _DEBUG
-                    Print( L"Removing Matching Session %lu (host not reachable or disabled)\n", iResult );
+                    Print(L"Removing Matching Session %lu (host not reachable or disabled)\n", iResult);
 #endif
                     // Target not contacted, or is disabled, so remove result
-                    Results.Remove( iResult );
+                    Results.Remove(iResult);
                 }
             }
             m_State = STATE_DONE;
@@ -1413,24 +1269,24 @@ HRESULT CJoinSessionByIDQuery::Process()
         return XONLINETASK_S_RUNNING;
     }
 
-    HRESULT hr = XOnlineTaskContinue( m_hSearchTask );
-    if( hr != XONLINETASK_S_RUNNING )
+    HRESULT hr = XOnlineTaskContinue(m_hSearchTask);
+    if (hr != XONLINETASK_S_RUNNING)
     {
         m_hrQuery = hr;
         m_State = STATE_DONE;
-        if( SUCCEEDED( hr ) )
+        if (SUCCEEDED(hr))
         {
             // Fetch results
-            XONLINE_MATCH_SEARCHRESULT** ppSearchResults;
+            XONLINE_MATCH_SEARCHRESULT **ppSearchResults;
             DWORD dwNumSessions;
-            hr= XOnlineMatchSearchGetResults( m_hSearchTask,
-                &ppSearchResults, &dwNumSessions );
-            if( SUCCEEDED( hr ) )
+            hr = XOnlineMatchSearchGetResults(m_hSearchTask,
+                                              &ppSearchResults, &dwNumSessions);
+            if (SUCCEEDED(hr))
             {
-                Results.SetSize( dwNumSessions );
-                for( DWORD i=0; i < dwNumSessions; ++i )
+                Results.SetSize(dwNumSessions);
+                for (DWORD i = 0; i < dwNumSessions; ++i)
                 {
-                    XONLINE_MATCH_SEARCHRESULT* pxms = ppSearchResults[i];
+                    XONLINE_MATCH_SEARCHRESULT *pxms = ppSearchResults[i];
 
                     Results.v[i].SessionID = pxms->SessionID;
                     Results.v[i].KeyExchangeKey = pxms->KeyExchangeKey;
@@ -1439,31 +1295,28 @@ HRESULT CJoinSessionByIDQuery::Process()
                     Results.v[i].PrivateOpen = pxms->dwPrivateOpen;
                     Results.v[i].PublicFilled = pxms->dwPublicFilled;
                     Results.v[i].PrivateFilled = pxms->dwPrivateFilled;
-                   // Save data for Qos probing
+                    // Save data for Qos probing
                     Results.v[i].pQosInfo = NULL;
                     m_rgpXnAddr[i] = &Results.v[i].HostAddress;
-                    m_rgpXnKid[i]  = &Results.v[i].SessionID;
-                    m_rgpXnKey[i]  = &Results.v[i].KeyExchangeKey;
+                    m_rgpXnKid[i] = &Results.v[i].SessionID;
+                    m_rgpXnKey[i] = &Results.v[i].KeyExchangeKey;
                 }
-                if( dwNumSessions )
+                if (dwNumSessions)
                 {
-                    INT iQos = XNetQosLookup( dwNumSessions, m_rgpXnAddr,
-                        m_rgpXnKid, m_rgpXnKey, 0, NULL, NULL,
-                        0, QOS_BITS_PER_SEC, 0, NULL,
-                        &m_pXnQos );
-                    assert( iQos == 0 );
-                    if( iQos == 0 )
+                    INT iQos = XNetQosLookup(dwNumSessions, m_rgpXnAddr,
+                                             m_rgpXnKid, m_rgpXnKey, 0, NULL, NULL,
+                                             0, QOS_BITS_PER_SEC, 0, NULL,
+                                             &m_pXnQos);
+                    assert(iQos == 0);
+                    if (iQos == 0)
                         m_State = STATE_PROBING_CONNECTIVITY;
                 }
             }
         }
 
-        XOnlineTaskClose( m_hSearchTask );
+        XOnlineTaskClose(m_hSearchTask);
         m_hSearchTask = NULL;
     }
 
     return hr;
 }
-
-
-

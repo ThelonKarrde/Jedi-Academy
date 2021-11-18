@@ -3,127 +3,121 @@
 #define RM_MISSION_H_INC
 
 #ifdef DEBUG_LINKING
-	#pragma message("...including RM_Mission.h")
+#pragma message("...including RM_Mission.h")
 #endif
 
 // maximum random choices
 #define MAX_RANDOM_CHOICES 100
 
-typedef vector<int> 	rmIntVector_t;
-
+typedef vector<int> rmIntVector_t;
 
 class CRMMission
 {
 private:
+	rmObjectiveList_t mObjectives;
+	rmInstanceList_t mInstances;
 
-	rmObjectiveList_t		mObjectives;
-	rmInstanceList_t		mInstances;
+	CRMInstanceFile mInstanceFile;
+	CRMObjective *mCurrentObjective;
 
-	CRMInstanceFile			mInstanceFile;
-	CRMObjective*			mCurrentObjective;
+	bool mValidNodes;
+	bool mValidPaths;
+	bool mValidRivers;
+	bool mValidWeapons;
+	bool mValidAmmo;
+	bool mValidObjectives;
+	bool mValidInstances;
 
-	bool					mValidNodes;
-	bool					mValidPaths;
-	bool					mValidRivers;
-	bool					mValidWeapons;
-	bool					mValidAmmo;
-	bool					mValidObjectives;
-	bool					mValidInstances;
-
-	int						mTimeLimit;
-	int						mMaxInstancePosition;
+	int mTimeLimit;
+	int mMaxInstancePosition;
 
 	// npc multipliers
-	float					mAccuracyMultiplier;
-	float					mHealthMultiplier;
+	float mAccuracyMultiplier;
+	float mHealthMultiplier;
 
 	// % chance that RMG pickup is actually spawned
-	float					mPickupHealth;
-	float					mPickupArmor;
-	float					mPickupAmmo;
-	float					mPickupWeapon;
-	float					mPickupEquipment;
+	float mPickupHealth;
+	float mPickupArmor;
+	float mPickupAmmo;
+	float mPickupWeapon;
+	float mPickupEquipment;
 
-	string					mDescription;
-	string					mExitScreen;
-	string					mTimeExpiredScreen;
+	string mDescription;
+	string mExitScreen;
+	string mTimeExpiredScreen;
 
 	// symmetric landscape style
-	symmetry_t				mSymmetric;
+	symmetry_t mSymmetric;
 
 	// if set to 1 in the mission file, adds an extra connecting path in symmetric maps
 	// to ensure both sides actually do connect
-	int						mBackUpPath;
+	int mBackUpPath;
 
-	int						mDefaultPadding;
+	int mDefaultPadding;
 
-	CRMAreaManager*			mAreaManager;
+	CRMAreaManager *mAreaManager;
 
-	CRMPathManager*			mPathManager;
+	CRMPathManager *mPathManager;
 
-	CRandomTerrain*			mLandScape;
+	CRandomTerrain *mLandScape;
 
-public:	
+public:
+	CRMMission(CRandomTerrain *);
+	~CRMMission();
 
-	CRMMission ( CRandomTerrain* );
-	~CRMMission ( );
+	bool Load(const char *name, const char *instances, const char *difficulty);
+	bool Spawn(CRandomTerrain *terrain, qboolean IsServer);
 
-	bool			Load					( const char* name, const char* instances, const char* difficulty );
-	bool			Spawn					( CRandomTerrain* terrain, qboolean IsServer );
+	void Preview(const vec3_t from);
 
-	void			Preview					( const vec3_t from );									
-										
-	CRMObjective*	FindObjective			( const char* name );
-	CRMObjective*	GetCurrentObjective		( ) { return mCurrentObjective; }
-	
-	void			CompleteMission			(void);
-	void			FailedMission			(bool TimeExpired);
-	void			CompleteObjective		( CRMObjective* ojective );
+	CRMObjective *FindObjective(const char *name);
+	CRMObjective *GetCurrentObjective() { return mCurrentObjective; }
 
-	int				GetTimeLimit			(void)	{ return mTimeLimit; }
-	int				GetMaxInstancePosition	(void)  { return mMaxInstancePosition; }
-	const char*		GetDescription			(void)  { return mDescription.c_str(); }
-	const char*		GetExitScreen			(void)  { return mExitScreen.c_str(); }
-	int				GetSymmetric			(void)  { return mSymmetric; }
-	int				GetBackUpPath			(void)  { return mBackUpPath; }
-	int				GetDefaultPadding		(void)  { return mDefaultPadding; }
+	void CompleteMission(void);
+	void FailedMission(bool TimeExpired);
+	void CompleteObjective(CRMObjective *ojective);
 
-//	void			CreateMap				( void );
+	int GetTimeLimit(void) { return mTimeLimit; }
+	int GetMaxInstancePosition(void) { return mMaxInstancePosition; }
+	const char *GetDescription(void) { return mDescription.c_str(); }
+	const char *GetExitScreen(void) { return mExitScreen.c_str(); }
+	int GetSymmetric(void) { return mSymmetric; }
+	int GetBackUpPath(void) { return mBackUpPath; }
+	int GetDefaultPadding(void) { return mDefaultPadding; }
 
-	bool			DenyPickupHealth	() {return mLandScape->flrand(0.0f,1.0f) > mPickupHealth;}
-	bool			DenyPickupArmor		() {return mLandScape->flrand(0.0f,1.0f) > mPickupArmor;}
-	bool			DenyPickupAmmo		() {return mLandScape->flrand(0.0f,1.0f) > mPickupAmmo;}
-	bool			DenyPickupWeapon	() {return mLandScape->flrand(0.0f,1.0f) > mPickupWeapon;}
-	bool			DenyPickupEquipment	() {return mLandScape->flrand(0.0f,1.0f) > mPickupEquipment;}
+	//	void			CreateMap				( void );
+
+	bool DenyPickupHealth() { return mLandScape->flrand(0.0f, 1.0f) > mPickupHealth; }
+	bool DenyPickupArmor() { return mLandScape->flrand(0.0f, 1.0f) > mPickupArmor; }
+	bool DenyPickupAmmo() { return mLandScape->flrand(0.0f, 1.0f) > mPickupAmmo; }
+	bool DenyPickupWeapon() { return mLandScape->flrand(0.0f, 1.0f) > mPickupWeapon; }
+	bool DenyPickupEquipment() { return mLandScape->flrand(0.0f, 1.0f) > mPickupEquipment; }
 
 private:
-					
-//	void			PurgeUnlinkedTriggers	( );
-//	void			PurgeTrigger			( CEntity* trigger );
+	//	void			PurgeUnlinkedTriggers	( );
+	//	void			PurgeTrigger			( CEntity* trigger );
 
-	void			MirrorPos				(vec3_t pos);
-	CGPGroup*		ParseRandom				( CGPGroup* random );
-	bool			ParseOrigin				( CGPGroup* originGroup, vec3_t origin, vec3_t lookat, int* flattenHeight );
-	bool			ParseNodes				( CGPGroup* group );
-	bool			ParsePaths				( CGPGroup *paths);					
-	bool			ParseRivers				( CGPGroup *rivers);
-	void			PlaceBridges			();
-	void			PlaceWallInstance(CRMInstance*	instance, float xpos, float ypos, float zpos, int x, int y, float angle);
+	void MirrorPos(vec3_t pos);
+	CGPGroup *ParseRandom(CGPGroup *random);
+	bool ParseOrigin(CGPGroup *originGroup, vec3_t origin, vec3_t lookat, int *flattenHeight);
+	bool ParseNodes(CGPGroup *group);
+	bool ParsePaths(CGPGroup *paths);
+	bool ParseRivers(CGPGroup *rivers);
+	void PlaceBridges();
+	void PlaceWallInstance(CRMInstance *instance, float xpos, float ypos, float zpos, int x, int y, float angle);
 
+	bool ParseDifficulty(CGPGroup *difficulty, CGPGroup *parent);
+	bool ParseWeapons(CGPGroup *weapons);
+	bool ParseAmmo(CGPGroup *ammo);
+	bool ParseOutfit(CGPGroup *outfit);
+	bool ParseObjectives(CGPGroup *objectives);
+	bool ParseInstance(CGPGroup *instance);
+	bool ParseInstances(CGPGroup *instances);
+	bool ParseInstancesOnPath(CGPGroup *group);
+	bool ParseWallRect(CGPGroup *group, int side);
 
-	bool			ParseDifficulty			( CGPGroup* difficulty, CGPGroup *parent );
-	bool			ParseWeapons			( CGPGroup* weapons );
-	bool			ParseAmmo				( CGPGroup* ammo );
-	bool			ParseOutfit				( CGPGroup* outfit );
-	bool			ParseObjectives			( CGPGroup* objectives );
-	bool			ParseInstance			( CGPGroup* instance );
-	bool			ParseInstances			( CGPGroup* instances );
-	bool			ParseInstancesOnPath	( CGPGroup* group );
-	bool			ParseWallRect			( CGPGroup* group, int side);
-
-//	void			SpawnNPCTriggers		( CCMLandScape* landscape );
-//	void			AttachNPCTriggers		( CCMLandScape* landscape );
+	//	void			SpawnNPCTriggers		( CCMLandScape* landscape );
+	//	void			AttachNPCTriggers		( CCMLandScape* landscape );
 };
-
 
 #endif

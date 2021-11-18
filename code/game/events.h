@@ -5,6 +5,6 @@ typedef enum //# eventType_e
 {
 	EV_BAD = 0,
 
-} eventType_t;	
+} eventType_t;
 
-#endif	//__EVENTS__
+#endif //__EVENTS__

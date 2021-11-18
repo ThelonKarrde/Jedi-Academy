@@ -1,23 +1,21 @@
 #ifndef __CL_INPUT_HOTSWAP_H
 #define __CL_INPUT_HOTSWAP_H
 
-
 #define HOTSWAP_ID_WHITE 0
 #define HOTSWAP_ID_BLACK 1
 #define HOTSWAP_ID_YELLOW 2
 
 #define HOTSWAP_CAT_WEAPON 0
-#define HOTSWAP_CAT_ITEM   1024
-#define HOTSWAP_CAT_FORCE  2048
-
+#define HOTSWAP_CAT_ITEM 1024
+#define HOTSWAP_CAT_FORCE 2048
 
 class HotSwapManager
 {
 private:
-	bool down;		//Is the button down?
-	bool noBind;	//Don't bind the button.
-	int bindTime;	//How long the button has been down with the selection up.
-	int uniqueID;	//Unique ID for this button.
+	bool down;	  //Is the button down?
+	bool noBind;  //Don't bind the button.
+	int bindTime; //How long the button has been down with the selection up.
+	int uniqueID; //Unique ID for this button.
 
 	//Return the binding for the button, or NULL if none.
 	const char *GetBinding(void);
@@ -55,10 +53,7 @@ public:
 	bool ButtonDown(void) { return down; }
 };
 
-
 //External bind function for sharing with UI.
 extern void HotSwapBind(int buttonID, int category, int value);
-
-
 
 #endif

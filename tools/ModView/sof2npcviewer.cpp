@@ -9,11 +9,10 @@
 #include "r_common.h"
 #include "generic_stuff.h"
 #include "GenericParser2.h"
-#include "script.h"				// so we can access ModView script keyword #defines
-#include "modviewtreeview.h"	// for GetString()
+#include "script.h"			 // so we can access ModView script keyword #defines
+#include "modviewtreeview.h" // for GetString()
 //
 #include "SOF2NPCViewer.h"
-
 
 #include "stl.h"
 /*
@@ -41,12 +40,11 @@ LPCSTR gpsGameDir = NULL;
 /////////////////////////////////////////////////////////////////////////////
 // CSOF2NPCViewer dialog
 
-
-CSOF2NPCViewer::CSOF2NPCViewer(bool bSOF2Mode, CString *pFeedback, LPCSTR psGameDir, CWnd* pParent /*=NULL*/)
+CSOF2NPCViewer::CSOF2NPCViewer(bool bSOF2Mode, CString *pFeedback, LPCSTR psGameDir, CWnd *pParent /*=NULL*/)
 	: CDialog(CSOF2NPCViewer::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CSOF2NPCViewer)
-		// NOTE: the ClassWizard will add member initialization here
+	// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
 
 	gpFeedback = pFeedback;
@@ -57,33 +55,31 @@ CSOF2NPCViewer::CSOF2NPCViewer(bool bSOF2Mode, CString *pFeedback, LPCSTR psGame
 	Gallery_Done();
 }
 
-
-void CSOF2NPCViewer::DoDataExchange(CDataExchange* pDX)
+void CSOF2NPCViewer::DoDataExchange(CDataExchange *pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CSOF2NPCViewer)
-		// NOTE: the ClassWizard will add DDX and DDV calls here
+	// NOTE: the ClassWizard will add DDX and DDV calls here
 	//}}AFX_DATA_MAP
 }
 
-
 BEGIN_MESSAGE_MAP(CSOF2NPCViewer, CDialog)
-	//{{AFX_MSG_MAP(CSOF2NPCViewer)
-	ON_BN_CLICKED(IDREFRESH, OnRefresh)
-	ON_LBN_DBLCLK(IDC_LIST_NPCS, OnDblclkListNpcs)
-	ON_LBN_SELCHANGE(IDC_LIST_NPCS, OnSelchangeListNpcs)
-	ON_BN_CLICKED(IDGALLERY, OnGallery)
-	ON_BN_CLICKED(IDVALIDATE, OnValidate)
-	ON_BN_CLICKED(IDC_BUTTON_GENERATE_LIST, OnButtonGenerateList)
-	//}}AFX_MSG_MAP
+//{{AFX_MSG_MAP(CSOF2NPCViewer)
+ON_BN_CLICKED(IDREFRESH, OnRefresh)
+ON_LBN_DBLCLK(IDC_LIST_NPCS, OnDblclkListNpcs)
+ON_LBN_SELCHANGE(IDC_LIST_NPCS, OnSelchangeListNpcs)
+ON_BN_CLICKED(IDGALLERY, OnGallery)
+ON_BN_CLICKED(IDVALIDATE, OnValidate)
+ON_BN_CLICKED(IDC_BUTTON_GENERATE_LIST, OnButtonGenerateList)
+//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CSOF2NPCViewer message handlers
 
-BOOL CSOF2NPCViewer::OnInitDialog() 
+BOOL CSOF2NPCViewer::OnInitDialog()
 {
-	CDialog::OnInitDialog();	
+	CDialog::OnInitDialog();
 
 	// CG: The following block was added by the ToolTips component.
 	{
@@ -95,12 +91,12 @@ BOOL CSOF2NPCViewer::OnInitDialog()
 		// m_tooltip.AddTool(GetDlgItem(IDC_<name>), <string-table-id>);
 		// m_tooltip.AddTool(GetDlgItem(IDC_<name>), "<text>");
 
-		m_tooltip.AddTool(GetDlgItem(IDOK),		 "Close");
+		m_tooltip.AddTool(GetDlgItem(IDOK), "Close");
 		m_tooltip.AddTool(GetDlgItem(IDREFRESH), "Refresh data from source files");
 		m_tooltip.AddTool(GetDlgItem(IDVALIDATE), "Validate");
-		m_tooltip.AddTool(GetDlgItem(IDGALLERY),  "Generate gallery images");
+		m_tooltip.AddTool(GetDlgItem(IDGALLERY), "Generate gallery images");
 	}
-	
+
 	if (m_bSOF2Mode)
 	{
 		// SOF2...
@@ -120,13 +116,13 @@ BOOL CSOF2NPCViewer::OnInitDialog()
 
 	// my machine only... :-)
 	//
-//	GetDlgItem(IDGALLERY)->EnableWindow(!stricmp(scGetUserName(),"scork"));	
-	
-	return TRUE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
+	//	GetDlgItem(IDGALLERY)->EnableWindow(!stricmp(scGetUserName(),"scork"));
+
+	return TRUE; // return TRUE unless you set the focus to a control
+				 // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void CSOF2NPCViewer::OnRefresh() 
+void CSOF2NPCViewer::OnRefresh()
 {
 	if (m_bSOF2Mode)
 	{
@@ -148,122 +144,117 @@ typedef struct
 {
 	// fields from "ext_data/sof2.item"...
 	//
-	string	strName;			// 	name		"US SOCOM"
-	string	strBoltPoint;		// boltpoint	"*hand_r"
-	string	strHolstModel;		// holstmodel	"models\characters\bolt_ons\holster.glm"
-								// holstsurf	"gun"
+	string strName;		  // 	name		"US SOCOM"
+	string strBoltPoint;  // boltpoint	"*hand_r"
+	string strHolstModel; // holstmodel	"models\characters\bolt_ons\holster.glm"
+						  // holstsurf	"gun"
 
 	// fields from "ext_data/sof2.wpn"
 
-	string	strModel;			// model		"models/weapons/ussocom/ussocom.glm"
+	string strModel; // model		"models/weapons/ussocom/ussocom.glm"
 
 } NPC_Weapon_t;
-
 
 typedef struct
 {
 	// fields from "ext_data/sof2.item"...
 	//
-	string	strName;					// name			"chem_taylor"
-	vector	<string> vSurfaces_Off;		// offsurf1		"head_bck_lwr_l"
-	vector	<string> vSurfaces_On;		// onsurf1		"fhead_bck_lwr_l_off"
-	string	strModel;					// model		"models\characters\bolt_ons\backpack_radio.glm"
+	string strName;				  // name			"chem_taylor"
+	vector<string> vSurfaces_Off; // offsurf1		"head_bck_lwr_l"
+	vector<string> vSurfaces_On;  // onsurf1		"fhead_bck_lwr_l_off"
+	string strModel;			  // model		"models\characters\bolt_ons\backpack_radio.glm"
 
 } NPC_Item_t;
 
-typedef map <string,NPC_Weapon_t>	TheNPCWeapons_t;
-typedef map <string,NPC_Item_t>		TheNPCItems_t;
+typedef map<string, NPC_Weapon_t> TheNPCWeapons_t;
+typedef map<string, NPC_Item_t> TheNPCItems_t;
 
 typedef struct
 {
-	string	strName;			// Name		"US SOCOM"
-	string	strBoltPoint;		// Bolt		"*hip_r"
+	string strName;		 // Name		"US SOCOM"
+	string strBoltPoint; // Bolt		"*hip_r"
 
 } NPC_INV_Weapon_t;
 
 typedef struct
 {
-	string	strName;			// Name		"ponytail"
-	string	strBoltPoint;		// Bolt		"*hip_r"
+	string strName;		 // Name		"ponytail"
+	string strBoltPoint; // Bolt		"*hip_r"
 
 } NPC_INV_Item_t;
 
-typedef vector <NPC_INV_Weapon_t>	NPC_INV_Weapons_t;
-typedef vector <NPC_INV_Item_t>		NPC_INV_Items_t;
+typedef vector<NPC_INV_Weapon_t> NPC_INV_Weapons_t;
+typedef vector<NPC_INV_Item_t> NPC_INV_Items_t;
 
 typedef struct
 {
-	NPC_INV_Weapons_t	Weapons;
-	NPC_INV_Items_t		Items;
+	NPC_INV_Weapons_t Weapons;
+	NPC_INV_Items_t Items;
 
 } NPC_INV_t;
 
 typedef struct
 {
-	string		strFile;			// SkinFile		"nurse_w1" or [File	"marine_camo2"]
+	string strFile; // SkinFile		"nurse_w1" or [File	"marine_camo2"]
 
 	// optional weapons and items only available in this skin...
 	//
-	NPC_INV_t	Inventory;
+	NPC_INV_t Inventory;
 
 } NPC_Skin_t;
 
-typedef map <string, NPC_Skin_t> NPC_Skins_t;
+typedef map<string, NPC_Skin_t> NPC_Skins_t;
 
 typedef struct
 {
-	string		strName;			// Name			"NPC_Taylor_Jungle"
-	string		strComments;		// comments		"Madeline Taylor in Jungle Gear"
-	string		strModel;			// Model		"models/characters/female_pants/female_pants.glm"		
+	string strName;		// Name			"NPC_Taylor_Jungle"
+	string strComments; // comments		"Madeline Taylor in Jungle Gear"
+	string strModel;	// Model		"models/characters/female_pants/female_pants.glm"
 
-//	Team		"The Shop"
-//	Rank		"Private"
-//	Occupation	"ScriptGuy"
-//	Health		"90 100"
+	//	Team		"The Shop"
+	//	Rank		"Private"
+	//	Occupation	"ScriptGuy"
+	//	Health		"90 100"
 
 	// optional weapons and items at the global level...
 	//
-	NPC_INV_t	Inventory;
+	NPC_INV_t Inventory;
 	NPC_Skins_t Skins;
 
 } NPC_CharacterTemplate_t;
 
-typedef map <string,NPC_CharacterTemplate_t> NPC_CharacterTemplates_t;
+typedef map<string, NPC_CharacterTemplate_t> NPC_CharacterTemplates_t;
 
 typedef struct
 {
-//	Skeleton	"female_pants.skl"
-	string	strParentTemplate;				// ParentTemplate	"NPC_Base_Female"
+	//	Skeleton	"female_pants.skl"
+	string strParentTemplate; // ParentTemplate	"NPC_Base_Female"
 
 } NPC_GroupInfo_t;
 
 typedef struct
 {
-	NPC_GroupInfo_t				NPC_GroupInfo;	
-	NPC_CharacterTemplates_t	NPC_CharacterTemplates;
+	NPC_GroupInfo_t NPC_GroupInfo;
+	NPC_CharacterTemplates_t NPC_CharacterTemplates;
 
 } NPCFile_t;
 
+typedef map<string, NPCFile_t> NPCFiles_t;
 
-typedef map <string, NPCFile_t> NPCFiles_t;
-
-NPCFiles_t		TheNPCFiles;
+NPCFiles_t TheNPCFiles;
 TheNPCWeapons_t TheNPCWeapons;
-TheNPCItems_t	TheNPCItems;
-
-
+TheNPCItems_t TheNPCItems;
 
 // text defines for ext_data/sof2.item...
 //
-#define sKEYWORD_ITEM_WEAPON		"weapon"
-#define sKEYWORD_ITEM_ITEM			"item"
-#define sKEYWORD_ITEM_NAME			"name"
-#define sKEYWORD_ITEM_MODEL			"model"
-#define sKEYWORD_ITEM_BOLTPOINT		"boltpoint"
-#define sKEYWORD_ITEM_HOLSTMODEL	"holstmodel"
-#define sKEYWORD_ITEM_ONSURF		"onsurf"	// "onsurf",	"onsurf1",	"onsurf2" etc
-#define sKEYWORD_ITEM_OFFSURF		"offsurf"	// "offsurf",	"offsurf1", "offsurf2" etc
-
+#define sKEYWORD_ITEM_WEAPON "weapon"
+#define sKEYWORD_ITEM_ITEM "item"
+#define sKEYWORD_ITEM_NAME "name"
+#define sKEYWORD_ITEM_MODEL "model"
+#define sKEYWORD_ITEM_BOLTPOINT "boltpoint"
+#define sKEYWORD_ITEM_HOLSTMODEL "holstmodel"
+#define sKEYWORD_ITEM_ONSURF "onsurf"	// "onsurf",	"onsurf1",	"onsurf2" etc
+#define sKEYWORD_ITEM_OFFSURF "offsurf" // "offsurf",	"offsurf1", "offsurf2" etc
 
 // confusingly, this actually means load both weapons & items, but parse them from the file "ext_data/sof2.item"
 //
@@ -274,20 +265,20 @@ static bool NPC_LoadItems(void)
 	bool bReturn = false;
 
 	char sFileName[MAX_QPATH];
-	
-	Com_sprintf( sFileName, sizeof( sFileName ), "ext_data/sof2.item");
-	StatusMessage( va("Scanning file: \"%s\"...", sFileName));
-			
+
+	Com_sprintf(sFileName, sizeof(sFileName), "ext_data/sof2.item");
+	StatusMessage(va("Scanning file: \"%s\"...", sFileName));
+
 	char *pText = NULL;
-	int iTotalBytesLoaded = ri.FS_ReadFile( sFileName, (void **)&pText );
-			
-	if ( pText ) 
+	int iTotalBytesLoaded = ri.FS_ReadFile(sFileName, (void **)&pText);
+
+	if (pText)
 	{
 		CGenericParser2 Parser;
-		char *psDataPtr = pText;	// because ptr gets advanced, so we supply a clone that GP1 can alter
+		char *psDataPtr = pText; // because ptr gets advanced, so we supply a clone that GP1 can alter
 		if (Parser.Parse(&psDataPtr, true))
-		{				
-			CGPGroup *pFileGroup	= Parser.GetBaseParseGroup();
+		{
+			CGPGroup *pFileGroup = Parser.GetBaseParseGroup();
 			if (pFileGroup)
 			{
 				CGPGroup *pSubGroup = pFileGroup->GetSubGroups();
@@ -296,21 +287,21 @@ static bool NPC_LoadItems(void)
 					string strParseGroupName = pSubGroup->GetName();
 
 					if (strParseGroupName == sKEYWORD_ITEM_WEAPON)
-					{						
+					{
 						// read weapon fields...
 						//
-						CGPGroup *&pWeaponGroup = pSubGroup;	// saves search/replace during GP1->GP conversion
+						CGPGroup *&pWeaponGroup = pSubGroup; // saves search/replace during GP1->GP conversion
 						string strName = pWeaponGroup->FindPairValue(sKEYWORD_ITEM_NAME, "");
 						if (!strName.empty())
 						{
 							// insert into map...
 							//
-							TheNPCWeapons[strName].strName = strName;	// looks pointless, but init's the map entry
+							TheNPCWeapons[strName].strName = strName; // looks pointless, but init's the map entry
 							//
 							// now parse other fields...
 							//
-							string 
-							str = pWeaponGroup->FindPairValue(sKEYWORD_ITEM_BOLTPOINT, "");
+							string
+								str = pWeaponGroup->FindPairValue(sKEYWORD_ITEM_BOLTPOINT, "");
 							if (!str.empty())
 							{
 								TheNPCWeapons[strName].strBoltPoint = str;
@@ -323,8 +314,7 @@ static bool NPC_LoadItems(void)
 							}
 						}
 					}
-					else
-					if (strParseGroupName == sKEYWORD_ITEM_ITEM)
+					else if (strParseGroupName == sKEYWORD_ITEM_ITEM)
 					{
 						// read item fields...
 						//
@@ -334,13 +324,13 @@ static bool NPC_LoadItems(void)
 						if (!strName.empty())
 						{
 							// insert into map...
-							//						
-							TheNPCItems[strName].strName = strName;	// looks pointless, but init's the map entry
+							//
+							TheNPCItems[strName].strName = strName; // looks pointless, but init's the map entry
 							//
 							// now parse other fields...
 							//
-							string 
-							str = pItemGroup->FindPairValue(sKEYWORD_ITEM_MODEL, "");
+							string
+								str = pItemGroup->FindPairValue(sKEYWORD_ITEM_MODEL, "");
 							if (!str.empty())
 							{
 								TheNPCItems[strName].strModel = str;
@@ -352,16 +342,16 @@ static bool NPC_LoadItems(void)
 							CGPValue *pValue = pSubGroup->GetPairs();
 							while (pValue)
 							{
-								string strKey	= pValue->GetName();
+								string strKey = pValue->GetName();
 								string strValue = pValue->GetTopValue();
 
 								if (!strncmp(strKey.c_str(), sKEYWORD_ITEM_ONSURF, strlen(sKEYWORD_ITEM_ONSURF)))
-								{								
+								{
 									TheNPCItems[strName].vSurfaces_On.push_back(strValue);
 								}
 
 								if (!strncmp(strKey.c_str(), sKEYWORD_ITEM_OFFSURF, strlen(sKEYWORD_ITEM_OFFSURF)))
-								{								
+								{
 									TheNPCItems[strName].vSurfaces_Off.push_back(strValue);
 								}
 
@@ -370,32 +360,30 @@ static bool NPC_LoadItems(void)
 						}
 					}
 
-					pSubGroup = (CGPGroup *)pSubGroup->GetNext();	
+					pSubGroup = (CGPGroup *)pSubGroup->GetNext();
 				}
 			}
 		}
 		else
 		{
-			ErrorBox(va("{} - Brace mismatch error in file \"%s\"!",sFileName));
+			ErrorBox(va("{} - Brace mismatch error in file \"%s\"!", sFileName));
 		}
 
-		ri.FS_FreeFile( pText );
+		ri.FS_FreeFile(pText);
 		bReturn = true;
 	}
 	else
 	{
-		bReturn = GetYesNo(va("Unable to open file \"%s\", continue anyway?",sFileName));
+		bReturn = GetYesNo(va("Unable to open file \"%s\", continue anyway?", sFileName));
 	}
 	StatusMessage(NULL);
 
 	return bReturn;
 }
 
-
-
-#define sKEYWORD_WPN_WEAPON		"weapon"
-#define sKEYWORD_WPN_NAME		"name"
-#define sKEYWORD_WPN_MODEL		"model"
+#define sKEYWORD_WPN_WEAPON "weapon"
+#define sKEYWORD_WPN_NAME "name"
+#define sKEYWORD_WPN_MODEL "model"
 
 // this parses weapon info from the file "ext_data/sof2.wpn"
 //
@@ -406,20 +394,20 @@ static bool NPC_LoadWeapons(void)
 	bool bReturn = false;
 
 	char sFileName[MAX_QPATH];
-	
-	Com_sprintf( sFileName, sizeof( sFileName ), "ext_data/sof2.wpn");
-	StatusMessage( va("Scanning file: \"%s\"...", sFileName));
-			
+
+	Com_sprintf(sFileName, sizeof(sFileName), "ext_data/sof2.wpn");
+	StatusMessage(va("Scanning file: \"%s\"...", sFileName));
+
 	char *pText = NULL;
-	int iTotalBytesLoaded = ri.FS_ReadFile( sFileName, (void **)&pText );
-			
-	if ( pText ) 
+	int iTotalBytesLoaded = ri.FS_ReadFile(sFileName, (void **)&pText);
+
+	if (pText)
 	{
 		CGenericParser2 Parser;
 		char *psDataPtr = pText;
 		if (Parser.Parse(&psDataPtr, true))
 		{
-			CGPGroup	*pFileGroup	= Parser.GetBaseParseGroup();
+			CGPGroup *pFileGroup = Parser.GetBaseParseGroup();
 			if (pFileGroup)
 			{
 				CGPGroup *pSubGroup = pFileGroup->GetSubGroups();
@@ -429,7 +417,7 @@ static bool NPC_LoadWeapons(void)
 					string strParseGroupName = pSubGroup->GetName();
 
 					if (strParseGroupName == sKEYWORD_WPN_WEAPON)
-					{						
+					{
 						// read weapon fields...
 						//
 						CGPGroup *&pWeaponGroup = pSubGroup;
@@ -439,12 +427,12 @@ static bool NPC_LoadWeapons(void)
 						{
 							// insert into map...
 							//
-							TheNPCWeapons[strName].strName = strName;	// looks pointless, but init's the map entry
+							TheNPCWeapons[strName].strName = strName; // looks pointless, but init's the map entry
 							//
 							// now parse other fields...
 							//
-							string 
-							str = pWeaponGroup->FindPairValue(sKEYWORD_WPN_MODEL, "");						
+							string
+								str = pWeaponGroup->FindPairValue(sKEYWORD_WPN_MODEL, "");
 							if (!str.empty())
 							{
 								TheNPCWeapons[strName].strModel = str;
@@ -457,36 +445,34 @@ static bool NPC_LoadWeapons(void)
 		}
 		else
 		{
-			ErrorBox(va("{} - Brace mismatch error in file \"%s\"!",sFileName));
+			ErrorBox(va("{} - Brace mismatch error in file \"%s\"!", sFileName));
 		}
 
-		ri.FS_FreeFile( pText );
+		ri.FS_FreeFile(pText);
 		bReturn = true;
 	}
 	else
 	{
-		bReturn = GetYesNo(va("Unable to open file \"%s\", continue anyway?",sFileName));
+		bReturn = GetYesNo(va("Unable to open file \"%s\", continue anyway?", sFileName));
 	}
 	StatusMessage(NULL);
 
 	return bReturn;
 }
 
-
-
-#define sKEYWORD_NPC_GROUPINFO			"GroupInfo"
-#define sKEYWORD_NPC_CHARACTERTEMPLATE	"CharacterTemplate"
-#define sKEYWORD_NPC_PARENTTEMPLATE		"ParentTemplate"
-#define sKEYWORD_NPC_NAME				"Name"
-#define sKEYWORD_NPC_MODEL				"Model"
-#define sKEYWORD_NPC_COMMENTS			"comments"
-#define sKEYWORD_NPC_SKINFILE			"SkinFile"
-#define sKEYWORD_NPC_INVENTORY			"Inventory"
-#define sKEYWORD_NPC_ITEM				"Item"
-#define sKEYWORD_NPC_WEAPON				"Weapon"
-#define sKEYWORD_NPC_BOLT				"Bolt"
-#define sKEYWORD_NPC_SKIN				"Skin"
-#define sKEYWORD_NPC_FILE				"File"
+#define sKEYWORD_NPC_GROUPINFO "GroupInfo"
+#define sKEYWORD_NPC_CHARACTERTEMPLATE "CharacterTemplate"
+#define sKEYWORD_NPC_PARENTTEMPLATE "ParentTemplate"
+#define sKEYWORD_NPC_NAME "Name"
+#define sKEYWORD_NPC_MODEL "Model"
+#define sKEYWORD_NPC_COMMENTS "comments"
+#define sKEYWORD_NPC_SKINFILE "SkinFile"
+#define sKEYWORD_NPC_INVENTORY "Inventory"
+#define sKEYWORD_NPC_ITEM "Item"
+#define sKEYWORD_NPC_WEAPON "Weapon"
+#define sKEYWORD_NPC_BOLT "Bolt"
+#define sKEYWORD_NPC_SKIN "Skin"
+#define sKEYWORD_NPC_FILE "File"
 
 static bool NPC_ParseInventory(NPC_INV_t &Inventory, CGPGroup *pParseGroup)
 {
@@ -498,7 +484,7 @@ static bool NPC_ParseInventory(NPC_INV_t &Inventory, CGPGroup *pParseGroup)
 		string strSubGroupName = pSubGroup->GetName();
 
 		if (strSubGroupName == sKEYWORD_NPC_WEAPON)
-		{						
+		{
 			// read weapon fields...
 			//
 			NPC_INV_Weapon_t Weapon;
@@ -506,15 +492,14 @@ static bool NPC_ParseInventory(NPC_INV_t &Inventory, CGPGroup *pParseGroup)
 			CGPValue *pValue = pSubGroup->GetPairs();
 			while (pValue)
 			{
-				string strKey	= pValue->GetName();
+				string strKey = pValue->GetName();
 				string strValue = pValue->GetTopValue();
 
 				if (strKey == sKEYWORD_NPC_NAME)
 				{
 					Weapon.strName = strValue;
 				}
-				else
-				if (strKey == sKEYWORD_NPC_BOLT)
+				else if (strKey == sKEYWORD_NPC_BOLT)
 				{
 					Weapon.strBoltPoint = strValue;
 				}
@@ -522,12 +507,11 @@ static bool NPC_ParseInventory(NPC_INV_t &Inventory, CGPGroup *pParseGroup)
 				pValue = pValue->GetNext();
 			}
 
-			Inventory.Weapons.push_back( Weapon );
+			Inventory.Weapons.push_back(Weapon);
 			bReturn = true;
 		}
-		else
-		if (strSubGroupName == sKEYWORD_NPC_ITEM)
-		{						
+		else if (strSubGroupName == sKEYWORD_NPC_ITEM)
+		{
 			// read item fields...
 			//
 			NPC_INV_Item_t Item;
@@ -535,15 +519,14 @@ static bool NPC_ParseInventory(NPC_INV_t &Inventory, CGPGroup *pParseGroup)
 			CGPValue *pValue = pSubGroup->GetPairs();
 			while (pValue)
 			{
-				string strKey	= pValue->GetName();
+				string strKey = pValue->GetName();
 				string strValue = pValue->GetTopValue();
 
 				if (strKey == sKEYWORD_NPC_NAME)
 				{
 					Item.strName = strValue;
 				}
-				else
-				if (strKey == sKEYWORD_NPC_BOLT)
+				else if (strKey == sKEYWORD_NPC_BOLT)
 				{
 					Item.strBoltPoint = strValue;
 				}
@@ -551,7 +534,7 @@ static bool NPC_ParseInventory(NPC_INV_t &Inventory, CGPGroup *pParseGroup)
 				pValue = pValue->GetNext();
 			}
 
-			Inventory.Items.push_back( Item );
+			Inventory.Items.push_back(Item);
 			bReturn = true;
 		}
 
@@ -561,54 +544,54 @@ static bool NPC_ParseInventory(NPC_INV_t &Inventory, CGPGroup *pParseGroup)
 	return bReturn;
 }
 
-
 //
 static bool NPC_ParseNPCFiles(void)
 {
 	char **ppsNPCFiles;
 	int iNPCFiles;
 
-	// scan for NPC files...
-	//
-	#define sNPC_DIR va("%snpcs",gpsGameDir)
+// scan for NPC files...
+//
+#define sNPC_DIR va("%snpcs", gpsGameDir)
 
-	ppsNPCFiles =	//ri.FS_ListFiles( "shaders", ".shader", &iSkinFiles );
-					Sys_ListFiles(	sNPC_DIR,		// const char *directory, 
-									".npc",		// const char *extension, 
-									NULL,		// char *filter, 
-									&iNPCFiles,	// int *numfiles, 
-									qfalse		// qboolean wantsubs 
-									);
+	ppsNPCFiles =				  //ri.FS_ListFiles( "shaders", ".shader", &iSkinFiles );
+		Sys_ListFiles(sNPC_DIR,	  // const char *directory,
+					  ".npc",	  // const char *extension,
+					  NULL,		  // char *filter,
+					  &iNPCFiles, // int *numfiles,
+					  qfalse	  // qboolean wantsubs
+		);
 
-	if ( ppsNPCFiles && iNPCFiles )
+	if (ppsNPCFiles && iNPCFiles)
 	{
-		#define MAX_NPC_FILES 100	// any old large-ish size for array declaration...
+#define MAX_NPC_FILES 100 // any old large-ish size for array declaration...
 		//
-		if ( iNPCFiles > MAX_NPC_FILES ) 
+		if (iNPCFiles > MAX_NPC_FILES)
 		{
-			WarningBox(va("%d NPC files found, capping to %d\n\n(tell me if this ever happens -Ste)", iNPCFiles, MAX_NPC_FILES ));
+			WarningBox(va("%d NPC files found, capping to %d\n\n(tell me if this ever happens -Ste)", iNPCFiles, MAX_NPC_FILES));
 
-			iNPCFiles =  MAX_NPC_FILES;
+			iNPCFiles = MAX_NPC_FILES;
 		}
 
 		// load and parse skin files...
-		//					
+		//
 		char *buffers[MAX_NPC_FILES];
 		long iTotalBytesLoaded = 0;
-		for ( int i=0; i<iNPCFiles; i++ )
+		for (int i = 0; i < iNPCFiles; i++)
 		{
 			char sFileName[MAX_QPATH];
 
 			string strThisNPCFile(ppsNPCFiles[i]);
-			string strThisNPCFileNoExt(Filename_WithoutExt(strThisNPCFile.c_str()));	// laziness
+			string strThisNPCFileNoExt(Filename_WithoutExt(strThisNPCFile.c_str())); // laziness
 
-			Com_sprintf( sFileName, sizeof( sFileName ), "%s/%s", "npcs", strThisNPCFile.c_str() );
-			StatusMessage( va("Scanning NPC file %d/%d: \"%s\"...",i+1,iNPCFiles,sFileName));
-									
-			iTotalBytesLoaded += ri.FS_ReadFile( sFileName, (void **)&buffers[i] );
-			
-			if ( !buffers[i] ) {
-				ri.Error( ERR_DROP, "Couldn't load %s", sFileName );
+			Com_sprintf(sFileName, sizeof(sFileName), "%s/%s", "npcs", strThisNPCFile.c_str());
+			StatusMessage(va("Scanning NPC file %d/%d: \"%s\"...", i + 1, iNPCFiles, sFileName));
+
+			iTotalBytesLoaded += ri.FS_ReadFile(sFileName, (void **)&buffers[i]);
+
+			if (!buffers[i])
+			{
+				ri.Error(ERR_DROP, "Couldn't load %s", sFileName);
 			}
 
 			char *psDataPtr = buffers[i];
@@ -630,44 +613,40 @@ static bool NPC_ParseNPCFiles(void)
 							//
 							string str = pSubGroup->FindPairValue(sKEYWORD_NPC_PARENTTEMPLATE, "");
 							if (!str.empty())
-							{							
+							{
 								TheNPCFiles[strThisNPCFileNoExt].NPC_GroupInfo.strParentTemplate = str;
 							}
 						}
-						else
-						if (strParseGroupName == sKEYWORD_NPC_CHARACTERTEMPLATE)
+						else if (strParseGroupName == sKEYWORD_NPC_CHARACTERTEMPLATE)
 						{
-							NPC_CharacterTemplate_t CharacterTemplate;						
+							NPC_CharacterTemplate_t CharacterTemplate;
 							//
 							// see which of the pairs in here interest us...
 							//
 							CGPValue *pValue = pSubGroup->GetPairs();
 							while (pValue)
 							{
-								string strKey	= pValue->GetName();
+								string strKey = pValue->GetName();
 								string strValue = pValue->GetTopValue();
 
 								if (!stricmp(strKey.c_str(), sKEYWORD_NPC_NAME))
-								{								
+								{
 									//OutputDebugString(va("%s\n",strValue.c_str()));
 									CharacterTemplate.strName = strValue;
 								}
-								else
-								if (!stricmp(strKey.c_str(), sKEYWORD_NPC_MODEL))
-								{								
+								else if (!stricmp(strKey.c_str(), sKEYWORD_NPC_MODEL))
+								{
 									CharacterTemplate.strModel = strValue;
 								}
-								else
-								if (!stricmp(strKey.c_str(), sKEYWORD_NPC_COMMENTS))
-								{								
+								else if (!stricmp(strKey.c_str(), sKEYWORD_NPC_COMMENTS))
+								{
 									CharacterTemplate.strComments = strValue;
 								}
-								else
-								if (!stricmp(strKey.c_str(), sKEYWORD_NPC_SKINFILE))
-								{								
-									NPC_Skin_t	Skin;
-												Skin.strFile = strValue;								
-									CharacterTemplate.Skins[ Skin.strFile ] = Skin;
+								else if (!stricmp(strKey.c_str(), sKEYWORD_NPC_SKINFILE))
+								{
+									NPC_Skin_t Skin;
+									Skin.strFile = strValue;
+									CharacterTemplate.Skins[Skin.strFile] = Skin;
 								}
 								pValue = pValue->GetNext();
 							}
@@ -683,21 +662,20 @@ static bool NPC_ParseNPCFiles(void)
 								{
 									NPC_INV_t Inventory;
 
-									if (NPC_ParseInventory(Inventory,pSubGroupTemplate))
+									if (NPC_ParseInventory(Inventory, pSubGroupTemplate))
 									{
 										CharacterTemplate.Inventory = Inventory;
 									}
 								}
-								else
-								if (strSubGroupName == sKEYWORD_NPC_SKIN)
+								else if (strSubGroupName == sKEYWORD_NPC_SKIN)
 								{
 									// must have a "File" pair-entry...
 									//
-									string strFile = pSubGroupTemplate->FindPairValue(sKEYWORD_NPC_FILE,"");
+									string strFile = pSubGroupTemplate->FindPairValue(sKEYWORD_NPC_FILE, "");
 									if (!strFile.empty())
 									{
-										NPC_Skin_t	Skin;
-													Skin.strFile = strFile;
+										NPC_Skin_t Skin;
+										Skin.strFile = strFile;
 
 										// now look for an optional Inventory subgroup...
 										//
@@ -706,20 +684,20 @@ static bool NPC_ParseNPCFiles(void)
 										{
 											NPC_INV_t Inventory;
 
-											if (NPC_ParseInventory(Inventory,pSubGroupInv))
+											if (NPC_ParseInventory(Inventory, pSubGroupInv))
 											{
 												Skin.Inventory = Inventory;
 											}
 										}
 
-										CharacterTemplate.Skins[ Skin.strFile ] = Skin;
+										CharacterTemplate.Skins[Skin.strFile] = Skin;
 									}
 								}
 								pSubGroupTemplate = pSubGroupTemplate->GetNext();
 							}
 
 							// finally...
-							//						
+							//
 							TheNPCFiles[strThisNPCFileNoExt].NPC_CharacterTemplates[CharacterTemplate.strName] = CharacterTemplate;
 						}
 
@@ -729,30 +707,29 @@ static bool NPC_ParseNPCFiles(void)
 			}
 			else
 			{
-				ri.Error( ERR_DROP, "{} - Brace mismatch error in file \"%s\"!",sFileName);				
+				ri.Error(ERR_DROP, "{} - Brace mismatch error in file \"%s\"!", sFileName);
 			}
 		}
 		StatusMessage(NULL);
 
 		// free loaded files...
 		//
-		for ( i=0; i<iNPCFiles; i++ )
+		for (i = 0; i < iNPCFiles; i++)
 		{
-			ri.FS_FreeFile( buffers[i] );
+			ri.FS_FreeFile(buffers[i]);
 		}
 
 		// ... and file list...
-		//		
-		Sys_FreeFileList( ppsNPCFiles );
+		//
+		Sys_FreeFileList(ppsNPCFiles);
 	}
 	else
 	{
-		WarningBox(va("WARNING: no NPC files found in '%s'\n",sNPC_DIR ));
+		WarningBox(va("WARNING: no NPC files found in '%s'\n", sNPC_DIR));
 	}
 
 	return !!TheNPCFiles.size();
 }
-
 
 /*
 // Dark Side bots
@@ -766,10 +743,10 @@ personality	/botfiles/Swamptrooper.jkb
 */
 typedef struct BOTFile_s
 {
-	string	strName;	// name		"SW-967"
-	string	strModel;	// model	Swamptrooper	// (will be 1:1 dir name match)
-	int		iColor1;	// color1	0				// lightsaber color, FWIW (dark = 0, light = 4 so far)
-	string	strComment;	////Swamptrooper is aligned with no one
+	string strName;	   // name		"SW-967"
+	string strModel;   // model	Swamptrooper	// (will be 1:1 dir name match)
+	int iColor1;	   // color1	0				// lightsaber color, FWIW (dark = 0, light = 4 so far)
+	string strComment; ////Swamptrooper is aligned with no one
 
 	BOTFile_s()
 	{
@@ -778,35 +755,34 @@ typedef struct BOTFile_s
 
 } BOTFile_t;
 
-typedef map <string, BOTFile_t> BOTFiles_t;
+typedef map<string, BOTFile_t> BOTFiles_t;
 
 BOTFiles_t TheBOTFiles;
 
-
-static void BOT_ScanSkins(BOTFile_t &Bot, set <string> &SkinVariants)
+static void BOT_ScanSkins(BOTFile_t &Bot, set<string> &SkinVariants)
 {
 	char **ppsFiles;
 	int iFiles;
 
-	// scan for NPC files...
-	//
-	#define sBOTSKINS_DIR va("%smodels/players/%s",gpsGameDir, Bot.strModel.c_str())
+// scan for NPC files...
+//
+#define sBOTSKINS_DIR va("%smodels/players/%s", gpsGameDir, Bot.strModel.c_str())
 
-	ppsFiles =	//ri.FS_ListFiles( "shaders", ".shader", &iSkinFiles );
-				Sys_ListFiles(	sBOTSKINS_DIR,	// const char *directory, 
-								".skin",		// const char *extension, 
-								NULL,		// char *filter, 
-								&iFiles,	// int *numfiles, 
-								qfalse		// qboolean wantsubs 
-								);
+	ppsFiles =						 //ri.FS_ListFiles( "shaders", ".shader", &iSkinFiles );
+		Sys_ListFiles(sBOTSKINS_DIR, // const char *directory,
+					  ".skin",		 // const char *extension,
+					  NULL,			 // char *filter,
+					  &iFiles,		 // int *numfiles,
+					  qfalse		 // qboolean wantsubs
+		);
 
-	if ( ppsFiles && iFiles )
+	if (ppsFiles && iFiles)
 	{
-		for ( int i=0; i<iFiles; i++ )
+		for (int i = 0; i < iFiles; i++)
 		{
-			CString strThisFile( Filename_WithoutExt(ppsFiles[i]) );
+			CString strThisFile(Filename_WithoutExt(ppsFiles[i]));
 
-			if (!strnicmp(strThisFile,"model_",6))
+			if (!strnicmp(strThisFile, "model_", 6))
 			{
 				string s = (LPCSTR)(strThisFile.Mid(6));
 				SkinVariants.insert(s);
@@ -815,11 +791,10 @@ static void BOT_ScanSkins(BOTFile_t &Bot, set <string> &SkinVariants)
 		StatusMessage(NULL);
 
 		// free file list...
-		//		
-		Sys_FreeFileList( ppsFiles );
+		//
+		Sys_FreeFileList(ppsFiles);
 	}
 }
-
 
 void CSOF2NPCViewer::BOT_ScanFiles(bool bForceRefresh)
 {
@@ -829,25 +804,25 @@ void CSOF2NPCViewer::BOT_ScanFiles(bool bForceRefresh)
 	CWaitCursor wait;
 
 	TheBOTFiles.clear();
-	
-	CString strFileName( va("%sbotfiles\\bots.txt",gpsGameDir) );
+
+	CString strFileName(va("%sbotfiles\\bots.txt", gpsGameDir));
 	CString strBOTFile;
 	if (TextFile_Read(strBOTFile, strFileName, false, true))
 	{
 		int iLoc;
 
 		bool bStopHere = false;
-		while ( !bStopHere && (iLoc = strBOTFile.Find("{")) != -1)		/*}*/
+		while (!bStopHere && (iLoc = strBOTFile.Find("{")) != -1) /*}*/
 		{
 			/*{*/
-			int iLoc2 = strBOTFile.Find("}",iLoc);
+			int iLoc2 = strBOTFile.Find("}", iLoc);
 
 			if (iLoc2 != -1)
 			{
-				CString strThisBot( strBOTFile.Left(iLoc2) );
-						strThisBot = strThisBot.Mid(iLoc+1);
+				CString strThisBot(strBOTFile.Left(iLoc2));
+				strThisBot = strThisBot.Mid(iLoc + 1);
 
-				strBOTFile = strBOTFile.Mid(iLoc2+1);
+				strBOTFile = strBOTFile.Mid(iLoc2 + 1);
 
 				BOTFile_t Bot;
 
@@ -871,7 +846,7 @@ void CSOF2NPCViewer::BOT_ScanFiles(bool bForceRefresh)
 					if (iLoc != -1)
 					{
 						strLine = strThisBot.Left(iLoc);
-						strThisBot = strThisBot.Mid(iLoc+1);
+						strThisBot = strThisBot.Mid(iLoc + 1);
 					}
 					else
 					{
@@ -884,11 +859,11 @@ void CSOF2NPCViewer::BOT_ScanFiles(bool bForceRefresh)
 
 					if (!strLine.IsEmpty())
 					{
-						if (!strnicmp(strLine,"name", 4))
+						if (!strnicmp(strLine, "name", 4))
 						{
 							CString str(strLine.Mid(4));
-									str.TrimLeft();
-									str.Replace("\"","");
+							str.TrimLeft();
+							str.Replace("\"", "");
 
 							if (!str.CompareNoCase("@STOPHERE"))
 							{
@@ -896,33 +871,30 @@ void CSOF2NPCViewer::BOT_ScanFiles(bool bForceRefresh)
 								break;
 							}
 
-							Bot.strName = (LPCSTR) str;
+							Bot.strName = (LPCSTR)str;
 							//OutputDebugString(va("Bot name: \"%s\"\n",(LPCSTR) str));
 						}
-						else
-						if (!strnicmp(strLine,"model",5))
+						else if (!strnicmp(strLine, "model", 5))
 						{
 							CString str(strLine.Mid(5));
-									str.TrimLeft();
-									str.Replace("\"","");
+							str.TrimLeft();
+							str.Replace("\"", "");
 
-							Bot.strModel = (LPCSTR) str;
+							Bot.strModel = (LPCSTR)str;
 							//OutputDebugString(va("Bot model: \"%s\"\n",(LPCSTR) str));
 						}
-						else
-						if (!strnicmp(strLine,"color1",6))
+						else if (!strnicmp(strLine, "color1", 6))
 						{
 							Bot.iColor1 = atoi(&((LPCSTR)strLine)[6]);
 
 							//OutputDebugString(va("Bot color1: %d\n",Bot.iColor1));
 						}
-						else
-						if (!strnicmp(strLine,"//",2))
+						else if (!strnicmp(strLine, "//", 2))
 						{
-							CString str( strLine.Mid(2) );
-									str.TrimLeft();
+							CString str(strLine.Mid(2));
+							str.TrimLeft();
 
-							Bot.strComment = (LPCSTR) str;
+							Bot.strComment = (LPCSTR)str;
 
 							//OutputDebugString(va("Bot comment: \"%s\"\n",Bot.strComment.c_str()));
 						}
@@ -931,27 +903,27 @@ void CSOF2NPCViewer::BOT_ScanFiles(bool bForceRefresh)
 
 				if (!bStopHere && !Bot.strModel.empty())
 				{
-					TheBOTFiles[ Bot.strModel.c_str() ] = Bot;					
+					TheBOTFiles[Bot.strModel.c_str()] = Bot;
 				}
 			}
 			else
 			{
-				ErrorBox(va("Mismatching braces in \"%s\"!",(LPCSTR)strFileName));
+				ErrorBox(va("Mismatching braces in \"%s\"!", (LPCSTR)strFileName));
 				strBOTFile.Empty();
 			}
 		}
 	}
 	else
 	{
-		ErrorBox(va("Failed to open file \"%s\"!",(LPCSTR)strFileName));
+		ErrorBox(va("Failed to open file \"%s\"!", (LPCSTR)strFileName));
 	}
 }
 
 void CSOF2NPCViewer::BOT_FillList(void)
 {
-//	ListBoxLookups.clear();
+	//	ListBoxLookups.clear();
 
-	CListBox* pListBox = (CListBox*)GetDlgItem(IDC_LIST_NPCS);
+	CListBox *pListBox = (CListBox *)GetDlgItem(IDC_LIST_NPCS);
 	assert(pListBox);
 	if (pListBox)
 	{
@@ -962,16 +934,14 @@ void CSOF2NPCViewer::BOT_FillList(void)
 			BOTFile_t &Bot = (*itBots).second;
 
 			pListBox->InsertString(-1, Bot.strModel.c_str());
-/*
+			/*
 				string strListEntry( NPC_CreateListEntry( pTemplate->strName.c_str(), pSkin->strFile.c_str() ) );
 					pListBox->InsertString(-1, strListEntry.c_str());
 
 					ListBoxLookups[ strListEntry ] = NPC_DataLookup;	// hehehehe, STL rules for some stuff
 */
-
 		}
 	}
-
 
 	CStatic *pStatic = (CStatic *)GetDlgItem(IDC_STATIC_COMMENT);
 	if (pStatic)
@@ -979,7 +949,6 @@ void CSOF2NPCViewer::BOT_FillList(void)
 		pStatic->SetWindowText("");
 	}
 }
-
 
 // builds up all NPC structures...
 //
@@ -1004,7 +973,7 @@ void CSOF2NPCViewer::NPC_ScanFiles(bool bForceRefresh)
 			if (NPC_ParseNPCFiles())
 			{
 				bUserWantsToCancel = false;
-	/*
+				/*
 				// quick debug thing...
 				//
 				for (TheNPCWeapons_t::iterator itW = TheNPCWeapons.begin(); itW != TheNPCWeapons.end(); ++itW)
@@ -1042,7 +1011,7 @@ void CSOF2NPCViewer::NPC_ScanFiles(bool bForceRefresh)
 	*/
 			}
 		}
-	}	
+	}
 
 	if (bUserWantsToCancel)
 	{
@@ -1050,20 +1019,16 @@ void CSOF2NPCViewer::NPC_ScanFiles(bool bForceRefresh)
 	}
 }
 
-
-
-
-
 typedef struct
 {
-	string	strNPCFileNameBase;
-	string	strTemplateName;
-	string	strSkinName;	
+	string strNPCFileNameBase;
+	string strTemplateName;
+	string strSkinName;
 
 } NPC_DataLookup_t;
 
-typedef map<string, NPC_DataLookup_t>	ListBoxLookups_t;
-										ListBoxLookups_t ListBoxLookups;
+typedef map<string, NPC_DataLookup_t> ListBoxLookups_t;
+ListBoxLookups_t ListBoxLookups;
 
 // subroutined so that the ModView Script generator can generate a 100%-compatible string for doing a data lookup...
 //
@@ -1078,19 +1043,19 @@ static LPCSTR NPC_CreateListEntry(LPCSTR psTemplateName, LPCSTR psSkinName)
 // applies NPC structures to GUI picker...
 //
 void CSOF2NPCViewer::NPC_FillList()
-{	
+{
 	ListBoxLookups.clear();
 
-	CListBox* pListBox = (CListBox*)GetDlgItem(IDC_LIST_NPCS);	
+	CListBox *pListBox = (CListBox *)GetDlgItem(IDC_LIST_NPCS);
 	assert(pListBox);
 	if (pListBox)
 	{
 		pListBox->ResetContent();
-		
+
 		for (NPCFiles_t::iterator itFiles = TheNPCFiles.begin(); itFiles != TheNPCFiles.end(); ++itFiles)
 		{
-			string strNPCFileNameBase	= (*itFiles).first;
-			NPCFile_t *pNPCFile			= &(*itFiles).second;
+			string strNPCFileNameBase = (*itFiles).first;
+			NPCFile_t *pNPCFile = &(*itFiles).second;
 
 			NPC_GroupInfo_t *pNPC_GroupInfo = &pNPCFile->NPC_GroupInfo;
 
@@ -1102,20 +1067,19 @@ void CSOF2NPCViewer::NPC_FillList()
 				{
 					NPC_Skin_t *pSkin = &(*itSkin).second;
 
-					string strListEntry( NPC_CreateListEntry( pTemplate->strName.c_str(), pSkin->strFile.c_str() ) );
+					string strListEntry(NPC_CreateListEntry(pTemplate->strName.c_str(), pSkin->strFile.c_str()));
 					pListBox->InsertString(-1, strListEntry.c_str());
 
-					NPC_DataLookup_t	NPC_DataLookup;
-										NPC_DataLookup.strNPCFileNameBase	= strNPCFileNameBase;
-										NPC_DataLookup.strTemplateName		= pTemplate->strName;
-										NPC_DataLookup.strSkinName			= pSkin->strFile;
+					NPC_DataLookup_t NPC_DataLookup;
+					NPC_DataLookup.strNPCFileNameBase = strNPCFileNameBase;
+					NPC_DataLookup.strTemplateName = pTemplate->strName;
+					NPC_DataLookup.strSkinName = pSkin->strFile;
 
-					ListBoxLookups[ strListEntry ] = NPC_DataLookup;	// hehehehe, STL rules for some stuff
+					ListBoxLookups[strListEntry] = NPC_DataLookup; // hehehehe, STL rules for some stuff
 				}
 			}
 		}
 	}
-
 
 	CStatic *pStatic = (CStatic *)GetDlgItem(IDC_STATIC_COMMENT);
 	if (pStatic)
@@ -1123,8 +1087,6 @@ void CSOF2NPCViewer::NPC_FillList()
 		pStatic->SetWindowText("");
 	}
 }
-
-
 
 // turns a listbox caption into data ptrs...
 //
@@ -1137,21 +1099,21 @@ static bool NPC_DataLookup(LPCSTR psCaption, NPCFile_t &NPCFile, NPC_CharacterTe
 
 		// NPCFile...
 		//
-		NPCFiles_t::iterator itFile = TheNPCFiles.find( DataLookUp.strNPCFileNameBase );
+		NPCFiles_t::iterator itFile = TheNPCFiles.find(DataLookUp.strNPCFileNameBase);
 		if (itFile != TheNPCFiles.end())
 		{
 			NPCFile = (*itFile).second;
 
 			// CharacterTemplate...
 			//
-			NPC_CharacterTemplates_t::iterator itTemplate = NPCFile.NPC_CharacterTemplates.find( DataLookUp.strTemplateName );
+			NPC_CharacterTemplates_t::iterator itTemplate = NPCFile.NPC_CharacterTemplates.find(DataLookUp.strTemplateName);
 			if (itTemplate != NPCFile.NPC_CharacterTemplates.end())
 			{
 				Template = (*itTemplate).second;
 
 				// Skin...
 				//
-				NPC_Skins_t::iterator itSkin = Template.Skins.find( DataLookUp.strSkinName );
+				NPC_Skins_t::iterator itSkin = Template.Skins.find(DataLookUp.strSkinName);
 				if (itSkin != Template.Skins.end())
 				{
 					Skin = (*itSkin).second;
@@ -1164,10 +1126,10 @@ static bool NPC_DataLookup(LPCSTR psCaption, NPCFile_t &NPCFile, NPC_CharacterTe
 	return false;
 }
 
-void CSOF2NPCViewer::OnSelchangeListNpcs() 
+void CSOF2NPCViewer::OnSelchangeListNpcs()
 {
-	CListBox* pListBox = (CListBox*)GetDlgItem(IDC_LIST_NPCS);
-	assert(pListBox);	
+	CListBox *pListBox = (CListBox *)GetDlgItem(IDC_LIST_NPCS);
+	assert(pListBox);
 	if (pListBox)
 	{
 		int iSelected = pListBox->GetCurSel();
@@ -1188,48 +1150,43 @@ void CSOF2NPCViewer::OnSelchangeListNpcs()
 				{
 					// SOF2...
 					//
-					NPCFile_t				NPCFile;
+					NPCFile_t NPCFile;
 					NPC_CharacterTemplate_t Template;
-					NPC_Skin_t				Skin;
+					NPC_Skin_t Skin;
 					if (NPC_DataLookup(strCaption, NPCFile, Template, Skin) && !Template.strComments.empty())
 					{
-						psStaticText = va("( Comment: \"%s\" )",Template.strComments.c_str());
+						psStaticText = va("( Comment: \"%s\" )", Template.strComments.c_str());
 					}
 				}
 				else
 				{
 					// JK2...
 					//
-					BOTFiles_t::iterator itBotFile = TheBOTFiles.find( (LPCSTR) strCaption);
+					BOTFiles_t::iterator itBotFile = TheBOTFiles.find((LPCSTR)strCaption);
 					if (itBotFile != TheBOTFiles.end())
 					{
-//						psStaticText = va("( Comment: \"%s\"     Model: \"%s\" )",(*itBotFile).second.strComment.c_str(), (*itBotFile).second.strModel.c_str());
-						psStaticText = va("( Comment: \"%s\" )",(*itBotFile).second.strComment.c_str(), (*itBotFile).second.strModel.c_str());
+						//						psStaticText = va("( Comment: \"%s\"     Model: \"%s\" )",(*itBotFile).second.strComment.c_str(), (*itBotFile).second.strModel.c_str());
+						psStaticText = va("( Comment: \"%s\" )", (*itBotFile).second.strComment.c_str(), (*itBotFile).second.strModel.c_str());
 					}
 				}
 
-				pStatic->SetWindowText( psStaticText ? psStaticText : "( No comment available )" );
+				pStatic->SetWindowText(psStaticText ? psStaticText : "( No comment available )");
 			}
 		}
 	}
 }
 
-
-
-
-static
-void NPC_CreateModViewScript_ParseInventory(CString &strCaptionForErrorPrinting,
-											NPC_INV_t &Inventory, 
-											vector	<string> &vSurfaces_On,
-											vector	<string> &vSurfaces_Off,
-											vector  < pair< string, string> > &vBoltData
-											)
+static void NPC_CreateModViewScript_ParseInventory(CString &strCaptionForErrorPrinting,
+												   NPC_INV_t &Inventory,
+												   vector<string> &vSurfaces_On,
+												   vector<string> &vSurfaces_Off,
+												   vector<pair<string, string>> &vBoltData)
 {
 	// items...
 	//
 	NPC_INV_Items_t &Items = Inventory.Items;
 	for (int iItem = 0; iItem < Items.size(); iItem++)
-	{	
+	{
 		LPCSTR psName = Items[iItem].strName.c_str();
 
 		string strBoltPoint = Items[iItem].strBoltPoint.c_str();
@@ -1240,19 +1197,19 @@ void NPC_CreateModViewScript_ParseInventory(CString &strCaptionForErrorPrinting,
 		{
 			NPC_Item_t &Item = (*itItem).second;
 
-			vSurfaces_On.insert (vSurfaces_On.begin(), Item.vSurfaces_On.begin(), Item.vSurfaces_On.end());
-			vSurfaces_Off.insert(vSurfaces_Off.begin(),Item.vSurfaces_Off.begin(),Item.vSurfaces_Off.end());
+			vSurfaces_On.insert(vSurfaces_On.begin(), Item.vSurfaces_On.begin(), Item.vSurfaces_On.end());
+			vSurfaces_Off.insert(vSurfaces_Off.begin(), Item.vSurfaces_Off.begin(), Item.vSurfaces_Off.end());
 
 			strBoltModel = Item.strModel;
 		}
 		else
 		{
-			WarningBox(va("Unable to find item entry \"%s\"\n\nCharacter: \"%s\"\n\n( Try hitting 'Refresh', and if still missing, tell Joe K )",psName,(LPCSTR)strCaptionForErrorPrinting));
+			WarningBox(va("Unable to find item entry \"%s\"\n\nCharacter: \"%s\"\n\n( Try hitting 'Refresh', and if still missing, tell Joe K )", psName, (LPCSTR)strCaptionForErrorPrinting));
 		}
 
 		if (!strBoltPoint.empty() && !strBoltModel.empty())
 		{
-			vBoltData.push_back( pair<string,string>(String_ForwardSlash(strBoltModel.c_str()),strBoltPoint) );
+			vBoltData.push_back(pair<string, string>(String_ForwardSlash(strBoltModel.c_str()), strBoltPoint));
 		}
 	}
 
@@ -1260,17 +1217,17 @@ void NPC_CreateModViewScript_ParseInventory(CString &strCaptionForErrorPrinting,
 	//
 	NPC_INV_Weapons_t &InvWeapons = Inventory.Weapons;
 	for (int iWeapon = 0; iWeapon < InvWeapons.size(); iWeapon++)
-	{	
+	{
 		NPC_INV_Weapon_t &InvWeapon = InvWeapons[iWeapon];
 
-		string strName		= InvWeapon.strName;
-		string strBoltPoint = InvWeapon.strBoltPoint;	// will be blank if a held weapon, else filled in for holstered
+		string strName = InvWeapon.strName;
+		string strBoltPoint = InvWeapon.strBoltPoint; // will be blank if a held weapon, else filled in for holstered
 		string strBoltModel;
 
 		TheNPCWeapons_t::iterator itWeapon = TheNPCWeapons.find(strName);
 		if (itWeapon != TheNPCWeapons.end())
 		{
-			NPC_Weapon_t &Weapon = (*itWeapon).second;					
+			NPC_Weapon_t &Weapon = (*itWeapon).second;
 
 			// some slightly interesting logic here, ok, first, let's see if it was a holstered weapon or not...
 			//
@@ -1289,18 +1246,18 @@ void NPC_CreateModViewScript_ParseInventory(CString &strCaptionForErrorPrinting,
 			}
 		}
 		else
-		{				
-			WarningBox(va("Unable to find weapon entry \"%s\"\n\nCharacter: \"%s\"\n\n( Try hitting 'Refresh', and if still missing, tell Joe )",strName.c_str(),(LPCSTR)strCaptionForErrorPrinting));
+		{
+			WarningBox(va("Unable to find weapon entry \"%s\"\n\nCharacter: \"%s\"\n\n( Try hitting 'Refresh', and if still missing, tell Joe )", strName.c_str(), (LPCSTR)strCaptionForErrorPrinting));
 		}
 
 		if (!strBoltPoint.empty() && !strBoltModel.empty())
 		{
-			vBoltData.push_back( pair<string,string>(String_ForwardSlash(strBoltModel.c_str()),strBoltPoint) );
+			vBoltData.push_back(pair<string, string>(String_ForwardSlash(strBoltModel.c_str()), strBoltPoint));
 		}
 	}
 }
- 
-// this is pretty quick and dirty for now, it'll fail if you have two identical models loaded, each of which has 
+
+// this is pretty quick and dirty for now, it'll fail if you have two identical models loaded, each of which has
 //	something bolted to it (which the real script-writer compensates for correctly).
 //
 // Oh well, I can tackle that if it ever arises...
@@ -1309,28 +1266,27 @@ static bool NPC_CreateModViewScript(CString &strCaptionForErrorPrinting, CString
 {
 	bool bReturn = false;
 
-	CTextPool	*pTextPool = new CTextPool(40960);		// any old number, it'll expand internally
+	CTextPool *pTextPool = new CTextPool(40960); // any old number, it'll expand internally
 
-	CGenericParser2	OutputParser;						// .. this should be interesting...
-					OutputParser.SetWriteable(true);	// itu?
+	CGenericParser2 OutputParser;	 // .. this should be interesting...
+	OutputParser.SetWriteable(true); // itu?
 
-	CGPGroup *pModelGroup = OutputParser.GetBaseParseGroup()->AddGroup( sSCRIPTKEYWORD_LOADMODEL, &pTextPool );
+	CGPGroup *pModelGroup = OutputParser.GetBaseParseGroup()->AddGroup(sSCRIPTKEYWORD_LOADMODEL, &pTextPool);
 	if (pModelGroup)
 	{
 		if (gpsGameDir)
 		{
 			pModelGroup->AddPair(sSCRIPTKEYWORD_BASEDIR, gpsGameDir, &pTextPool);
 		}
-		string strParentName( Template.strName );
+		string strParentName(Template.strName);
 		//
 		// name "average_sleeves"...	(this field is more of a label really, for bolting purposes). See comment at top.
 		//
 		pModelGroup->AddPair(sSCRIPTKEYWORD_NAME, strParentName.c_str(), &pTextPool);
-		
 
 		// 	modelfile	"models/characters/average_sleeves/average_sleeves.glm"
 		//
-		string strModel( Template.strModel );
+		string strModel(Template.strModel);
 		if (strModel.empty())
 		{
 			string strParentTemplate = NPCFile.NPC_GroupInfo.strParentTemplate;
@@ -1353,7 +1309,7 @@ static bool NPC_CreateModViewScript(CString &strCaptionForErrorPrinting, CString
 
 			if (strModel.empty())
 			{
-				ErrorBox(va("Unable to work out model name for character template \"%s\"!",Template.strName.c_str()));
+				ErrorBox(va("Unable to work out model name for character template \"%s\"!", Template.strName.c_str()));
 				return false;
 			}
 		}
@@ -1361,8 +1317,7 @@ static bool NPC_CreateModViewScript(CString &strCaptionForErrorPrinting, CString
 
 		// skinfile	"col_rebel_h1.g2skin"
 		//
-		pModelGroup->AddPair(sSCRIPTKEYWORD_SKINFILE, va("%s.g2skin",Skin.strFile.c_str()), &pTextPool);
-
+		pModelGroup->AddPair(sSCRIPTKEYWORD_SKINFILE, va("%s.g2skin", Skin.strFile.c_str()), &pTextPool);
 
 		// ethnic		"white"
 		// (currently the NPC file system has no provision for this (unlike MVS files :-)
@@ -1370,20 +1325,20 @@ static bool NPC_CreateModViewScript(CString &strCaptionForErrorPrinting, CString
 		//
 		pModelGroup->AddPair(sSCRIPTKEYWORD_ETHNIC, "white", &pTextPool);
 
-		// now build up lists of surfaces on and off. This is going to be messy, since they do theirs as part of 
+		// now build up lists of surfaces on and off. This is going to be messy, since they do theirs as part of
 		//	the inventory data (sigh)...
-		//		
-		vector	<string> vSurfaces_On;
-		vector	<string> vSurfaces_Off;
-		vector  < pair< string, string> > vBoltData;	// <model name,boltpoint>
+		//
+		vector<string> vSurfaces_On;
+		vector<string> vSurfaces_Off;
+		vector<pair<string, string>> vBoltData; // <model name,boltpoint>
 		//
 		// check global inventory first...
 		//
-		NPC_CreateModViewScript_ParseInventory(strCaptionForErrorPrinting, Template.Inventory,	vSurfaces_On, vSurfaces_Off, vBoltData);
+		NPC_CreateModViewScript_ParseInventory(strCaptionForErrorPrinting, Template.Inventory, vSurfaces_On, vSurfaces_Off, vBoltData);
 		//
 		// now check the inventory inside this skin...
 		//
-		NPC_CreateModViewScript_ParseInventory(strCaptionForErrorPrinting, Skin.Inventory,		vSurfaces_On, vSurfaces_Off, vBoltData);
+		NPC_CreateModViewScript_ParseInventory(strCaptionForErrorPrinting, Skin.Inventory, vSurfaces_On, vSurfaces_Off, vBoltData);
 
 		/*
 		surfaces_on
@@ -1395,12 +1350,12 @@ static bool NPC_CreateModViewScript(CString &strCaptionForErrorPrinting, CString
 		*/
 		if (vSurfaces_On.size())
 		{
-			CGPGroup *pSurfaceGroup = pModelGroup->AddGroup( sSCRIPTKEYWORD_SURFACES_ON, &pTextPool );
+			CGPGroup *pSurfaceGroup = pModelGroup->AddGroup(sSCRIPTKEYWORD_SURFACES_ON, &pTextPool);
 			if (pSurfaceGroup)
 			{
 				for (int iSurface = 0; iSurface < vSurfaces_On.size(); iSurface++)
 				{
-					pSurfaceGroup->AddPair(va(sSCRIPTKEYWORD_NAME "%d",iSurface), vSurfaces_On[iSurface].c_str(), &pTextPool);
+					pSurfaceGroup->AddPair(va(sSCRIPTKEYWORD_NAME "%d", iSurface), vSurfaces_On[iSurface].c_str(), &pTextPool);
 				}
 			}
 		}
@@ -1416,12 +1371,12 @@ static bool NPC_CreateModViewScript(CString &strCaptionForErrorPrinting, CString
 		*/
 		if (vSurfaces_Off.size())
 		{
-			CGPGroup *pSurfaceGroup = pModelGroup->AddGroup( sSCRIPTKEYWORD_SURFACES_OFF, &pTextPool);			
+			CGPGroup *pSurfaceGroup = pModelGroup->AddGroup(sSCRIPTKEYWORD_SURFACES_OFF, &pTextPool);
 			if (pSurfaceGroup)
 			{
 				for (int iSurface = 0; iSurface < vSurfaces_Off.size(); iSurface++)
 				{
-					pSurfaceGroup->AddPair(va(sSCRIPTKEYWORD_NAME "%d",iSurface), vSurfaces_Off[iSurface].c_str(), &pTextPool);
+					pSurfaceGroup->AddPair(va(sSCRIPTKEYWORD_NAME "%d", iSurface), vSurfaces_Off[iSurface].c_str(), &pTextPool);
 				}
 			}
 		}
@@ -1437,18 +1392,18 @@ static bool NPC_CreateModViewScript(CString &strCaptionForErrorPrinting, CString
 		*/
 		if (vBoltData.size())
 		{
-			for (int iBoltOn=0; iBoltOn<vBoltData.size(); iBoltOn++)
+			for (int iBoltOn = 0; iBoltOn < vBoltData.size(); iBoltOn++)
 			{
-				CGPGroup *pBoltGroup = pModelGroup->AddGroup( sSCRIPTKEYWORD_BOLTMODEL, &pTextPool );
+				CGPGroup *pBoltGroup = pModelGroup->AddGroup(sSCRIPTKEYWORD_BOLTMODEL, &pTextPool);
 				if (pBoltGroup)
 				{
 					string strModelName = vBoltData[iBoltOn].first.c_str();
 					string strBoltPoint = vBoltData[iBoltOn].second.c_str();
 
-					pBoltGroup->AddPair(sSCRIPTKEYWORD_NAME, Filename_WithoutPath(Filename_WithoutExt(strModelName.c_str())),&pTextPool);
-					pBoltGroup->AddPair(sSCRIPTKEYWORD_MODELFILE, strModelName.c_str(),&pTextPool);
-					pBoltGroup->AddPair(sSCRIPTKEYWORD_PARENT, strParentName.c_str(),&pTextPool);
-					pBoltGroup->AddPair(sSCRIPTKEYWORD_BOLTTOSURFACE, strBoltPoint.c_str(),&pTextPool);
+					pBoltGroup->AddPair(sSCRIPTKEYWORD_NAME, Filename_WithoutPath(Filename_WithoutExt(strModelName.c_str())), &pTextPool);
+					pBoltGroup->AddPair(sSCRIPTKEYWORD_MODELFILE, strModelName.c_str(), &pTextPool);
+					pBoltGroup->AddPair(sSCRIPTKEYWORD_PARENT, strParentName.c_str(), &pTextPool);
+					pBoltGroup->AddPair(sSCRIPTKEYWORD_BOLTTOSURFACE, strBoltPoint.c_str(), &pTextPool);
 				}
 			}
 		}
@@ -1458,10 +1413,10 @@ static bool NPC_CreateModViewScript(CString &strCaptionForErrorPrinting, CString
 
 		// create the text pool...
 		//
-		CTextPool *pOutputTextPool = new CTextPool(40960);	// any old number, will expand if necessary
+		CTextPool *pOutputTextPool = new CTextPool(40960); // any old number, will expand if necessary
 		OutputParser.Write(pOutputTextPool);
 
-		strScript = pOutputTextPool->GetPool();	// feed script back to main program as text
+		strScript = pOutputTextPool->GetPool(); // feed script back to main program as text
 
 		CleanTextPool(pOutputTextPool);
 		bReturn = true;
@@ -1471,23 +1426,21 @@ static bool NPC_CreateModViewScript(CString &strCaptionForErrorPrinting, CString
 	return bReturn;
 }
 
-
-
-// this is pretty quick and dirty for now, it'll fail if you have two identical models loaded, each of which has 
+// this is pretty quick and dirty for now, it'll fail if you have two identical models loaded, each of which has
 //	something bolted to it (which the real script-writer compensates for correctly).
 //
 // Oh well, I can tackle that if it ever arises...
 //
-static bool BOT_CreateModViewScript(CString &strCaptionForErrorPrinting, CString &strScript, BOTFile_t &BOTFile, set <string> &SkinVariants)
+static bool BOT_CreateModViewScript(CString &strCaptionForErrorPrinting, CString &strScript, BOTFile_t &BOTFile, set<string> &SkinVariants)
 {
 	bool bReturn = false;
 
-	CTextPool	*pTextPool = new CTextPool(40960);		// any old number, it'll expand internally
+	CTextPool *pTextPool = new CTextPool(40960); // any old number, it'll expand internally
 
-	CGenericParser2	OutputParser;						// .. this should be interesting...
-					OutputParser.SetWriteable(true);	// itu?
+	CGenericParser2 OutputParser;	 // .. this should be interesting...
+	OutputParser.SetWriteable(true); // itu?
 
-	CGPGroup *pModelGroup = OutputParser.GetBaseParseGroup()->AddGroup( sSCRIPTKEYWORD_LOADMODEL, &pTextPool );
+	CGPGroup *pModelGroup = OutputParser.GetBaseParseGroup()->AddGroup(sSCRIPTKEYWORD_LOADMODEL, &pTextPool);
 	if (pModelGroup)
 	{
 		if (gpsGameDir)
@@ -1500,7 +1453,7 @@ static bool BOT_CreateModViewScript(CString &strCaptionForErrorPrinting, CString
 
 		// 	modelfile	"models/players/swamptrooper/model.glm"
 		//
-		pModelGroup->AddPair(sSCRIPTKEYWORD_MODELFILE, va("models/players/%s/model.glm",BOTFile.strModel.c_str()), &pTextPool);
+		pModelGroup->AddPair(sSCRIPTKEYWORD_MODELFILE, va("models/players/%s/model.glm", BOTFile.strModel.c_str()), &pTextPool);
 
 		// if any skin variants supplied, grab the one off the top and use it...
 		//
@@ -1511,16 +1464,16 @@ static bool BOT_CreateModViewScript(CString &strCaptionForErrorPrinting, CString
 			pModelGroup->AddPair(sSCRIPTKEYWORD_OLDSKINFILE, (*SkinVariants.begin()).c_str(), &pTextPool);
 			SkinVariants.erase(SkinVariants.begin());
 		}
-  
+
 		// now here's hoping Rick's code works...
 		//
 
 		// create the text pool...
 		//
-		CTextPool *pOutputTextPool = new CTextPool(40960);	// any old number, will expand if necessary
+		CTextPool *pOutputTextPool = new CTextPool(40960); // any old number, will expand if necessary
 		OutputParser.Write(pOutputTextPool);
 
-		strScript = pOutputTextPool->GetPool();	// feed script back to main program as text
+		strScript = pOutputTextPool->GetPool(); // feed script back to main program as text
 
 		CleanTextPool(pOutputTextPool);
 		bReturn = true;
@@ -1528,13 +1481,12 @@ static bool BOT_CreateModViewScript(CString &strCaptionForErrorPrinting, CString
 
 	CleanTextPool(pTextPool);
 	return bReturn;
-}	
+}
 
-
-void CSOF2NPCViewer::OnDblclkListNpcs() 
+void CSOF2NPCViewer::OnDblclkListNpcs()
 {
-	CListBox* pListBox = (CListBox*)GetDlgItem(IDC_LIST_NPCS);
-	assert(pListBox);	
+	CListBox *pListBox = (CListBox *)GetDlgItem(IDC_LIST_NPCS);
+	assert(pListBox);
 	if (pListBox)
 	{
 		int iSelected = pListBox->GetCurSel();
@@ -1549,9 +1501,9 @@ void CSOF2NPCViewer::OnDblclkListNpcs()
 			{
 				// SOF2...
 				//
-				NPCFile_t				NPCFile;
+				NPCFile_t NPCFile;
 				NPC_CharacterTemplate_t Template;
-				NPC_Skin_t				Skin;
+				NPC_Skin_t Skin;
 				if (NPC_DataLookup(strCaption, NPCFile, Template, Skin))
 				{
 					CString strScript;
@@ -1567,12 +1519,12 @@ void CSOF2NPCViewer::OnDblclkListNpcs()
 			{
 				// JK2...
 				//
-				BOTFiles_t::iterator itBotFile = TheBOTFiles.find( (LPCSTR) strCaption );
+				BOTFiles_t::iterator itBotFile = TheBOTFiles.find((LPCSTR)strCaption);
 				if (itBotFile != TheBOTFiles.end())
 				{
 					BOTFile_t &Bot = (*itBotFile).second;
 
-					set <string> SkinVariants;	// leave it empty for this call
+					set<string> SkinVariants; // leave it empty for this call
 
 					CString strScript;
 					if (BOT_CreateModViewScript(strCaption, strScript, Bot, SkinVariants))
@@ -1586,65 +1538,61 @@ void CSOF2NPCViewer::OnDblclkListNpcs()
 	}
 }
 
-
-
 #include "direct.h"
-void Q_mkdir (const char *path)
+void Q_mkdir(const char *path)
 {
 #ifdef WIN32
-	if (_mkdir (path) != -1)
+	if (_mkdir(path) != -1)
 		return;
 #else
-	if (mkdir (path, 0777) != -1)
+	if (mkdir(path, 0777) != -1)
 		return;
 #endif
 	if (errno != EEXIST)
 	{
-		ErrorBox (va("mkdir %s: %s",path, strerror(errno)));
+		ErrorBox(va("mkdir %s: %s", path, strerror(errno)));
 	}
 }
 
-
-
-void CreatePath (const char *path)
+void CreatePath(const char *path)
 {
-	const char	*ofs;
-	char		c;
-	char		dir[1024];
+	const char *ofs;
+	char c;
+	char dir[1024];
 
 #ifdef _WIN32
-	int		olddrive = -1;
+	int olddrive = -1;
 
-	if ( path[1] == ':' )
+	if (path[1] == ':')
 	{
 		olddrive = _getdrive();
-		_chdrive( toupper( path[0] ) - 'A' + 1 );
+		_chdrive(toupper(path[0]) - 'A' + 1);
 	}
 #endif
 
 	if (path[1] == ':')
 		path += 2;
 
-	for (ofs = path+1 ; *ofs ; ofs++)
+	for (ofs = path + 1; *ofs; ofs++)
 	{
 		c = *ofs;
 		if (c == '/' || c == '\\')
-		{	// create the directory
-			memcpy( dir, path, ofs - path );
-			dir[ ofs - path ] = 0;
-			Q_mkdir( dir );
+		{ // create the directory
+			memcpy(dir, path, ofs - path);
+			dir[ofs - path] = 0;
+			Q_mkdir(dir);
 		}
 	}
 
 #ifdef _WIN32
-	if ( olddrive != -1 )
+	if (olddrive != -1)
 	{
-		_chdrive( olddrive );
+		_chdrive(olddrive);
 	}
 #endif
 }
 
-map <string, CString> AllScripts;	// string("NPC caption from list box"), CString(modviewscript)
+map<string, CString> AllScripts; // string("NPC caption from list box"), CString(modviewscript)
 bool Gallery_Active(void)
 {
 	return gbDoingGallery;
@@ -1667,27 +1615,27 @@ LPCSTR Gallery_GetSeqToLock(void)
 //
 int GalleryRead_ExtractEntry(CString &strCaption, CString &strScript)
 {
-	map <string, CString>::iterator itGallery = AllScripts.begin();
+	map<string, CString>::iterator itGallery = AllScripts.begin();
 	if (itGallery == AllScripts.end())
 	{
 		gbDoingGallery = false;
 		return 0;
 	}
-	
-	strCaption  = (*itGallery).first.c_str();
-	strScript	= (*itGallery).second;
+
+	strCaption = (*itGallery).first.c_str();
+	strScript = (*itGallery).second;
 
 	AllScripts.erase(itGallery);
 	return AllScripts.size() + 1;
 }
 
-void CSOF2NPCViewer::OnGallery() 
+void CSOF2NPCViewer::OnGallery()
 {
 	AllScripts.clear();
 
-#define sDEFAULT_SOF2_SCREENSHOTS_DIR	"c:\\ravenlocal\\sof2\\gallery"
-#define sDEFAULT_JK2_SCREENSHOTS_DIR	"c:\\ravenlocal\\jk2\\gallery"	
-	
+#define sDEFAULT_SOF2_SCREENSHOTS_DIR "c:\\ravenlocal\\sof2\\gallery"
+#define sDEFAULT_JK2_SCREENSHOTS_DIR "c:\\ravenlocal\\jk2\\gallery"
+
 	if (GetYesNo("This will load & screenshot every character in the list\n\nThis can take a *LONG* time. Proceed?"))
 	{
 		LPCSTR psOutputPath = GetString("Enter destination dir for screenshots (will be created if not found)", m_bSOF2Mode ? sDEFAULT_SOF2_SCREENSHOTS_DIR : sDEFAULT_JK2_SCREENSHOTS_DIR);
@@ -1696,10 +1644,10 @@ void CSOF2NPCViewer::OnGallery()
 		{
 			gstrGalleryOutputDir = psOutputPath;
 
-			// now for the fun (and mega-tacky!!) part, go through every item in the listbox, 
+			// now for the fun (and mega-tacky!!) part, go through every item in the listbox,
 			//	and generate a complete script for it... :-)    Heh, CPU-abuse!!
 			//
-			CListBox* pListBox = (CListBox*)GetDlgItem(IDC_LIST_NPCS);
+			CListBox *pListBox = (CListBox *)GetDlgItem(IDC_LIST_NPCS);
 			assert(pListBox);
 			if (pListBox)
 			{
@@ -1719,11 +1667,11 @@ void CSOF2NPCViewer::OnGallery()
 
 					gstrGallerySequenceToLock = m_bSOF2Mode ? "idle01" : "BOTH_STAND1";
 
-					LPCSTR psSeqLockName = Model_Sequence_GetLockedName( hModel, true);					
+					LPCSTR psSeqLockName = Model_Sequence_GetLockedName(hModel, true);
 
 					if (psSeqLockName)
 					{
-						if (GetYesNo(va("Currently-loaded model is locked to sequence \"%s\", use this for all models?\n\n( 'NO' will lock to \"%s\" instead )",psSeqLockName,(LPCSTR) gstrGallerySequenceToLock)))
+						if (GetYesNo(va("Currently-loaded model is locked to sequence \"%s\", use this for all models?\n\n( 'NO' will lock to \"%s\" instead )", psSeqLockName, (LPCSTR)gstrGallerySequenceToLock)))
 						{
 							gstrGallerySequenceToLock = psSeqLockName;
 						}
@@ -1734,7 +1682,7 @@ void CSOF2NPCViewer::OnGallery()
 				//
 				for (int iListItem = 0; iListItem < iListItems; iListItem++)
 				{
-					StatusMessage( va("Creating script %d/%d...", iListItem, iListItems) );
+					StatusMessage(va("Creating script %d/%d...", iListItem, iListItems));
 
 					CString strCaption;
 
@@ -1744,16 +1692,16 @@ void CSOF2NPCViewer::OnGallery()
 					{
 						// SOF2...
 						//
-						NPCFile_t				NPCFile;
+						NPCFile_t NPCFile;
 						NPC_CharacterTemplate_t Template;
-						NPC_Skin_t				Skin;
+						NPC_Skin_t Skin;
 						if (NPC_DataLookup(strCaption, NPCFile, Template, Skin))
 						{
 							CString strScript;
 
 							if (NPC_CreateModViewScript(strCaption, strScript, NPCFile, Template, Skin))
 							{
-								AllScripts[ (LPCSTR)strCaption ] = strScript;
+								AllScripts[(LPCSTR)strCaption] = strScript;
 							}
 						}
 					}
@@ -1761,15 +1709,15 @@ void CSOF2NPCViewer::OnGallery()
 					{
 						// JK2...
 						//
-						BOTFiles_t::iterator itBotFile = TheBOTFiles.find( (LPCSTR) strCaption );
+						BOTFiles_t::iterator itBotFile = TheBOTFiles.find((LPCSTR)strCaption);
 						if (itBotFile != TheBOTFiles.end())
 						{
 							BOTFile_t &Bot = (*itBotFile).second;
 
 							// grab all the skin variants?...
 							//
-							set <string> SkinVariants;	// eg "model_blue", "model_red"
-										 SkinVariants.clear();
+							set<string> SkinVariants; // eg "model_blue", "model_red"
+							SkinVariants.clear();
 
 							if (bGenerateEveryJK2SkinVariant)
 							{
@@ -1788,22 +1736,20 @@ void CSOF2NPCViewer::OnGallery()
 
 								if (BOT_CreateModViewScript(strCaption, strScript, Bot, SkinVariants))
 								{
-									CString strEntryName( (LPCSTR)strCaption );
+									CString strEntryName((LPCSTR)strCaption);
 
 									if (!strThisSkinVariant.IsEmpty())
 									{
-										strEntryName += va("_%s",(LPCSTR)strThisSkinVariant);
+										strEntryName += va("_%s", (LPCSTR)strThisSkinVariant);
 									}
 
-									AllScripts[ (LPCSTR) strEntryName ] = strScript;
+									AllScripts[(LPCSTR)strEntryName] = strScript;
 								}
-							}
-							while (!SkinVariants.empty());
+							} while (!SkinVariants.empty());
 						}
-
 					}
 				}
-				StatusMessage( NULL );
+				StatusMessage(NULL);
 
 				gbDoingGallery = true;
 				OnOK();
@@ -1812,7 +1758,6 @@ void CSOF2NPCViewer::OnGallery()
 	}
 }
 
-
 // simply build a modview script (in memory, then disposes) of every NPC template so that
 //	any error messages can popup as they require...
 //
@@ -1820,9 +1765,9 @@ void CSOF2NPCViewer::OnGallery()
 //
 // ( user sees messages by writing them down from popup boxes )
 //
-void CSOF2NPCViewer::OnValidate() 
+void CSOF2NPCViewer::OnValidate()
 {
-	CListBox* pListBox = (CListBox*)GetDlgItem(IDC_LIST_NPCS);
+	CListBox *pListBox = (CListBox *)GetDlgItem(IDC_LIST_NPCS);
 	assert(pListBox);
 	if (pListBox)
 	{
@@ -1830,15 +1775,15 @@ void CSOF2NPCViewer::OnValidate()
 
 		for (int iListItem = 0; iListItem < iListItems; iListItem++)
 		{
-			StatusMessage( va("validating template %d/%d...", iListItem, iListItems) );
+			StatusMessage(va("validating template %d/%d...", iListItem, iListItems));
 
 			CString strCaption;
 
 			pListBox->GetText(iListItem, strCaption);
 
-			NPCFile_t				NPCFile;
+			NPCFile_t NPCFile;
 			NPC_CharacterTemplate_t Template;
-			NPC_Skin_t				Skin;
+			NPC_Skin_t Skin;
 			if (NPC_DataLookup(strCaption, NPCFile, Template, Skin))
 			{
 				CString strScript;
@@ -1849,27 +1794,26 @@ void CSOF2NPCViewer::OnValidate()
 				}
 			}
 		}
-		StatusMessage( NULL );
+		StatusMessage(NULL);
 
 		InfoBox("Done");
 	}
 }
 
-BOOL CSOF2NPCViewer::PreTranslateMessage(MSG* pMsg)
+BOOL CSOF2NPCViewer::PreTranslateMessage(MSG *pMsg)
 {
 	// CG: The following block was added by the ToolTips component.
 	{
 		// Let the ToolTip process this message.
 		m_tooltip.RelayEvent(pMsg);
 	}
-	return CDialog::PreTranslateMessage(pMsg);	// CG: This was added by the ToolTips component.
+	return CDialog::PreTranslateMessage(pMsg); // CG: This was added by the ToolTips component.
 }
 
-
-void CSOF2NPCViewer::OnButtonGenerateList() 
+void CSOF2NPCViewer::OnButtonGenerateList()
 {
-	CListBox* pListBox = (CListBox*)GetDlgItem(IDC_LIST_NPCS);
-	assert(pListBox);	
+	CListBox *pListBox = (CListBox *)GetDlgItem(IDC_LIST_NPCS);
+	assert(pListBox);
 	if (pListBox)
 	{
 		StringSet_t strEntries;
@@ -1884,10 +1828,10 @@ void CSOF2NPCViewer::OnButtonGenerateList()
 			int iLoc = strCaption.FindOneOf(" \t");
 			if (iLoc != -1)
 			{
-				strCaption = strCaption.Left( iLoc );
+				strCaption = strCaption.Left(iLoc);
 			}
 
-			strEntries.insert( (LPCSTR) strCaption );
+			strEntries.insert((LPCSTR)strCaption);
 		}
 
 		CString strOutput;

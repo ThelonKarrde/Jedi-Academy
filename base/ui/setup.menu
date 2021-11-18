@@ -2436,7 +2436,7 @@
 				"English",	"english"
 				@MENUS_LANG_FRENCH 	"francais"
 				"Deutsch"	"deutsch"
-				"Español"   "espanol"
+				"Espaï¿½ol"   "espanol"
 			}
 			rect				260 328 340 14
 	   		textalign			ITEM_ALIGN_RIGHT

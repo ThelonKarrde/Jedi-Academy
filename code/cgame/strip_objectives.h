@@ -1,15 +1,13 @@
 #ifndef __strip_objectives_h
 #define __strip_objectives_h
 
-
 /********************************************************************************
 
 the objectives... duh...
 
 ********************************************************************************/
 
-
-#define PACKAGE_OBJECTIVES		0x08
+#define PACKAGE_OBJECTIVES 0x08
 
 enum
 {
@@ -77,6 +75,4 @@ enum
 	OBJECTIVES_DEMO_OBJ4 = 0x083d
 };
 
-
 #endif // __strip_objectives_h
-

@@ -4,13 +4,8 @@
 
 #ifndef SPECIAL_DEFINES_H
 
-
-
 //#define _EXPERIMENTAL
 
-
-
-#endif	// #ifndef SPECIAL_DEFINES_H
+#endif // #ifndef SPECIAL_DEFINES_H
 
 ///////////////////// eof ////////////////////
-

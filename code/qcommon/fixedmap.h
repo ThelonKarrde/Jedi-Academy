@@ -1,21 +1,19 @@
 #ifndef __FIXEDMAP_H
 #define __FIXEDMAP_H
 
-
 /*
    An STL map-like container.  Quickly thrown together to replace STL maps
    in specific instances.  Many gotchas.  Use with caution.
 */
 
-
 #include <stdlib.h>
 
-
-template < class T, class U >
+template <class T, class U>
 class VVFixedMap
 {
 private:
-	struct Data {
+	struct Data
+	{
 		T data;
 		U key;
 	};
@@ -34,32 +32,32 @@ public:
 		this->maxItems = maxItems;
 	}
 
-
 	~VVFixedMap(void)
 	{
-		items -= ( maxItems - numItems );
-		delete [] items;
+		items -= (maxItems - numItems);
+		delete[] items;
 		numItems = 0;
 	}
-
 
 	bool Insert(const T &newItem, const U &key)
 	{
 		Data *storage = NULL;
 
 		//Check for fullness.
-		if(numItems >= maxItems) {
-			assert( 0 );
+		if (numItems >= maxItems)
+		{
+			assert(0);
 			return false;
 		}
 
 		//Check for reuse.
-		if(!FindUnsorted(key, storage)) {
-		   storage = items + numItems;
-		   numItems++;
+		if (!FindUnsorted(key, storage))
+		{
+			storage = items + numItems;
+			numItems++;
 		}
 		else
-			assert( 0 );
+			assert(0);
 
 		storage->data = newItem;
 		storage->key = key;
@@ -72,12 +70,13 @@ public:
 	bool InsertUnsafe(const T &newItem, const U &key)
 	{
 		//Check for fullness.
-		if(numItems >= maxItems) {
+		if (numItems >= maxItems)
+		{
 			return false;
 		}
 
-	   Data *storage = items + numItems;
-	   numItems++;
+		Data *storage = items + numItems;
+		numItems++;
 
 		storage->data = newItem;
 		storage->key = key;
@@ -85,13 +84,11 @@ public:
 		return true;
 	}
 
-
-	void Sort(void) 
+	void Sort(void)
 	{
-		qsort(items, numItems, sizeof(Data), 
-				VVFixedMap< T, U >::FixedMapSorter);
+		qsort(items, numItems, sizeof(Data),
+			  VVFixedMap<T, U>::FixedMapSorter);
 	}
-
 
 	//Binary search, items must have been sorted!
 	T *Find(const U &key)
@@ -100,34 +97,44 @@ public:
 		int high;
 		int low;
 
-		for(low = -1, high = numItems; high - low > 1; ) {
+		for (low = -1, high = numItems; high - low > 1;)
+		{
 			i = (high + low) / 2;
-			if(key < items[i].key) {
+			if (key < items[i].key)
+			{
 				high = i;
-			} else if(key > items[i].key) {
+			}
+			else if (key > items[i].key)
+			{
 				low = i;
-			} else {
+			}
+			else
+			{
 				return &items[i].data;
 			}
 		}
 
-		if(items[i+1].key == key) {
-			return &items[i+1].data;
-		} else if(items[i-1].key == key) {
-			return &items[i-1].data;
+		if (items[i + 1].key == key)
+		{
+			return &items[i + 1].data;
+		}
+		else if (items[i - 1].key == key)
+		{
+			return &items[i - 1].data;
 		}
 
 		return NULL;
 	}
-
 
 	//Slower, but don't need to call sort first.
 	T *FindUnsorted(const U &key, Data *&storage)
 	{
 		int i;
 
-		for(i=0; i<numItems; i++) {
-			if(items[i].key == key) {
+		for (i = 0; i < numItems; i++)
+		{
+			if (items[i].key == key)
+			{
 				storage = items + i;
 				return &items[i].data;
 			}
@@ -140,11 +147,11 @@ public:
 	// and removes the item from the map
 	T *Pop(void)
 	{
-		T* top = NULL;
+		T *top = NULL;
 
-		if(numItems)
+		if (numItems)
 		{
-			top	= &items[0].data;
+			top = &items[0].data;
 			items++;
 			numItems--;
 		}
@@ -152,18 +159,21 @@ public:
 		return top;
 	}
 
-
 	static int FixedMapSorter(const void *a, const void *b)
 	{
-		if(((Data*)a)->key > ((Data*)b)->key) {
+		if (((Data *)a)->key > ((Data *)b)->key)
+		{
 			return 1;
-		} else if(((Data*)a)->key == ((Data*)b)->key) {
+		}
+		else if (((Data *)a)->key == ((Data *)b)->key)
+		{
 			return 0;
-		} else {
+		}
+		else
+		{
 			return -1;
 		}
 	}
 };
-
 
 #endif

@@ -1,19 +1,17 @@
 // leave this line at the top for all g_xxxx.cpp files...
 #include "g_headers.h"
 
-
 //g_objectives.cpp
 //reads in ext_data\objectives.dat to objectives[]
 
 #include "g_local.h"
 #include "g_items.h"
 
-#define	G_OBJECTIVES_CPP
+#define G_OBJECTIVES_CPP
 
 #include "objectives.h"
 
-qboolean	missionInfo_Updated;
-
+qboolean missionInfo_Updated;
 
 /*
 ============
@@ -24,9 +22,9 @@ void OBJ_SetPendingObjectives(gentity_t *ent)
 {
 	int i;
 
-	for (i=0;i<MAX_OBJECTIVES;++i)
+	for (i = 0; i < MAX_OBJECTIVES; ++i)
 	{
-		if ((ent->client->sess.mission_objectives[i].status == OBJECTIVE_STAT_PENDING) && 
+		if ((ent->client->sess.mission_objectives[i].status == OBJECTIVE_STAT_PENDING) &&
 			(ent->client->sess.mission_objectives[i].display))
 		{
 			ent->client->sess.mission_objectives[i].status = OBJECTIVE_STAT_FAILED;
@@ -39,11 +37,10 @@ void OBJ_SetPendingObjectives(gentity_t *ent)
 OBJ_SaveMissionObjectives
 ============
 */
-void OBJ_SaveMissionObjectives( gclient_t *client )
+void OBJ_SaveMissionObjectives(gclient_t *client)
 {
 	gi.AppendToSaveGame('OBJT', client->sess.mission_objectives, sizeof(client->sess.mission_objectives));
 }
-
 
 /*
 ============
@@ -56,7 +53,7 @@ void OBJ_SaveObjectiveData(void)
 
 	client = &level.clients[0];
 
-	OBJ_SaveMissionObjectives( client );
+	OBJ_SaveMissionObjectives(client);
 }
 
 /*
@@ -64,11 +61,10 @@ void OBJ_SaveObjectiveData(void)
 OBJ_LoadMissionObjectives
 ============
 */
-void OBJ_LoadMissionObjectives( gclient_t *client )
+void OBJ_LoadMissionObjectives(gclient_t *client)
 {
-	gi.ReadFromSaveGame('OBJT', (void *) &client->sess.mission_objectives, sizeof(client->sess.mission_objectives));
+	gi.ReadFromSaveGame('OBJT', (void *)&client->sess.mission_objectives, sizeof(client->sess.mission_objectives));
 }
-
 
 /*
 ============
@@ -81,5 +77,5 @@ void OBJ_LoadObjectiveData(void)
 
 	client = &level.clients[0];
 
-	OBJ_LoadMissionObjectives( client );
+	OBJ_LoadMissionObjectives(client);
 }

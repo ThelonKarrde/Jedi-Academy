@@ -6,9 +6,8 @@
 //
 #include "parser.h"
 
-
 // Very simple parser, I just read the "alias" part of a raven-generic file, and store them into
-//	a string map. 
+//	a string map.
 //
 // Example file:
 //
@@ -24,7 +23,7 @@ Alias
 }
 */
 //  (possibly more than one per "Alias" brace? I'll code for it.
-// 
+//
 // return = success / fail...
 //
 bool Parser_Load(LPCSTR psFullPathedFilename, MappedString_t &ParsedAliases)
@@ -33,35 +32,35 @@ bool Parser_Load(LPCSTR psFullPathedFilename, MappedString_t &ParsedAliases)
 
 	ParsedAliases.clear();
 
-	FILE *fhHandle = fopen(psFullPathedFilename,"rt");
+	FILE *fhHandle = fopen(psFullPathedFilename, "rt");
 	if (fhHandle)
-	{			
+	{
 		bool bParsingBlock = false;
-		bool bSkippingBlock= false;
+		bool bSkippingBlock = false;
 		char sLine[1024];
 
-		while (fgets(sLine,sizeof(sLine)-1,fhHandle)!=NULL)
+		while (fgets(sLine, sizeof(sLine) - 1, fhHandle) != NULL)
 		{
-			sLine[sizeof(sLine)-1]='\0';
+			sLine[sizeof(sLine) - 1] = '\0';
 
 			// :-)
 			CString str(sLine);
-					str.TrimLeft();
-					str.TrimRight();
+			str.TrimLeft();
+			str.TrimRight();
 
-			strcpy(sLine,str);
+			strcpy(sLine, str);
 
 			if (!bSkippingBlock)
 			{
 				if (!bParsingBlock)
 				{
-					if (strlen(sLine))	// found any kind of header?
+					if (strlen(sLine)) // found any kind of header?
 					{
-						if (!stricmp(sLine,"Alias"))
-						{							
-							bParsingBlock = true;						
+						if (!stricmp(sLine, "Alias"))
+						{
+							bParsingBlock = true;
 						}
-						else							
+						else
 						{
 							// not a recognised header, so...
 							//
@@ -72,10 +71,10 @@ bool Parser_Load(LPCSTR psFullPathedFilename, MappedString_t &ParsedAliases)
 				}
 				else
 				{
-					if (!stricmp(sLine,"{"))
+					if (!stricmp(sLine, "{"))
 						continue;
 
-					if (!stricmp(sLine,"}"))
+					if (!stricmp(sLine, "}"))
 					{
 						bParsingBlock = false;
 						continue;
@@ -92,20 +91,20 @@ bool Parser_Load(LPCSTR psFullPathedFilename, MappedString_t &ParsedAliases)
 						if (iLoc == -1)
 						{
 							assert(0);
-							ErrorBox(va("Parser_Load(): Couldn't find whitespace-seperator in line:\n\n\"%s\"\n\n( File: \"%s\" )",(LPCSTR) strPair,psFullPathedFilename));
+							ErrorBox(va("Parser_Load(): Couldn't find whitespace-seperator in line:\n\n\"%s\"\n\n( File: \"%s\" )", (LPCSTR)strPair, psFullPathedFilename));
 							bReturn = false;
 							break;
 						}
 
 						// stl & MFC rule!...
 						//
-						CString strArg_Left(strPair.Left(iLoc));	// real name
-								strArg_Left.TrimRight();
-								strArg_Left.Replace("\"","");
+						CString strArg_Left(strPair.Left(iLoc)); // real name
+						strArg_Left.TrimRight();
+						strArg_Left.Replace("\"", "");
 
-						CString strArg_Right(strPair.Mid (iLoc));	// alias name
-								strArg_Right.TrimLeft();
-								strArg_Right.Replace("\"","");
+						CString strArg_Right(strPair.Mid(iLoc)); // alias name
+						strArg_Right.TrimLeft();
+						strArg_Right.Replace("\"", "");
 
 						ParsedAliases[(LPCSTR)strArg_Left] = (LPCSTR)strArg_Right;
 
@@ -118,7 +117,7 @@ bool Parser_Load(LPCSTR psFullPathedFilename, MappedString_t &ParsedAliases)
 			{
 				// skip to close brace...
 				//
-				if (stricmp(sLine,"}"))
+				if (stricmp(sLine, "}"))
 					continue;
 
 				bSkippingBlock = false;
@@ -131,6 +130,4 @@ bool Parser_Load(LPCSTR psFullPathedFilename, MappedString_t &ParsedAliases)
 	return bReturn;
 }
 
-
 /////////////// eof /////////////
-

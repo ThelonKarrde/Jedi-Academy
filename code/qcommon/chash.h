@@ -6,24 +6,24 @@
 // 2. A Destroy() function - normally "delete this"
 // 3. SetNext(T *) and T *GetNext() functions
 
-#define HASH_SIZE	1024
+#define HASH_SIZE 1024
 
 template <class T, int TSize = HASH_SIZE, int (*TCompare)(const char *, const char *) = &strcmp>
 
 class CHash
 {
 private:
-	T		*mHashTable[TSize];
-	T		*mNext;
-	int		mCount;
-	T		*mPrevious;					// Internal work variable
-	long	mHash;						// Internal work variable
+	T *mHashTable[TSize];
+	T *mNext;
+	int mCount;
+	T *mPrevious; // Internal work variable
+	long mHash;	  // Internal work variable
 
 	// Creates the hash value and sets the mHash member
 	void CreateHash(const char *key)
 	{
-		int		i = 0;
-		char	letter;
+		int i = 0;
+		char letter;
 
 		mHash = 0;
 		letter = *key++;
@@ -36,6 +36,7 @@ private:
 		}
 		mHash &= TSize - 1;
 	}
+
 public:
 	// Constructor
 	CHash(void)
@@ -58,7 +59,7 @@ public:
 #endif
 	}
 	// Returns the total number of entries in the hash table
-	int count(void) const { return(mCount); }
+	int count(void) const { return (mCount); }
 
 	// Inserts an item into the hash table
 	void insert(T *item)
@@ -74,26 +75,26 @@ public:
 		CreateHash(key);
 		T *item = mHashTable[mHash];
 		mPrevious = NULL;
-		while(item)
+		while (item)
 		{
 			mNext = item->GetNext();
-			if(!TCompare(item->GetName(), key))
+			if (!TCompare(item->GetName(), key))
 			{
-				return(item);
+				return (item);
 			}
 			mPrevious = item;
 			item = mNext;
 		}
-		return(NULL);
+		return (NULL);
 	}
 	// Remove item from the hash table referenced by key
 	bool remove(const char *key)
 	{
 		T *item = find(key);
-		if(item)
+		if (item)
 		{
 			T *next = item->GetNext();
-			if(mPrevious)
+			if (mPrevious)
 			{
 				mPrevious->SetNext(next);
 			}
@@ -103,21 +104,21 @@ public:
 			}
 			item->Destroy();
 			mCount--;
-			return(true);
+			return (true);
 		}
-		return(false);
+		return (false);
 	}
 	// Remove item from hash referenced by item
 	bool remove(T *item)
 	{
-		return(remove(item->GetName()));
+		return (remove(item->GetName()));
 	}
 	// Returns the first valid entry
 	T *head(void)
 	{
 		mHash = -1;
 		mNext = NULL;
-		return(next());
+		return (next());
 	}
 	// Returns the next entry in the hash table
 	T *next(void)
@@ -126,37 +127,37 @@ public:
 
 		assert(mHash < TSize);
 
-		if(mNext)
+		if (mNext)
 		{
 			item = mNext;
 			mNext = item->GetNext();
-			return(item);
+			return (item);
 		}
 		mHash++;
 
-		for( ; mHash < TSize; mHash++)
+		for (; mHash < TSize; mHash++)
 		{
 			item = mHashTable[mHash];
-			if(item)
+			if (item)
 			{
 				mNext = item->GetNext();
-				return(item);
+				return (item);
 			}
 		}
-		return(NULL);
+		return (NULL);
 	}
 	// Destroy all entries in the hash table
 	void clear(void)
 	{
 		T *item = head();
-		while(item)
+		while (item)
 		{
 			remove(item);
 			item = next();
 		}
 	}
 	// Override the [] operator
-	T *operator[](const char *key) { return(find(key)); }
+	T *operator[](const char *key) { return (find(key)); }
 };
 
 // end

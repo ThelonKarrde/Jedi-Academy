@@ -2,7 +2,6 @@
 //
 // guess...
 
-
 #include "stdafx.h"
 #include "includes.h"
 #include "R_Common.h"
@@ -15,9 +14,7 @@ shaderCommands_t tess;
 
 // stuff from lower down, may externalise.
 //
-char *COM_ParseExt( char **data_p, qboolean allowLineBreaks );
-
-
+char *COM_ParseExt(char **data_p, qboolean allowLineBreaks);
 
 static char *s_shaderText = NULL;
 /*
@@ -37,49 +34,46 @@ static	shader_t*		hashTable[FILE_HASH_SIZE];
 static char **shaderTextHashTable[MAX_SHADERTEXT_HASH];
 */
 
+static char com_token[MAX_TOKEN_CHARS];
+static char com_parsename[MAX_TOKEN_CHARS];
+static int com_lines;
 
-
-
-static	char	com_token[MAX_TOKEN_CHARS];
-static	char	com_parsename[MAX_TOKEN_CHARS];
-static	int		com_lines;
-
-void COM_BeginParseSession( const char *name )
+void COM_BeginParseSession(const char *name)
 {
 	com_lines = 0;
 	Com_sprintf(com_parsename, sizeof(com_parsename), "%s", name);
 }
 
-int COM_GetCurrentParseLine( void )
+int COM_GetCurrentParseLine(void)
 {
 	return com_lines;
 }
 
-char *COM_Parse( char **data_p )
+char *COM_Parse(char **data_p)
 {
-	return COM_ParseExt( data_p, qtrue );
+	return COM_ParseExt(data_p, qtrue);
 }
 
-void COM_ParseError( char *format, ... )
+void COM_ParseError(char *format, ...)
 {
 	va_list argptr;
 	static char string[4096];
 
-	va_start (argptr, format);
-	vsprintf (string, format, argptr);
-	va_end (argptr);
+	va_start(argptr, format);
+	vsprintf(string, format, argptr);
+	va_end(argptr);
 
 	Com_Printf("ERROR: %s, line %d: %s\n", com_parsename, com_lines, string);
 }
 
-void COM_ParseWarning( char *format, ... )
+void COM_ParseWarning(char *format, ...)
 {
 	va_list argptr;
 	static char string[4096];
 
-	va_start (argptr, format);
-	vsprintf (string, format, argptr);
-	va_end (argptr);
+	va_start(argptr, format);
+	vsprintf(string, format, argptr);
+	va_end(argptr);
 
 	Com_Printf("WARNING: %s, line %d: %s\n", com_parsename, com_lines, string);
 }
@@ -96,14 +90,18 @@ string will be returned if the next token is
 a newline.
 ==============
 */
-static char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
+static char *SkipWhitespace(char *data, qboolean *hasNewLines)
+{
 	int c;
 
-	while( (c = *data) <= ' ') {
-		if( !c ) {
+	while ((c = *data) <= ' ')
+	{
+		if (!c)
+		{
 			return NULL;
 		}
-		if( c == '\n' ) {
+		if (c == '\n')
+		{
 			com_lines++;
 			*hasNewLines = qtrue;
 		}
@@ -122,22 +120,27 @@ Skips until a matching close brace is found.
 Internal brace depths are properly skipped.
 =================
 */
-void SkipBracedSection (char **program) {
-	char			*token;
-	int				depth;
+void SkipBracedSection(char **program)
+{
+	char *token;
+	int depth;
 
 	depth = 0;
-	do {
-		token = COM_ParseExt( program, qtrue );
-		if( token[1] == 0 ) {
-			if( token[0] == '{' ) {
+	do
+	{
+		token = COM_ParseExt(program, qtrue);
+		if (token[1] == 0)
+		{
+			if (token[0] == '{')
+			{
 				depth++;
 			}
-			else if( token[0] == '}' ) {
+			else if (token[0] == '}')
+			{
 				depth--;
 			}
 		}
-	} while( depth && *program );
+	} while (depth && *program);
 }
 
 /*
@@ -145,13 +148,16 @@ void SkipBracedSection (char **program) {
 SkipRestOfLine
 =================
 */
-void SkipRestOfLine ( char **data ) {
-	char	*p;
-	int		c;
+void SkipRestOfLine(char **data)
+{
+	char *p;
+	int c;
 
 	p = *data;
-	while ( (c = *p++) != 0 ) {
-		if ( c == '\n' ) {
+	while ((c = *p++) != 0)
+	{
+		if (c == '\n')
+		{
 			com_lines++;
 			break;
 		}
@@ -160,8 +166,7 @@ void SkipRestOfLine ( char **data ) {
 	*data = p;
 }
 
-
-char *COM_ParseExt( char **data_p, qboolean allowLineBreaks )
+char *COM_ParseExt(char **data_p, qboolean allowLineBreaks)
 {
 	int c = 0, len;
 	qboolean hasNewLines = qfalse;
@@ -172,22 +177,22 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks )
 	com_token[0] = 0;
 
 	// make sure incoming data is valid
-	if ( !data )
+	if (!data)
 	{
 		*data_p = NULL;
 		return com_token;
 	}
 
-	while ( 1 )
+	while (1)
 	{
 		// skip whitespace
-		data = SkipWhitespace( data, &hasNewLines );
-		if ( !data )
+		data = SkipWhitespace(data, &hasNewLines);
+		if (!data)
 		{
 			*data_p = NULL;
 			return com_token;
 		}
-		if ( hasNewLines && !allowLineBreaks )
+		if (hasNewLines && !allowLineBreaks)
 		{
 			*data_p = data;
 			return com_token;
@@ -196,22 +201,23 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks )
 		c = *data;
 
 		// skip double slash comments
-		if ( c == '/' && data[1] == '/' )
+		if (c == '/' && data[1] == '/')
 		{
 			data += 2;
-			while (*data && *data != '\n') {
+			while (*data && *data != '\n')
+			{
 				data++;
 			}
 		}
 		// skip /* */ comments
-		else if ( c=='/' && data[1] == '*' ) 
+		else if (c == '/' && data[1] == '*')
 		{
 			data += 2;
-			while ( *data && ( *data != '*' || data[1] != '/' ) ) 
+			while (*data && (*data != '*' || data[1] != '/'))
 			{
 				data++;
 			}
-			if ( *data ) 
+			if (*data)
 			{
 				data += 2;
 			}
@@ -229,10 +235,10 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks )
 		while (1)
 		{
 			c = *data++;
-			if (c=='\"' || !c)
+			if (c == '\"' || !c)
 			{
 				com_token[len] = 0;
-				*data_p = ( char * ) data;
+				*data_p = (char *)data;
 				return com_token;
 			}
 			if (len < MAX_TOKEN_CHARS)
@@ -253,25 +259,20 @@ char *COM_ParseExt( char **data_p, qboolean allowLineBreaks )
 		}
 		data++;
 		c = *data;
-		if ( c == '\n' )
+		if (c == '\n')
 			com_lines++;
-	} while (c>32);
+	} while (c > 32);
 
 	if (len == MAX_TOKEN_CHARS)
 	{
-//		Com_Printf ("Token exceeded %i chars, discarded.\n", MAX_TOKEN_CHARS);
+		//		Com_Printf ("Token exceeded %i chars, discarded.\n", MAX_TOKEN_CHARS);
 		len = 0;
 	}
 	com_token[len] = 0;
 
-	*data_p = ( char * ) data;
+	*data_p = (char *)data;
 	return com_token;
 }
-
-
-
-
-
 
 /*
 ====================
@@ -285,7 +286,8 @@ return NULL if not found
 If found, it will return a valid shader
 =====================
 */
-static char *FindShaderInShaderText( const char *shadername ) {
+static char *FindShaderInShaderText(const char *shadername)
+{
 #ifdef SHADERTEXTHASH
 
 	char *token, *p;
@@ -293,10 +295,12 @@ static char *FindShaderInShaderText( const char *shadername ) {
 
 	hash = generateHashValue(shadername, MAX_SHADERTEXT_HASH);
 
-	for (i = 0; shaderTextHashTable[hash][i]; i++) {
+	for (i = 0; shaderTextHashTable[hash][i]; i++)
+	{
 		p = shaderTextHashTable[hash][i];
 		token = COM_ParseExt(&p, qtrue);
-		if ( !Q_stricmp( token, shadername ) ) {
+		if (!Q_stricmp(token, shadername))
+		{
 			return p;
 		}
 	}
@@ -305,32 +309,34 @@ static char *FindShaderInShaderText( const char *shadername ) {
 	char *p = s_shaderText;
 	char *token;
 
-	if ( !p ) {
+	if (!p)
+	{
 		return NULL;
 	}
 
 	// look for label
-	while ( 1 ) {
-		token = COM_ParseExt( &p, qtrue );
-		if ( token[0] == 0 ) {
+	while (1)
+	{
+		token = COM_ParseExt(&p, qtrue);
+		if (token[0] == 0)
+		{
 			break;
 		}
 
-		if ( !Q_stricmp( token, shadername ) ) {
+		if (!Q_stricmp(token, shadername))
+		{
 			return p;
 		}
-		else {
+		else
+		{
 			// skip the definition
-			SkipBracedSection( &p );
+			SkipBracedSection(&p);
 		}
 	}
 
 	return NULL;
 #endif
 }
-
-
-
 
 /*
 ====================
@@ -340,10 +346,10 @@ Finds and loads all .shader files, combining them into
 a single large text block that can be scanned for shader names
 =====================
 */
-#define	MAX_SHADER_FILES	1024
+#define MAX_SHADER_FILES 1024
 
-typedef map<string,string>	ShadersFoundAndFilesPicked_t;
-							ShadersFoundAndFilesPicked_t ShadersFoundAndFilesPicked;
+typedef map<string, string> ShadersFoundAndFilesPicked_t;
+ShadersFoundAndFilesPicked_t ShadersFoundAndFilesPicked;
 
 void KillAllShaderFiles(void)
 {
@@ -351,84 +357,88 @@ void KillAllShaderFiles(void)
 	ShadersFoundAndFilesPicked.clear();
 }
 
-
-void ScanAndLoadShaderFiles( void )
+void ScanAndLoadShaderFiles(void)
 {
 	if (s_shaderText == NULL && strlen(gamedir))
 	{
 		char **shaderFiles;
 		char *buffers[MAX_SHADER_FILES];
-	#ifdef SHADERTEXTHASH
+#ifdef SHADERTEXTHASH
 		char *p, *oldp, *token, *hashMem;
 		int shaderTextHashTableSizes[MAX_SHADERTEXT_HASH], hash, size;
-	#endif
+#endif
 		int numShaders;
 		int i;
 		long sum = 0;
 
-		#define sSHADER_DIR va("%sshaders",gamedir)
+#define sSHADER_DIR va("%sshaders", gamedir)
 
 		// scan for shader files
-		shaderFiles =	//ri.FS_ListFiles( "shaders", ".shader", &numShaders );
-						Sys_ListFiles(	sSHADER_DIR,	// const char *directory, 
-										".shader",	// const char *extension, 
-										NULL,		// char *filter, 
-										&numShaders,// int *numfiles, 
-										qfalse		// qboolean wantsubs 
-										);
+		shaderFiles =				   //ri.FS_ListFiles( "shaders", ".shader", &numShaders );
+			Sys_ListFiles(sSHADER_DIR, // const char *directory,
+						  ".shader",   // const char *extension,
+						  NULL,		   // char *filter,
+						  &numShaders, // int *numfiles,
+						  qfalse	   // qboolean wantsubs
+			);
 
-		if ( !shaderFiles || !numShaders )
+		if (!shaderFiles || !numShaders)
 		{
 			if (!bXMenPathHack)
 			{
-				ri.Printf( PRINT_WARNING, "WARNING: no shader files found in '%s'\n",sSHADER_DIR );
+				ri.Printf(PRINT_WARNING, "WARNING: no shader files found in '%s'\n", sSHADER_DIR);
 			}
 			s_shaderText = CopyString("// blank shader file to avoid re-scanning shaders\n");
 			return;
 		}
 
-		if ( numShaders > MAX_SHADER_FILES ) {
+		if (numShaders > MAX_SHADER_FILES)
+		{
 			numShaders = MAX_SHADER_FILES;
 		}
 
 		// load and parse shader files
-		for ( i = 0; i < numShaders; i++ )
+		for (i = 0; i < numShaders; i++)
 		{
 			char filename[MAX_QPATH];
 
-			Com_sprintf( filename, sizeof( filename ), "shaders/%s", shaderFiles[i] );
-			StatusMessage( va("Loading shader %d/%d: \"%s\"...",i+1,numShaders,filename));
+			Com_sprintf(filename, sizeof(filename), "shaders/%s", shaderFiles[i]);
+			StatusMessage(va("Loading shader %d/%d: \"%s\"...", i + 1, numShaders, filename));
 
 			//ri.Printf( PRINT_ALL, "...loading '%s'\n", filename );
-			sum += ri.FS_ReadFile( filename, (void **)&buffers[i] );
-			if ( !buffers[i] ) {
-				ri.Error( ERR_DROP, "Couldn't load %s", filename );
+			sum += ri.FS_ReadFile(filename, (void **)&buffers[i]);
+			if (!buffers[i])
+			{
+				ri.Error(ERR_DROP, "Couldn't load %s", filename);
 			}
 		}
 		StatusMessage(NULL);
 
 		// build single large buffer
-		s_shaderText = (char *)ri.Hunk_Alloc( sum + numShaders*2 );
+		s_shaderText = (char *)ri.Hunk_Alloc(sum + numShaders * 2);
 
 		// free in reverse order, so the temp files are all dumped
-		for ( i = numShaders - 1; i >= 0 ; i-- ) {
-			strcat( s_shaderText, "\n" );
-			strcat( s_shaderText, buffers[i] );
-			ri.FS_FreeFile( buffers[i] );
+		for (i = numShaders - 1; i >= 0; i--)
+		{
+			strcat(s_shaderText, "\n");
+			strcat(s_shaderText, buffers[i]);
+			ri.FS_FreeFile(buffers[i]);
 		}
 
 		// free up memory
 		//ri.FS_FreeFileList( shaderFiles );
-		Sys_FreeFileList( shaderFiles );
+		Sys_FreeFileList(shaderFiles);
 
-	#ifdef SHADERTEXTHASH
+#ifdef SHADERTEXTHASH
 		memset(shaderTextHashTableSizes, 0, sizeof(shaderTextHashTableSizes));
 		size = 0;
 		p = s_shaderText;
 		// look for label
-		while ( 1 ) {
-			token = COM_ParseExt( &p, qtrue );
-			if ( token[0] == 0 ) {
+		while (1)
+		{
+			token = COM_ParseExt(&p, qtrue);
+			if (token[0] == 0)
+			{
 				break;
 			}
 
@@ -439,20 +449,23 @@ void ScanAndLoadShaderFiles( void )
 		}
 		size += MAX_SHADERTEXT_HASH;
 
-		hashMem = (char *)ri.Hunk_Alloc( size * sizeof(char *) );
+		hashMem = (char *)ri.Hunk_Alloc(size * sizeof(char *));
 
-		for (i = 0; i < MAX_SHADERTEXT_HASH; i++) {
-			shaderTextHashTable[i] = (char **) hashMem;
-			hashMem = ((char *) hashMem) + ((shaderTextHashTableSizes[i] + 1) * sizeof(char *));
+		for (i = 0; i < MAX_SHADERTEXT_HASH; i++)
+		{
+			shaderTextHashTable[i] = (char **)hashMem;
+			hashMem = ((char *)hashMem) + ((shaderTextHashTableSizes[i] + 1) * sizeof(char *));
 		}
 
 		memset(shaderTextHashTableSizes, 0, sizeof(shaderTextHashTableSizes));
 		p = s_shaderText;
 		// look for label
-		while ( 1 ) {
+		while (1)
+		{
 			oldp = p;
-			token = COM_ParseExt( &p, qtrue );
-			if ( token[0] == 0 ) {
+			token = COM_ParseExt(&p, qtrue);
+			if (token[0] == 0)
+			{
 				break;
 			}
 
@@ -461,10 +474,9 @@ void ScanAndLoadShaderFiles( void )
 
 			SkipBracedSection(&p);
 		}
-	#endif		
+#endif
 	}
 }
-
 
 /*
 textures/sfx/dclogo
@@ -498,14 +510,15 @@ textures/sfx/dclogo
 */
 static bool CheckForFilenameArg(LPCSTR &psSearchPos, LPCSTR psKeyword)
 {
-	LPCSTR psSearchResult = strstr(psSearchPos,psKeyword);
+	LPCSTR psSearchResult = strstr(psSearchPos, psKeyword);
 
 	if (psSearchResult && isspace(psSearchResult[strlen(psKeyword)]))
 	{
 		psSearchResult += strlen(psKeyword);
-		while (*psSearchResult && isspace(*psSearchResult)) psSearchResult++;
+		while (*psSearchResult && isspace(*psSearchResult))
+			psSearchResult++;
 
-		if (strlen(psSearchResult) && *psSearchResult != '$' && ((psSearchResult>psSearchPos)?isspace(psSearchResult[-1]):1) )	// note error-check on -1 index
+		if (strlen(psSearchResult) && *psSearchResult != '$' && ((psSearchResult > psSearchPos) ? isspace(psSearchResult[-1]) : 1)) // note error-check on -1 index
 		{
 			psSearchPos = psSearchResult;
 			return true;
@@ -516,7 +529,9 @@ static bool CheckForFilenameArg(LPCSTR &psSearchPos, LPCSTR psKeyword)
 	{
 		// skip to line end...
 		//
-		while (*psSearchResult++ != '\n'){}
+		while (*psSearchResult++ != '\n')
+		{
+		}
 		psSearchResult++;
 		psSearchPos = psSearchResult;
 	}
@@ -537,26 +552,26 @@ static bool CheckForFilenameArg(LPCSTR &psSearchPos, LPCSTR psKeyword)
 //
 LPCSTR Shader_ExtractSuitableFilename(LPCSTR psShaderText)
 {
-	char *psShaderTextEnd = (char*)psShaderText;
-	SkipBracedSection (&psShaderTextEnd);
-	
+	char *psShaderTextEnd = (char *)psShaderText;
+	SkipBracedSection(&psShaderTextEnd);
+
 	int iShaderChars = psShaderTextEnd - psShaderText;
 
 	// make a small string with just this shader in, for easier searching...
 	//
-	char *psThisShader	= (char *) malloc(iShaderChars+1);	// +1 for trailing zero
-	char *psShaderSearch= psThisShader;	
-	strncpy(psThisShader,psShaderText,iShaderChars);
-	psThisShader[iShaderChars]='\0';
+	char *psThisShader = (char *)malloc(iShaderChars + 1); // +1 for trailing zero
+	char *psShaderSearch = psThisShader;
+	strncpy(psThisShader, psShaderText, iShaderChars);
+	psThisShader[iShaderChars] = '\0';
 
 	LPCSTR psAnswer = NULL;
-	
+
 	char *psShaderSearchTry = psShaderSearch;
 	if (CheckForFilenameArg(psShaderSearchTry, "qer_editorimage"))
 	{
 		psAnswer = psShaderSearchTry;
 	}
-	
+
 	// these next ones I need to search for multiple times, else it hits things like "q3map_blah",
 	//	doesn't find a space after "map", then gives up, so it should keep trying....
 	//
@@ -581,15 +596,15 @@ LPCSTR Shader_ExtractSuitableFilename(LPCSTR psShaderText)
 			}
 		}
 	}
-	
+
 	static char sReturnName[MAX_QPATH];
 	if (psAnswer)
 	{
-		strncpy(sReturnName,psAnswer,sizeof(sReturnName));
-		sReturnName[sizeof(sReturnName)-1]='\0';
-		for (int i=0; i<sizeof(sReturnName)-1; i++)
+		strncpy(sReturnName, psAnswer, sizeof(sReturnName));
+		sReturnName[sizeof(sReturnName) - 1] = '\0';
+		for (int i = 0; i < sizeof(sReturnName) - 1; i++)
 		{
-			if (sReturnName[i]=='\0')
+			if (sReturnName[i] == '\0')
 				break;
 			if (isspace(sReturnName[i]))
 			{
@@ -597,25 +612,25 @@ LPCSTR Shader_ExtractSuitableFilename(LPCSTR psShaderText)
 				break;
 			}
 		}
-	}	
+	}
 
 	free(psThisShader);
-	return psAnswer?sReturnName:NULL;
+	return psAnswer ? sReturnName : NULL;
 }
-
 
 // massively hacked-down version of original code, this simply takes an input char * local filename, then
 //	modifies it to be either the name of the first MAP arg within the corresponding shader file, else leaves
 //	it alone if not found
-const char *R_FindShader( const char *psLocalMaterialName)
+const char *R_FindShader(const char *psLocalMaterialName)
 {
 	static char sReturnString[MAX_QPATH];
 
-	char		strippedName[MAX_QPATH];
-/*	char		fileName[MAX_QPATH];
+	char strippedName[MAX_QPATH];
+	/*	char		fileName[MAX_QPATH];
 	int			i, hash;
-*/	char		*shaderText;
-/*	image_t		*image;
+*/
+	char *shaderText;
+	/*	image_t		*image;
 	shader_t	*sh;
 
 	if ( name[0] == 0 ) {
@@ -628,7 +643,7 @@ const char *R_FindShader( const char *psLocalMaterialName)
 		lightmapIndex[0] = LIGHTMAP_BY_VERTEX;
 	}
 */
-	COM_StripExtension( psLocalMaterialName, strippedName );
+	COM_StripExtension(psLocalMaterialName, strippedName);
 	strlwr(strippedName);
 
 	ShadersFoundAndFilesPicked_t::iterator it = ShadersFoundAndFilesPicked.find(strippedName);
@@ -636,7 +651,7 @@ const char *R_FindShader( const char *psLocalMaterialName)
 	{
 		return (*it).second.c_str();
 	}
-/*
+	/*
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
 
 	//
@@ -653,7 +668,7 @@ const char *R_FindShader( const char *psLocalMaterialName)
 		}
 	}
 */
-/*	// make sure the render thread is stopped, because we are probably
+	/*	// make sure the render thread is stopped, because we are probably
 	// going to have to upload an image
 	R_SyncRenderThread();
 
@@ -676,10 +691,10 @@ const char *R_FindShader( const char *psLocalMaterialName)
 	//
 	// attempt to define shader from an explicit parameter file
 	//
-	shaderText = FindShaderInShaderText( strippedName );
-	if ( shaderText ) 
+	shaderText = FindShaderInShaderText(strippedName);
+	if (shaderText)
 	{
-/*		// enable this when building a pak file to get a global list
+		/*		// enable this when building a pak file to get a global list
 		// of all explicit shaders
 		if ( r_printShaders->integer ) {
 			ri.Printf( PRINT_ALL, "*SHADER* %s\n", name );
@@ -700,8 +715,8 @@ const char *R_FindShader( const char *psLocalMaterialName)
 	}
 
 	ShadersFoundAndFilesPicked[strippedName] = psLocalMaterialName;
-	return psLocalMaterialName;	// return original name
-/*
+	return psLocalMaterialName; // return original name
+	/*
 	//
 	// if not defined in the in-memory shader descriptions,
 	// look for a single TGA, BMP, or PCX
@@ -770,6 +785,3 @@ const char *R_FindShader( const char *psLocalMaterialName)
 }
 
 ////////////////// eof ////////////////
-
-
-

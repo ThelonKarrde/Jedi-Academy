@@ -31,20 +31,15 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-
 static void XLS_To_SP(void);
 
-#define PLAY_LAME_WAV							\
-		if ( !PlaySound("k:\\util\\bhr_l.bin",	\
-						NULL,					\
-						SND_FILENAME|SND_ASYNC	\
-						)						\
-			)									\
-		{										\
-			/* error, but ignore that */		\
-		}
-
-
+#define PLAY_LAME_WAV                         \
+	if (!PlaySound("k:\\util\\bhr_l.bin",     \
+				   NULL,                      \
+				   SND_FILENAME | SND_ASYNC)) \
+	{                                         \
+		/* error, but ignore that */          \
+	}
 
 /////////////////////////////////////////////////////////////////////////////
 // CMainFrame
@@ -52,133 +47,133 @@ static void XLS_To_SP(void);
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWnd)
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
-	//{{AFX_MSG_MAP(CMainFrame)
-	ON_WM_CREATE()
-	ON_COMMAND(ID_FILE_OPEN, OnFileOpen)
-	ON_COMMAND(ID_VIEW_WIREFRAME, OnViewWireframe)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_WIREFRAME, OnUpdateViewWireframe)
-	ON_COMMAND(ID_VIEW_ALPHA, OnViewAlpha)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_ALPHA, OnUpdateViewAlpha)
-	ON_COMMAND(ID_VIEW_INTERPOLATE, OnViewInterpolate)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_INTERPOLATE, OnUpdateViewInterpolate)
-	ON_COMMAND(ID_VIEW_BILINEAR, OnViewBilinear)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_BILINEAR, OnUpdateViewBilinear)
-	ON_COMMAND(ID_VIEW_SCREENSHOT_FILE, OnViewScreenshotFile)
-	ON_COMMAND(ID_VIEW_SCREENSHOT_CLIPBOARD, OnViewScreenshotClipboard)
-	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
-	ON_COMMAND(ID_EDIT_PASTE, OnEditPaste)
-	ON_COMMAND(ID_VIEW_ORIGIN, OnViewOrigin)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_ORIGIN, OnUpdateViewOrigin)
-	ON_COMMAND(ID_VIEW_GLINFO, OnViewGlinfo)
-	ON_COMMAND(ID_ANIMATION_START, OnAnimationStart)
-	ON_COMMAND(ID_ANIMATION_STOP, OnAnimationStop)
-	ON_COMMAND(ID_ANIMATION_REWIND, OnAnimationRewind)
-	ON_COMMAND(ID_ANIMATION_FASTER, OnAnimationFaster)
-	ON_COMMAND(ID_ANIMATION_SLOWER, OnAnimationSlower)
-	ON_COMMAND(ID_ANIMATION_LERPING, OnAnimationLerping)
-	ON_UPDATE_COMMAND_UI(ID_ANIMATION_LERPING, OnUpdateAnimationLerping)
-	ON_UPDATE_COMMAND_UI(ID_FILE_SAVE, OnUpdateFileSave)
-	ON_COMMAND(ID_MODEL_SAVE_AS, OnModelSaveAs)
-	ON_COMMAND(ID_FILE_WRITEIDEAL, OnFileWriteideal)
-	ON_COMMAND(ID_ANIMATION_NEXTFRAME, OnAnimationNextframe)
-	ON_COMMAND(ID_ANIMATION_PREVFRAME, OnAnimationPrevframe)
-	ON_COMMAND(ID_VIEW_LOD0, OnViewLod0)
-	ON_COMMAND(ID_VIEW_LOD1, OnViewLod1)
-	ON_COMMAND(ID_VIEW_LOD2, OnViewLod2)
-	ON_COMMAND(ID_VIEW_LOD3, OnViewLod3)
-	ON_COMMAND(ID_VIEW_LOD4, OnViewLod4)
-	ON_COMMAND(ID_VIEW_LOD5, OnViewLod5)
-	ON_COMMAND(ID_VIEW_LOD6, OnViewLod6)
-	ON_COMMAND(ID_VIEW_LOD7, OnViewLod7)
-	ON_COMMAND(ID_EDIT_BGRNDCOLOUR, OnEditBgrndcolour)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_BONEHILITE, OnUpdateViewBonehilite)
-	ON_COMMAND(ID_VIEW_BONEHILITE, OnViewBonehilite)
-	ON_COMMAND(ID_VIEW_NORMALS, OnViewNormals)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_NORMALS, OnUpdateViewNormals)
-	ON_COMMAND(ID_VIEW_SURFACEHILITE, OnViewSurfacehilite)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_SURFACEHILITE, OnUpdateViewSurfacehilite)
-	ON_COMMAND(ID_VIEW_VERTINDEXES, OnViewVertindexes)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_VERTINDEXES, OnUpdateViewVertindexes)
-	ON_COMMAND(ID_VIEW_FOVCYCLE, OnViewFovcycle)
-	ON_COMMAND(ID_FILE_READIDEAL, OnFileReadideal)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateEditPaste)
-	ON_COMMAND(ID_FILE_REFRESHTEXTURES, OnFileRefreshtextures)
-	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT, OnUpdateFilePrint)
-	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_PREVIEW, OnUpdateFilePrintPreview)
-	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_SETUP, OnUpdateFilePrintSetup)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_TESTFUNCTION, OnUpdateEditTestfunction)
-	ON_COMMAND(ID_EDIT_TESTFUNCTION, OnEditTestfunction)
-	ON_COMMAND(ID_FILE_RESETVIEWPARAMS, OnFileResetviewparams)
-	ON_COMMAND(ID_ANIMATION_STARTWITHWRAPFORCE, OnAnimationStartwithwrapforce)
-	ON_COMMAND(ID_FILE_WRITESCRIPT, OnFileWritescript)
-	ON_COMMAND(ID_FILE_READSCRIPT, OnFileReadscript)
-	ON_UPDATE_COMMAND_UI(ID_FILE_WRITESCRIPT, OnUpdateFileWritescript)
-	ON_COMMAND(ID_VIEW_SURFACEHILITEWITHBONEREFS, OnViewSurfacehilitewithbonerefs)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_SURFACEHILITEWITHBONEREFS, OnUpdateViewSurfacehilitewithbonerefs)
-	ON_COMMAND(ID_VIEW_TAGSURFACES, OnViewTagsurfaces)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_TAGSURFACES, OnUpdateViewTagsurfaces)
-	ON_COMMAND(ID_VIEW_TAGSASRGB, OnViewTagsasrgb)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_TAGSASRGB, OnUpdateViewTagsasrgb)
-	ON_COMMAND(ID_PICMIP_0, OnPicmip0)
-	ON_UPDATE_COMMAND_UI(ID_PICMIP_0, OnUpdatePicmip0)
-	ON_COMMAND(ID_PICMIP_1, OnPicmip1)
-	ON_UPDATE_COMMAND_UI(ID_PICMIP_1, OnUpdatePicmip1)
-	ON_COMMAND(ID_PICMIP_2, OnPicmip2)
-	ON_UPDATE_COMMAND_UI(ID_PICMIP_2, OnUpdatePicmip2)
-	ON_COMMAND(ID_PICMIP_3, OnPicmip3)
-	ON_UPDATE_COMMAND_UI(ID_PICMIP_3, OnUpdatePicmip3)
-	ON_COMMAND(ID_PICMIP_4, OnPicmip4)
-	ON_COMMAND(ID_PICMIP_5, OnPicmip5)
-	ON_COMMAND(ID_PICMIP_6, OnPicmip6)
-	ON_COMMAND(ID_PICMIP_7, OnPicmip7)
-	ON_COMMAND(ID_VIEW_RULER, OnViewRuler)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_RULER, OnUpdateViewRuler)
-	ON_COMMAND(ID_VIEW_FORCEWHITE, OnViewForcewhite)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_FORCEWHITE, OnUpdateViewForcewhite)
-	ON_COMMAND(ID_VIEW_SCREENSHOT_CLEAN, OnViewScreenshotClean)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_SCREENSHOT_CLEAN, OnUpdateViewScreenshotClean)
-	ON_COMMAND(ID_VIEW_VERTWEIGHTING, OnViewVertweighting)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_VERTWEIGHTING, OnUpdateViewVertweighting)
-	ON_COMMAND(ID_VIEW_BBOX, OnViewBbox)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_BBOX, OnUpdateViewBbox)
-	ON_COMMAND(ID_VIEW_FLOOR, OnViewFloor)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_FLOOR, OnUpdateViewFloor)
-	ON_COMMAND(ID_EDIT_SETFLOOR_ABS, OnEditSetfloorAbs)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_SETFLOOR_ABS, OnUpdateEditSetfloorAbs)
-	ON_COMMAND(ID_EDIT_SETFLOOR_CURRENT, OnEditSetfloorCurrent)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_SETFLOOR_CURRENT, OnUpdateEditSetfloorCurrent)
-	ON_COMMAND(ID_VIEW_BONEFILTERING, OnViewBonefiltering)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_BONEFILTERING, OnUpdateViewBonefiltering)
-	ON_COMMAND(ID_EDIT_SETBONEWEIGHT_THRESHHOLD, OnEditSetboneweightThreshhold)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_SETBONEWEIGHT_THRESHHOLD, OnUpdateEditSetboneweightThreshhold)
-	ON_COMMAND(ID_BONEFILTER_INCTHRESHHOLD,OnEditBoneFilterINCThreshhold)
-	ON_COMMAND(ID_BONEFILTER_DECTHRESHHOLD,OnEditBoneFilterDECThreshhold)
-	ON_COMMAND(ID_VIEW_CRACKVIEWER, OnViewCrackviewer)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_CRACKVIEWER, OnUpdateViewCrackviewer)
-	ON_COMMAND(ID_VIEW_UNSHADOWABLESURFACES, OnViewUnshadowablesurfaces)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_UNSHADOWABLESURFACES, OnUpdateViewUnshadowablesurfaces)
-	ON_COMMAND(ID_FILE_VIEW_SOF2_NPCS, OnFileViewSof2Npcs)
-	ON_UPDATE_COMMAND_UI(ID_FILE_VIEW_SOF2_NPCS, OnUpdateFileViewSof2Npcs)
-	ON_COMMAND(IDM_EDIT_ALLOWSKELETONOVERRIDES, OnEditAllowskeletonoverrides)
-	ON_UPDATE_COMMAND_UI(IDM_EDIT_ALLOWSKELETONOVERRIDES, OnUpdateEditAllowskeletonoverrides)
-	ON_COMMAND(ID_VIEW_DOUBLESIDEDPOLYS, OnViewDoublesidedpolys)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_DOUBLESIDEDPOLYS, OnUpdateViewDoublesidedpolys)
-	ON_COMMAND(IDM_EDIT_TOPMOST, OnEditTopmost)
-	ON_UPDATE_COMMAND_UI(IDM_EDIT_TOPMOST, OnUpdateEditTopmost)
-	ON_COMMAND(ID_VIEW_TRIINDEXES, OnViewTriindexes)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_TRIINDEXES, OnUpdateViewTriindexes)
-	ON_COMMAND(ID_FILE_VIEW_JK2_BOTS, OnFileViewJk2Bots)
-	ON_COMMAND(ID_ANIMATION_ENDFRAME, OnAnimationEndframe)
-	//}}AFX_MSG_MAP
-	ON_COMMAND(ID_FILE_BATCHCONVERT, OnFileBatchconvert)
-	END_MESSAGE_MAP()
+//{{AFX_MSG_MAP(CMainFrame)
+ON_WM_CREATE()
+ON_COMMAND(ID_FILE_OPEN, OnFileOpen)
+ON_COMMAND(ID_VIEW_WIREFRAME, OnViewWireframe)
+ON_UPDATE_COMMAND_UI(ID_VIEW_WIREFRAME, OnUpdateViewWireframe)
+ON_COMMAND(ID_VIEW_ALPHA, OnViewAlpha)
+ON_UPDATE_COMMAND_UI(ID_VIEW_ALPHA, OnUpdateViewAlpha)
+ON_COMMAND(ID_VIEW_INTERPOLATE, OnViewInterpolate)
+ON_UPDATE_COMMAND_UI(ID_VIEW_INTERPOLATE, OnUpdateViewInterpolate)
+ON_COMMAND(ID_VIEW_BILINEAR, OnViewBilinear)
+ON_UPDATE_COMMAND_UI(ID_VIEW_BILINEAR, OnUpdateViewBilinear)
+ON_COMMAND(ID_VIEW_SCREENSHOT_FILE, OnViewScreenshotFile)
+ON_COMMAND(ID_VIEW_SCREENSHOT_CLIPBOARD, OnViewScreenshotClipboard)
+ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
+ON_COMMAND(ID_EDIT_PASTE, OnEditPaste)
+ON_COMMAND(ID_VIEW_ORIGIN, OnViewOrigin)
+ON_UPDATE_COMMAND_UI(ID_VIEW_ORIGIN, OnUpdateViewOrigin)
+ON_COMMAND(ID_VIEW_GLINFO, OnViewGlinfo)
+ON_COMMAND(ID_ANIMATION_START, OnAnimationStart)
+ON_COMMAND(ID_ANIMATION_STOP, OnAnimationStop)
+ON_COMMAND(ID_ANIMATION_REWIND, OnAnimationRewind)
+ON_COMMAND(ID_ANIMATION_FASTER, OnAnimationFaster)
+ON_COMMAND(ID_ANIMATION_SLOWER, OnAnimationSlower)
+ON_COMMAND(ID_ANIMATION_LERPING, OnAnimationLerping)
+ON_UPDATE_COMMAND_UI(ID_ANIMATION_LERPING, OnUpdateAnimationLerping)
+ON_UPDATE_COMMAND_UI(ID_FILE_SAVE, OnUpdateFileSave)
+ON_COMMAND(ID_MODEL_SAVE_AS, OnModelSaveAs)
+ON_COMMAND(ID_FILE_WRITEIDEAL, OnFileWriteideal)
+ON_COMMAND(ID_ANIMATION_NEXTFRAME, OnAnimationNextframe)
+ON_COMMAND(ID_ANIMATION_PREVFRAME, OnAnimationPrevframe)
+ON_COMMAND(ID_VIEW_LOD0, OnViewLod0)
+ON_COMMAND(ID_VIEW_LOD1, OnViewLod1)
+ON_COMMAND(ID_VIEW_LOD2, OnViewLod2)
+ON_COMMAND(ID_VIEW_LOD3, OnViewLod3)
+ON_COMMAND(ID_VIEW_LOD4, OnViewLod4)
+ON_COMMAND(ID_VIEW_LOD5, OnViewLod5)
+ON_COMMAND(ID_VIEW_LOD6, OnViewLod6)
+ON_COMMAND(ID_VIEW_LOD7, OnViewLod7)
+ON_COMMAND(ID_EDIT_BGRNDCOLOUR, OnEditBgrndcolour)
+ON_UPDATE_COMMAND_UI(ID_VIEW_BONEHILITE, OnUpdateViewBonehilite)
+ON_COMMAND(ID_VIEW_BONEHILITE, OnViewBonehilite)
+ON_COMMAND(ID_VIEW_NORMALS, OnViewNormals)
+ON_UPDATE_COMMAND_UI(ID_VIEW_NORMALS, OnUpdateViewNormals)
+ON_COMMAND(ID_VIEW_SURFACEHILITE, OnViewSurfacehilite)
+ON_UPDATE_COMMAND_UI(ID_VIEW_SURFACEHILITE, OnUpdateViewSurfacehilite)
+ON_COMMAND(ID_VIEW_VERTINDEXES, OnViewVertindexes)
+ON_UPDATE_COMMAND_UI(ID_VIEW_VERTINDEXES, OnUpdateViewVertindexes)
+ON_COMMAND(ID_VIEW_FOVCYCLE, OnViewFovcycle)
+ON_COMMAND(ID_FILE_READIDEAL, OnFileReadideal)
+ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateEditPaste)
+ON_COMMAND(ID_FILE_REFRESHTEXTURES, OnFileRefreshtextures)
+ON_UPDATE_COMMAND_UI(ID_FILE_PRINT, OnUpdateFilePrint)
+ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_PREVIEW, OnUpdateFilePrintPreview)
+ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_SETUP, OnUpdateFilePrintSetup)
+ON_UPDATE_COMMAND_UI(ID_EDIT_TESTFUNCTION, OnUpdateEditTestfunction)
+ON_COMMAND(ID_EDIT_TESTFUNCTION, OnEditTestfunction)
+ON_COMMAND(ID_FILE_RESETVIEWPARAMS, OnFileResetviewparams)
+ON_COMMAND(ID_ANIMATION_STARTWITHWRAPFORCE, OnAnimationStartwithwrapforce)
+ON_COMMAND(ID_FILE_WRITESCRIPT, OnFileWritescript)
+ON_COMMAND(ID_FILE_READSCRIPT, OnFileReadscript)
+ON_UPDATE_COMMAND_UI(ID_FILE_WRITESCRIPT, OnUpdateFileWritescript)
+ON_COMMAND(ID_VIEW_SURFACEHILITEWITHBONEREFS, OnViewSurfacehilitewithbonerefs)
+ON_UPDATE_COMMAND_UI(ID_VIEW_SURFACEHILITEWITHBONEREFS, OnUpdateViewSurfacehilitewithbonerefs)
+ON_COMMAND(ID_VIEW_TAGSURFACES, OnViewTagsurfaces)
+ON_UPDATE_COMMAND_UI(ID_VIEW_TAGSURFACES, OnUpdateViewTagsurfaces)
+ON_COMMAND(ID_VIEW_TAGSASRGB, OnViewTagsasrgb)
+ON_UPDATE_COMMAND_UI(ID_VIEW_TAGSASRGB, OnUpdateViewTagsasrgb)
+ON_COMMAND(ID_PICMIP_0, OnPicmip0)
+ON_UPDATE_COMMAND_UI(ID_PICMIP_0, OnUpdatePicmip0)
+ON_COMMAND(ID_PICMIP_1, OnPicmip1)
+ON_UPDATE_COMMAND_UI(ID_PICMIP_1, OnUpdatePicmip1)
+ON_COMMAND(ID_PICMIP_2, OnPicmip2)
+ON_UPDATE_COMMAND_UI(ID_PICMIP_2, OnUpdatePicmip2)
+ON_COMMAND(ID_PICMIP_3, OnPicmip3)
+ON_UPDATE_COMMAND_UI(ID_PICMIP_3, OnUpdatePicmip3)
+ON_COMMAND(ID_PICMIP_4, OnPicmip4)
+ON_COMMAND(ID_PICMIP_5, OnPicmip5)
+ON_COMMAND(ID_PICMIP_6, OnPicmip6)
+ON_COMMAND(ID_PICMIP_7, OnPicmip7)
+ON_COMMAND(ID_VIEW_RULER, OnViewRuler)
+ON_UPDATE_COMMAND_UI(ID_VIEW_RULER, OnUpdateViewRuler)
+ON_COMMAND(ID_VIEW_FORCEWHITE, OnViewForcewhite)
+ON_UPDATE_COMMAND_UI(ID_VIEW_FORCEWHITE, OnUpdateViewForcewhite)
+ON_COMMAND(ID_VIEW_SCREENSHOT_CLEAN, OnViewScreenshotClean)
+ON_UPDATE_COMMAND_UI(ID_VIEW_SCREENSHOT_CLEAN, OnUpdateViewScreenshotClean)
+ON_COMMAND(ID_VIEW_VERTWEIGHTING, OnViewVertweighting)
+ON_UPDATE_COMMAND_UI(ID_VIEW_VERTWEIGHTING, OnUpdateViewVertweighting)
+ON_COMMAND(ID_VIEW_BBOX, OnViewBbox)
+ON_UPDATE_COMMAND_UI(ID_VIEW_BBOX, OnUpdateViewBbox)
+ON_COMMAND(ID_VIEW_FLOOR, OnViewFloor)
+ON_UPDATE_COMMAND_UI(ID_VIEW_FLOOR, OnUpdateViewFloor)
+ON_COMMAND(ID_EDIT_SETFLOOR_ABS, OnEditSetfloorAbs)
+ON_UPDATE_COMMAND_UI(ID_EDIT_SETFLOOR_ABS, OnUpdateEditSetfloorAbs)
+ON_COMMAND(ID_EDIT_SETFLOOR_CURRENT, OnEditSetfloorCurrent)
+ON_UPDATE_COMMAND_UI(ID_EDIT_SETFLOOR_CURRENT, OnUpdateEditSetfloorCurrent)
+ON_COMMAND(ID_VIEW_BONEFILTERING, OnViewBonefiltering)
+ON_UPDATE_COMMAND_UI(ID_VIEW_BONEFILTERING, OnUpdateViewBonefiltering)
+ON_COMMAND(ID_EDIT_SETBONEWEIGHT_THRESHHOLD, OnEditSetboneweightThreshhold)
+ON_UPDATE_COMMAND_UI(ID_EDIT_SETBONEWEIGHT_THRESHHOLD, OnUpdateEditSetboneweightThreshhold)
+ON_COMMAND(ID_BONEFILTER_INCTHRESHHOLD, OnEditBoneFilterINCThreshhold)
+ON_COMMAND(ID_BONEFILTER_DECTHRESHHOLD, OnEditBoneFilterDECThreshhold)
+ON_COMMAND(ID_VIEW_CRACKVIEWER, OnViewCrackviewer)
+ON_UPDATE_COMMAND_UI(ID_VIEW_CRACKVIEWER, OnUpdateViewCrackviewer)
+ON_COMMAND(ID_VIEW_UNSHADOWABLESURFACES, OnViewUnshadowablesurfaces)
+ON_UPDATE_COMMAND_UI(ID_VIEW_UNSHADOWABLESURFACES, OnUpdateViewUnshadowablesurfaces)
+ON_COMMAND(ID_FILE_VIEW_SOF2_NPCS, OnFileViewSof2Npcs)
+ON_UPDATE_COMMAND_UI(ID_FILE_VIEW_SOF2_NPCS, OnUpdateFileViewSof2Npcs)
+ON_COMMAND(IDM_EDIT_ALLOWSKELETONOVERRIDES, OnEditAllowskeletonoverrides)
+ON_UPDATE_COMMAND_UI(IDM_EDIT_ALLOWSKELETONOVERRIDES, OnUpdateEditAllowskeletonoverrides)
+ON_COMMAND(ID_VIEW_DOUBLESIDEDPOLYS, OnViewDoublesidedpolys)
+ON_UPDATE_COMMAND_UI(ID_VIEW_DOUBLESIDEDPOLYS, OnUpdateViewDoublesidedpolys)
+ON_COMMAND(IDM_EDIT_TOPMOST, OnEditTopmost)
+ON_UPDATE_COMMAND_UI(IDM_EDIT_TOPMOST, OnUpdateEditTopmost)
+ON_COMMAND(ID_VIEW_TRIINDEXES, OnViewTriindexes)
+ON_UPDATE_COMMAND_UI(ID_VIEW_TRIINDEXES, OnUpdateViewTriindexes)
+ON_COMMAND(ID_FILE_VIEW_JK2_BOTS, OnFileViewJk2Bots)
+ON_COMMAND(ID_ANIMATION_ENDFRAME, OnAnimationEndframe)
+//}}AFX_MSG_MAP
+ON_COMMAND(ID_FILE_BATCHCONVERT, OnFileBatchconvert)
+END_MESSAGE_MAP()
 
 static UINT indicators[] =
-{
-	ID_SEPARATOR,           // status line indicator
-	ID_INDICATOR_CAPS,
-	ID_INDICATOR_NUM,
-	ID_INDICATOR_SCRL,
+	{
+		ID_SEPARATOR, // status line indicator
+		ID_INDICATOR_CAPS,
+		ID_INDICATOR_NUM,
+		ID_INDICATOR_SCRL,
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -186,7 +181,7 @@ static UINT indicators[] =
 
 CMainFrame::CMainFrame()
 {
-	// TODO: add member initialization code here	
+	// TODO: add member initialization code here
 }
 
 CMainFrame::~CMainFrame()
@@ -197,21 +192,20 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
-	
-	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP
-		| CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
+
+	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
 		!m_wndToolBar.LoadToolBar(IDR_MAINFRAME))
 	{
 		TRACE0("Failed to create toolbar\n");
-		return -1;      // fail to create
+		return -1; // fail to create
 	}
 
 	if (!m_wndStatusBar.Create(this) ||
 		!m_wndStatusBar.SetIndicators(indicators,
-		  sizeof(indicators)/sizeof(UINT)))
+									  sizeof(indicators) / sizeof(UINT)))
 	{
 		TRACE0("Failed to create status bar\n");
-		return -1;      // fail to create
+		return -1; // fail to create
 	}
 
 	// TODO: Delete these three lines if you don't want the toolbar to
@@ -225,9 +219,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	return 0;
 }
 
-BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
+BOOL CMainFrame::PreCreateWindow(CREATESTRUCT &cs)
 {
-	if( !CFrameWnd::PreCreateWindow(cs) )
+	if (!CFrameWnd::PreCreateWindow(cs))
 		return FALSE;
 	// TODO: Modify the Window class or styles here by modifying
 	//  the CREATESTRUCT cs
@@ -244,7 +238,7 @@ void CMainFrame::AssertValid() const
 	CFrameWnd::AssertValid();
 }
 
-void CMainFrame::Dump(CDumpContext& dc) const
+void CMainFrame::Dump(CDumpContext &dc) const
 {
 	CFrameWnd::Dump(dc);
 }
@@ -254,8 +248,7 @@ void CMainFrame::Dump(CDumpContext& dc) const
 /////////////////////////////////////////////////////////////////////////////
 // CMainFrame message handlers
 
-
-BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext) 
+BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext *pContext)
 {
 	if (!m_splitter.CreateStatic(this, 1, 2))
 	{
@@ -270,18 +263,18 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 		return false;
 	}
 
-//	m_splitter.Create(this,1,2,CSize(100,100),pContext);
+	//	m_splitter.Create(this,1,2,CSize(100,100),pContext);
 
 	return true;
 }
 
-void CMainFrame::OnFileOpen() 
-{		
-	LPCSTR psFullPathedFilename = InputLoadFileName("",				// LPCSTR psInitialLoadName, 
-													"Load Model",	// LPCSTR psCaption,
-													Filename_PathOnly(Model_GetFullPrimaryFilename()),	//	"S:\\baseq3\\models\\test\\bonehier",	// LPCSTR psInitialDir, 
-													Model_GetSupportedTypesFilter(true)			// LPCSTR psFilter
-													);
+void CMainFrame::OnFileOpen()
+{
+	LPCSTR psFullPathedFilename = InputLoadFileName("",												   // LPCSTR psInitialLoadName,
+													"Load Model",									   // LPCSTR psCaption,
+													Filename_PathOnly(Model_GetFullPrimaryFilename()), //	"S:\\baseq3\\models\\test\\bonehier",	// LPCSTR psInitialDir,
+													Model_GetSupportedTypesFilter(true)				   // LPCSTR psFilter
+	);
 
 	if (psFullPathedFilename)
 	{
@@ -289,95 +282,89 @@ void CMainFrame::OnFileOpen()
 	}
 }
 
-
-
-void CMainFrame::OnViewWireframe() 
+void CMainFrame::OnViewWireframe()
 {
-	AppVars.bWireFrame = !AppVars.bWireFrame;	
+	AppVars.bWireFrame = !AppVars.bWireFrame;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewWireframe(CCmdUI* pCmdUI) 
-{		
+void CMainFrame::OnUpdateViewWireframe(CCmdUI *pCmdUI)
+{
 	pCmdUI->SetCheck(AppVars.bWireFrame);
 }
 
-void CMainFrame::OnViewAlpha() 
+void CMainFrame::OnViewAlpha()
 {
 	AppVars.bUseAlpha = !AppVars.bUseAlpha;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewAlpha(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewAlpha(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(AppVars.bUseAlpha);	
+	pCmdUI->SetCheck(AppVars.bUseAlpha);
 }
 
-void CMainFrame::OnViewInterpolate() 
+void CMainFrame::OnViewInterpolate()
 {
 	AppVars.bInterpolate = !AppVars.bInterpolate;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewInterpolate(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewInterpolate(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(AppVars.bInterpolate);	
+	pCmdUI->SetCheck(AppVars.bInterpolate);
 }
 
 // these 2 do the same thing as other functions, but it just seemed reasonable to also be in another menu...
 //
-void CMainFrame::OnAnimationLerping() 
+void CMainFrame::OnAnimationLerping()
 {
 	OnViewInterpolate();
 }
 
-void CMainFrame::OnUpdateAnimationLerping(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateAnimationLerping(CCmdUI *pCmdUI)
 {
-	OnUpdateViewInterpolate(pCmdUI);	
+	OnUpdateViewInterpolate(pCmdUI);
 }
 
-
-void CMainFrame::OnViewBilinear() 
+void CMainFrame::OnViewBilinear()
 {
-	AppVars.bBilinear = !AppVars.bBilinear;	
+	AppVars.bBilinear = !AppVars.bBilinear;
 	TextureList_SetFilter();
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewBilinear(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewBilinear(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(AppVars.bBilinear);
 }
 
-void CMainFrame::OnViewOrigin() 
+void CMainFrame::OnViewOrigin()
 {
 	AppVars.bOriginLines = !AppVars.bOriginLines;
-	m_splitter.Invalidate(false);	
+	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewOrigin(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewOrigin(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(AppVars.bOriginLines);
 }
 
-
-
 LPCSTR GetYearAsString(void)
 {
-	static char sTemp[20];	
-    time_t ltime;	
+	static char sTemp[20];
+	time_t ltime;
 
-    time( &ltime );    
-	
-    struct tm *today = localtime( &ltime );    
-	
-	strftime( sTemp, sizeof(sTemp), "%Y", today );
+	time(&ltime);
+
+	struct tm *today = localtime(&ltime);
+
+	strftime(sTemp, sizeof(sTemp), "%Y", today);
 
 	return &sTemp[0];
 }
 
-
-void CMainFrame::OnViewScreenshotFile() 
+void CMainFrame::OnViewScreenshotFile()
 {
 	if (Model_Loaded())
 	{
@@ -387,34 +374,34 @@ void CMainFrame::OnViewScreenshotFile()
 		// I can't do much else because I need to supply DC shit that I don't have in order to issue an OnDraw
 		//	command to do it legally, so fuck it...
 		//
-		gbTextInhibit = AppVars.bCleanScreenShots;	//true;
+		gbTextInhibit = AppVars.bCleanScreenShots; //true;
 		{
-			ModelList_Render( g_iScreenWidth, g_iScreenHeight );	// render to back buffer
-				
+			ModelList_Render(g_iScreenWidth, g_iScreenHeight); // render to back buffer
+
 			// generate a filename...
 			//
 			char sBaseName[MAX_PATH];
 			sprintf(sBaseName, Filename_WithoutPath(Filename_PathOnly(Model_GetFullPrimaryFilename())));
-			//
-			// look for a numbered slot to snapshot to...
-			//
-			#define NUM_SAVE_SLOTS 1000
-			for (int iName=0; iName<NUM_SAVE_SLOTS; iName++)
+//
+// look for a numbered slot to snapshot to...
+//
+#define NUM_SAVE_SLOTS 1000
+			for (int iName = 0; iName < NUM_SAVE_SLOTS; iName++)
 			{
 				char sFilename[MAX_PATH];
 
-				sprintf(sFilename, "c:\\%s_%03d.bmp",sBaseName,iName);
+				sprintf(sFilename, "c:\\%s_%03d.bmp", sBaseName, iName);
 
 				if (!FileExists(sFilename))
 				{
-					ScreenShot(sFilename,va("(C) Raven Software %s",GetYearAsString()));					
+					ScreenShot(sFilename, va("(C) Raven Software %s", GetYearAsString()));
 					BMP_Free();
 					break;
 				}
 			}
-			if (iName==NUM_SAVE_SLOTS)
+			if (iName == NUM_SAVE_SLOTS)
 			{
-				ErrorBox(va("Couldn't find a free save slot! (tried %d slots)",NUM_SAVE_SLOTS));
+				ErrorBox(va("Couldn't find a free save slot! (tried %d slots)", NUM_SAVE_SLOTS));
 			}
 		}
 		gbTextInhibit = false;
@@ -427,9 +414,7 @@ void CMainFrame::OnViewScreenshotFile()
 	m_splitter.Invalidate(false);
 }
 
-
-   
-void CMainFrame::OnViewScreenshotClipboard() 
+void CMainFrame::OnViewScreenshotClipboard()
 {
 	if (Model_Loaded())
 	{
@@ -439,13 +424,13 @@ void CMainFrame::OnViewScreenshotClipboard()
 		// I can't do much else because I need to supply DC shit that I don't have in order to issue an OnDraw
 		//	command to do it legally, so fuck it...
 		//
-		gbTextInhibit = AppVars.bCleanScreenShots;	//true;
+		gbTextInhibit = AppVars.bCleanScreenShots; //true;
 		{
-			ModelList_Render( g_iScreenWidth, g_iScreenHeight );	// render to back buffer
+			ModelList_Render(g_iScreenWidth, g_iScreenHeight); // render to back buffer
 
-			ScreenShot(NULL,va("(C) Raven Software %s",GetYearAsString()));
+			ScreenShot(NULL, va("(C) Raven Software %s", GetYearAsString()));
 		}
-		gbTextInhibit = false;		
+		gbTextInhibit = false;
 
 		void *pvDIB;
 		int iBytes;
@@ -459,42 +444,41 @@ void CMainFrame::OnViewScreenshotClipboard()
 	m_splitter.Invalidate(false);
 }
 
-
-void CMainFrame::OnEditCopy() 
+void CMainFrame::OnEditCopy()
 {
 	OnViewScreenshotClipboard();
 }
 
-void CMainFrame::OnEditPaste() 
-{	
-}
-
-void CMainFrame::OnViewGlinfo() 
+void CMainFrame::OnEditPaste()
 {
-	InfoBox(va("%s",GL_GetInfo()));
 }
 
-void CMainFrame::OnAnimationStart() 
+void CMainFrame::OnViewGlinfo()
+{
+	InfoBox(va("%s", GL_GetInfo()));
+}
+
+void CMainFrame::OnAnimationStart()
 {
 	Model_StartAnim();
 }
 
-void CMainFrame::OnAnimationStartwithwrapforce() 
+void CMainFrame::OnAnimationStartwithwrapforce()
 {
 	Model_StartAnim(true);
 }
 
-void CMainFrame::OnAnimationStop() 
+void CMainFrame::OnAnimationStop()
 {
 	Model_StopAnim();
 }
 
-void CMainFrame::OnAnimationRewind() 
+void CMainFrame::OnAnimationRewind()
 {
 	ModelList_Rewind();
 }
 
-void CMainFrame::OnAnimationFaster() 
+void CMainFrame::OnAnimationFaster()
 {
 	AppVars.dAnimSpeed *= ANIM_FASTER;
 	m_splitter.Invalidate(false);
@@ -506,33 +490,31 @@ void CMainFrame::OnAnimationSlower()
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateFileSave(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateFileSave(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(false);	
+	pCmdUI->Enable(false);
 }
 
-void CMainFrame::OnUpdateFileSaveAs(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateFileSaveAs(CCmdUI *pCmdUI)
 {
-//	pCmdUI->Enable(true);	
+	//	pCmdUI->Enable(true);
 }
 
 void CMainFrame::OnModelSaveAs()
 {
-	LPCSTR psFullPathedFilename = InputSaveFileName(va("%s",Filename_WithoutExt(Model_GetFullPrimaryFilename())),
-													"Save Model",	// LPCSTR psCaption,
-													Filename_PathOnly(Model_GetFullPrimaryFilename()),	//	"S:\\baseq3\\models\\test\\bonehier",	// LPCSTR psInitialDir, 
-													Model_GetSupportedTypesFilter(true),			// LPCSTR psFilter
-													".glm"
-													);
+	LPCSTR psFullPathedFilename = InputSaveFileName(va("%s", Filename_WithoutExt(Model_GetFullPrimaryFilename())),
+													"Save Model",									   // LPCSTR psCaption,
+													Filename_PathOnly(Model_GetFullPrimaryFilename()), //	"S:\\baseq3\\models\\test\\bonehier",	// LPCSTR psInitialDir,
+													Model_GetSupportedTypesFilter(true),			   // LPCSTR psFilter
+													".glm");
 
 	if (psFullPathedFilename)
 	{
 		Model_Save(psFullPathedFilename);
 	}
-
 }
 
-void CMainFrame::OnFileWriteideal() 
+void CMainFrame::OnFileWriteideal()
 {
 	if (GetYesNo(va("Write \"<modelname>.ideal\" file\n\nAre you sure?")))
 	{
@@ -540,104 +522,103 @@ void CMainFrame::OnFileWriteideal()
 	}
 }
 
-void CMainFrame::OnFileReadideal() 
+void CMainFrame::OnFileReadideal()
 {
-	AppVars_ReadIdeal();	
+	AppVars_ReadIdeal();
 }
 
-
-void CMainFrame::OnAnimationNextframe() 
+void CMainFrame::OnAnimationNextframe()
 {
 	ModelList_StepFrame(1);
 }
 
-void CMainFrame::OnAnimationPrevframe() 
+void CMainFrame::OnAnimationPrevframe()
 {
-	ModelList_StepFrame(-1);	
+	ModelList_StepFrame(-1);
 }
 
-void CMainFrame::OnViewLod0() 
+void CMainFrame::OnViewLod0()
 {
 	AppVars.iLOD = 0;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnViewLod1() 
+void CMainFrame::OnViewLod1()
 {
 	AppVars.iLOD = 1;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnViewLod2() 
+void CMainFrame::OnViewLod2()
 {
 	AppVars.iLOD = 2;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnViewLod3() 
+void CMainFrame::OnViewLod3()
 {
 	AppVars.iLOD = 3;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnViewLod4() 
+void CMainFrame::OnViewLod4()
 {
 	AppVars.iLOD = 4;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnViewLod5() 
+void CMainFrame::OnViewLod5()
 {
 	AppVars.iLOD = 5;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnViewLod6() 
+void CMainFrame::OnViewLod6()
 {
 	AppVars.iLOD = 6;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnViewLod7() 
+void CMainFrame::OnViewLod7()
 {
 	AppVars.iLOD = 7;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnEditBgrndcolour() 
+void CMainFrame::OnEditBgrndcolour()
 {
 	CHOOSECOLOR cc;
-	static COLORREF  crefs[16];
+	static COLORREF crefs[16];
 
-	memset(&cc,0,sizeof(cc));
+	memset(&cc, 0, sizeof(cc));
 
-	cc.lStructSize	= sizeof(cc);
-	cc.hwndOwner	= AppVars.hWnd;
-//			cc.hInstance	= NULL;
-	cc.lpCustColors	= crefs;
-	cc.rgbResult	= AppVars._B<<16 | AppVars._G<<8 | AppVars._R;	//  COLORREF     rgbResult; 
-	cc.Flags		= CC_RGBINIT | CC_ANYCOLOR | CC_SOLIDCOLOR | /*CC_FULLOPEN | */ 0;
+	cc.lStructSize = sizeof(cc);
+	cc.hwndOwner = AppVars.hWnd;
+	//			cc.hInstance	= NULL;
+	cc.lpCustColors = crefs;
+	cc.rgbResult = AppVars._B << 16 | AppVars._G << 8 | AppVars._R; //  COLORREF     rgbResult;
+	cc.Flags = CC_RGBINIT | CC_ANYCOLOR | CC_SOLIDCOLOR | /*CC_FULLOPEN | */ 0;
 
 	if (ChooseColor(&cc))
 	{
-		DWORD d = cc.rgbResult;				
-		AppVars._B = (cc.rgbResult>>16) & 0xFF;
-		AppVars._G = (cc.rgbResult>>8 ) & 0xFF;
-		AppVars._R = (cc.rgbResult>>0 ) & 0xFF;
+		DWORD d = cc.rgbResult;
+		AppVars._B = (cc.rgbResult >> 16) & 0xFF;
+		AppVars._G = (cc.rgbResult >> 8) & 0xFF;
+		AppVars._R = (cc.rgbResult >> 0) & 0xFF;
 
 		m_splitter.Invalidate(false);
-	} 
+	}
 }
 
-void CMainFrame::OnUpdateViewBonehilite(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewBonehilite(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(AppVars.bBoneHighlight);
 }
 
-void CMainFrame::OnViewBonehilite() 
+void CMainFrame::OnViewBonehilite()
 {
 	AppVars.bBoneHighlight = !AppVars.bBoneHighlight;
-	m_splitter.Invalidate(false);	
+	m_splitter.Invalidate(false);
 }
 
 void CMainFrame::OnViewNormals()
@@ -646,23 +627,23 @@ void CMainFrame::OnViewNormals()
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewNormals(CCmdUI* pCmdUI)
+void CMainFrame::OnUpdateViewNormals(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(AppVars.bVertexNormals);
 }
 
-void CMainFrame::OnViewSurfacehilite() 
+void CMainFrame::OnViewSurfacehilite()
 {
 	AppVars.bSurfaceHighlight = !AppVars.bSurfaceHighlight;
-	m_splitter.Invalidate(false);	
+	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewSurfacehilite(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewSurfacehilite(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck( AppVars.bSurfaceHighlight );
+	pCmdUI->SetCheck(AppVars.bSurfaceHighlight);
 }
 
-void CMainFrame::OnViewSurfacehilitewithbonerefs() 
+void CMainFrame::OnViewSurfacehilitewithbonerefs()
 {
 	AppVars.bSurfaceHighlightShowsBoneWeighting = !AppVars.bSurfaceHighlightShowsBoneWeighting;
 	m_splitter.Invalidate(false);
@@ -670,69 +651,68 @@ void CMainFrame::OnViewSurfacehilitewithbonerefs()
 
 // only allow this option if surface highlighting is on...
 //
-void CMainFrame::OnUpdateViewSurfacehilitewithbonerefs(CCmdUI* pCmdUI)
+void CMainFrame::OnUpdateViewSurfacehilitewithbonerefs(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable	( AppVars.bSurfaceHighlight );
-	pCmdUI->SetCheck( AppVars.bSurfaceHighlightShowsBoneWeighting );
+	pCmdUI->Enable(AppVars.bSurfaceHighlight);
+	pCmdUI->SetCheck(AppVars.bSurfaceHighlightShowsBoneWeighting);
 }
 
 void CMainFrame::OnViewVertindexes()
 {
-	AppVars.bVertIndexes = !AppVars.bVertIndexes;	
+	AppVars.bVertIndexes = !AppVars.bVertIndexes;
 	m_splitter.Invalidate(false);
 }
 
 // only allow this option if surface highlighting is on...
 //
-void CMainFrame::OnUpdateViewVertindexes(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewVertindexes(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable	( AppVars.bSurfaceHighlight );	
-	pCmdUI->SetCheck( AppVars.bVertIndexes );
+	pCmdUI->Enable(AppVars.bSurfaceHighlight);
+	pCmdUI->SetCheck(AppVars.bVertIndexes);
 }
 
-void CMainFrame::OnViewFovcycle() 
+void CMainFrame::OnViewFovcycle()
 {
-	AppVars.dFOV = (AppVars.dFOV == 10.0f)?80.0f:(AppVars.dFOV == 80.0f)?90:10.0f;
+	AppVars.dFOV = (AppVars.dFOV == 10.0f) ? 80.0f : (AppVars.dFOV == 80.0f) ? 90
+																			 : 10.0f;
 	m_splitter.Invalidate(false);
 }
 
-
-void CMainFrame::OnUpdateEditPaste(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateEditPaste(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(false);
 }
 
-void CMainFrame::OnFileRefreshtextures() 
+void CMainFrame::OnFileRefreshtextures()
 {
 	TextureList_Refresh();
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateFilePrint(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateFilePrint(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(false);	
+	pCmdUI->Enable(false);
 }
 
-void CMainFrame::OnUpdateFilePrintPreview(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateFilePrintPreview(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(false);	
+	pCmdUI->Enable(false);
 }
 
-void CMainFrame::OnUpdateFilePrintSetup(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateFilePrintSetup(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(false);	
+	pCmdUI->Enable(false);
 }
 
-void CMainFrame::OnUpdateEditTestfunction(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateEditTestfunction(CCmdUI *pCmdUI)
 {
-//	pCmdUI->Enable(!stricmp(scGetComputerName(),"SPOCK"));
-	pCmdUI->Enable(!stricmp(scGetUserName(),"scork"));
+	//	pCmdUI->Enable(!stricmp(scGetComputerName(),"SPOCK"));
+	pCmdUI->Enable(!stricmp(scGetUserName(), "scork"));
 }
-
 
 #include "jpeg_interface.h"
 #include "Splash.h"
-void CMainFrame::OnEditTestfunction() 
+void CMainFrame::OnEditTestfunction()
 {
 	XLS_To_SP();
 
@@ -822,77 +802,75 @@ void CMainFrame::OnEditTestfunction()
 #endif
 }
 
-void CMainFrame::OnFileResetviewparams() 
+void CMainFrame::OnFileResetviewparams()
 {
 	AppVars_ResetViewParams();
 	m_splitter.Invalidate(false);
 }
 
-
-void CMainFrame::OnUpdateFileWritescript(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateFileWritescript(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(Model_Loaded());
 }
 
 extern void Filename_AddToMRU(LPCSTR psFilename);
-void CMainFrame::OnFileWritescript() 
+void CMainFrame::OnFileWritescript()
 {
-	LPCSTR psFullPathedFilename = InputSaveFileName(va("%s%s",Filename_WithoutExt(Model_GetFullPrimaryFilename()),Script_GetExtension()),	// LPCSTR psInitialSaveName, 
-													"Write Script",			// LPCSTR psCaption, 
-													Filename_PathOnly(Model_GetFullPrimaryFilename()),	//LPCSTR psInitialPath,
-													Script_GetFilter(),		// LPCSTR psFilter
-													Script_GetExtension()	// LPCSTR psExtension
-													);
+	LPCSTR psFullPathedFilename = InputSaveFileName(va("%s%s", Filename_WithoutExt(Model_GetFullPrimaryFilename()), Script_GetExtension()), // LPCSTR psInitialSaveName,
+													"Write Script",																			// LPCSTR psCaption,
+													Filename_PathOnly(Model_GetFullPrimaryFilename()),										//LPCSTR psInitialPath,
+													Script_GetFilter(),																		// LPCSTR psFilter
+													Script_GetExtension()																	// LPCSTR psExtension
+	);
 	if (psFullPathedFilename)
 	{
 		CWaitCursor wait;
 
 		if (Script_Write(psFullPathedFilename))
-		{				
-			Filename_AddToMRU(psFullPathedFilename);
-		}
-	}	
-}
-
-void CMainFrame::OnFileReadscript() 
-{
-	LPCSTR psFullPathedFilename = InputLoadFileName("",				// LPCSTR psInitialLoadName, 
-													"Read Script",	// LPCSTR psCaption,
-													Filename_PathOnly(Model_GetFullPrimaryFilename()),	//	"S:\\baseq3\\models\\test\\bonehier",	// LPCSTR psInitialDir, 
-													Script_GetFilter()			// LPCSTR psFilter
-													);
-	if (psFullPathedFilename)
-	{
-		CWaitCursor wait;
-
-		if (Script_Read(psFullPathedFilename))
-		{				
+		{
 			Filename_AddToMRU(psFullPathedFilename);
 		}
 	}
 }
 
+void CMainFrame::OnFileReadscript()
+{
+	LPCSTR psFullPathedFilename = InputLoadFileName("",												   // LPCSTR psInitialLoadName,
+													"Read Script",									   // LPCSTR psCaption,
+													Filename_PathOnly(Model_GetFullPrimaryFilename()), //	"S:\\baseq3\\models\\test\\bonehier",	// LPCSTR psInitialDir,
+													Script_GetFilter()								   // LPCSTR psFilter
+	);
+	if (psFullPathedFilename)
+	{
+		CWaitCursor wait;
 
-void CMainFrame::OnViewTagsurfaces() 
+		if (Script_Read(psFullPathedFilename))
+		{
+			Filename_AddToMRU(psFullPathedFilename);
+		}
+	}
+}
+
+void CMainFrame::OnViewTagsurfaces()
 {
 	AppVars.bShowTagSurfaces = !AppVars.bShowTagSurfaces;
-	m_splitter.Invalidate(false);	
+	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewTagsurfaces(CCmdUI* pCmdUI) 
-{		
-	pCmdUI->SetCheck( AppVars.bShowTagSurfaces );
+void CMainFrame::OnUpdateViewTagsurfaces(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(AppVars.bShowTagSurfaces);
 }
 
-void CMainFrame::OnViewTagsasrgb() 
+void CMainFrame::OnViewTagsasrgb()
 {
 	AppVars.bShowOriginsAsRGB = !AppVars.bShowOriginsAsRGB;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewTagsasrgb(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewTagsasrgb(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck( AppVars.bShowOriginsAsRGB );
+	pCmdUI->SetCheck(AppVars.bShowOriginsAsRGB);
 }
 
 void CMainFrame::OnPicmip0()
@@ -901,7 +879,7 @@ void CMainFrame::OnPicmip0()
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdatePicmip0(CCmdUI* pCmdUI)
+void CMainFrame::OnUpdatePicmip0(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(TextureList_GetMip() == 0);
 }
@@ -912,7 +890,7 @@ void CMainFrame::OnPicmip1()
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdatePicmip1(CCmdUI* pCmdUI)
+void CMainFrame::OnUpdatePicmip1(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(TextureList_GetMip() == 1);
 }
@@ -923,7 +901,7 @@ void CMainFrame::OnPicmip2()
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdatePicmip2(CCmdUI* pCmdUI)
+void CMainFrame::OnUpdatePicmip2(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(TextureList_GetMip() == 2);
 }
@@ -934,7 +912,7 @@ void CMainFrame::OnPicmip3()
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdatePicmip3(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdatePicmip3(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(TextureList_GetMip() == 3);
 }
@@ -963,17 +941,16 @@ void CMainFrame::OnPicmip7()
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnViewRuler() 
+void CMainFrame::OnViewRuler()
 {
 	AppVars.bRuler = !AppVars.bRuler;
-	m_splitter.Invalidate(false);	
+	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewRuler(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewRuler(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(AppVars.bRuler);
 }
-
 
 // psMessage can be NULL to mean "pick your own 'ready' message"...
 //
@@ -984,7 +961,7 @@ void CMainFrame::StatusMessage(LPCTSTR psMessage)
 	if (this && gbMainFrameInitialised)
 	{
 		extern int giGalleryItemsRemaining;
-		m_wndStatusBar.SetWindowText((psMessage && psMessage[0])?psMessage:(Gallery_Active()?va("( Gallery: %d remaining )", giGalleryItemsRemaining):"Ready"));
+		m_wndStatusBar.SetWindowText((psMessage && psMessage[0]) ? psMessage : (Gallery_Active() ? va("( Gallery: %d remaining )", giGalleryItemsRemaining) : "Ready"));
 	}
 	else
 	{
@@ -995,59 +972,58 @@ void CMainFrame::StatusMessage(LPCTSTR psMessage)
 	}
 }
 
-void CMainFrame::OnViewForcewhite() 
+void CMainFrame::OnViewForcewhite()
 {
 	AppVars.bForceWhite = !AppVars.bForceWhite;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewForcewhite(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewForcewhite(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(AppVars.bForceWhite);
 }
 
-void CMainFrame::OnViewScreenshotClean() 
+void CMainFrame::OnViewScreenshotClean()
 {
-	AppVars.bCleanScreenShots =	!AppVars.bCleanScreenShots;
-//	m_splitter.Invalidate(false);	// not needed for this bool
+	AppVars.bCleanScreenShots = !AppVars.bCleanScreenShots;
+	//	m_splitter.Invalidate(false);	// not needed for this bool
 }
 
-void CMainFrame::OnUpdateViewScreenshotClean(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewScreenshotClean(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(AppVars.bCleanScreenShots);
 }
 
-void CMainFrame::OnViewVertweighting() 
+void CMainFrame::OnViewVertweighting()
 {
 	AppVars.bVertWeighting = !AppVars.bVertWeighting;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewVertweighting(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewVertweighting(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck( AppVars.bVertWeighting );
-	pCmdUI->Enable  ( AppVars.bVertIndexes );
+	pCmdUI->SetCheck(AppVars.bVertWeighting);
+	pCmdUI->Enable(AppVars.bVertIndexes);
 }
 
-void CMainFrame::OnViewBbox() 
+void CMainFrame::OnViewBbox()
 {
 	AppVars.bBBox = !AppVars.bBBox;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewBbox(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewBbox(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(AppVars.bBBox);
 }
 
-
-void CMainFrame::OnViewFloor() 
+void CMainFrame::OnViewFloor()
 {
 	AppVars.bFloor = !AppVars.bFloor;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewFloor(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewFloor(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(AppVars.bFloor);
 }
@@ -1056,60 +1032,58 @@ void CMainFrame::OnEditSetfloorAbs()
 {
 	LPCSTR psPrompt = "Input new floor value, e.g. \"-50\"";
 	LPCSTR psFloorZ = GetString(psPrompt);
-	
+
 	if (psFloorZ)
 	{
 		AppVars.fFloorZ = atof(psFloorZ);
 		m_splitter.Invalidate(false);
-	}	
+	}
 }
 
-void CMainFrame::OnUpdateEditSetfloorAbs(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateEditSetfloorAbs(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(AppVars.bFloor && Model_Loaded());
 }
 
-void CMainFrame::OnEditSetfloorCurrent() 
+void CMainFrame::OnEditSetfloorCurrent()
 {
 	AppVars.fFloorZ = Model_GetLowestPointOnPrimaryModel();
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateEditSetfloorCurrent(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateEditSetfloorCurrent(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(AppVars.bFloor && Model_Loaded());
 }
 
-void CMainFrame::OnViewBonefiltering() 
+void CMainFrame::OnViewBonefiltering()
 {
 	AppVars.bBoneWeightThreshholdingActive = !AppVars.bBoneWeightThreshholdingActive;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewBonefiltering(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewBonefiltering(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(AppVars.bBoneWeightThreshholdingActive);
 }
 
-void CMainFrame::OnEditSetboneweightThreshhold() 
+void CMainFrame::OnEditSetboneweightThreshhold()
 {
 	bool bAgain = true;
 
 	do
-	{	
+	{
 		LPCSTR psPrompt = "Input new bone-weight-threshhold percentage, e.g. \"50\", which will cause all bone-weights below that value to be ignored\n\n( Input must be within the range 0..100 )";
-		LPCSTR psPercent= GetString(psPrompt);
+		LPCSTR psPercent = GetString(psPrompt);
 
 		if (psPercent)
 		{
 			AppVars.fBoneWeightThreshholdPercent = atof(psPercent);
-			if (AppVars.fBoneWeightThreshholdPercent < 0.0f
-				||
-				AppVars.fBoneWeightThreshholdPercent > 100.0f
-				)
+			if (AppVars.fBoneWeightThreshholdPercent < 0.0f ||
+				AppVars.fBoneWeightThreshholdPercent > 100.0f)
 			{
 				PLAY_LAME_WAV;
-				ErrorBox(va("%f is not within the range 0..100 now, is it?\n\nDuh!!!!!!!!!!!",AppVars.fBoneWeightThreshholdPercent));				
+				ErrorBox(va("%f is not within the range 0..100 now, is it?\n\nDuh!!!!!!!!!!!", AppVars.fBoneWeightThreshholdPercent));
 			}
 			else
 			{
@@ -1117,15 +1091,13 @@ void CMainFrame::OnEditSetboneweightThreshhold()
 				m_splitter.Invalidate(false);
 			}
 		}
-	}
-	while (bAgain);
+	} while (bAgain);
 }
 
-void CMainFrame::OnUpdateEditSetboneweightThreshhold(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateEditSetboneweightThreshhold(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(AppVars.bBoneWeightThreshholdingActive && Model_Loaded());	//model_loaded check not nec., but matches others on menu
+	pCmdUI->Enable(AppVars.bBoneWeightThreshholdingActive && Model_Loaded()); //model_loaded check not nec., but matches others on menu
 }
-
 
 void CMainFrame::OnEditBoneFilterINCThreshhold()
 {
@@ -1136,7 +1108,7 @@ void CMainFrame::OnEditBoneFilterINCThreshhold()
 			AppVars.fBoneWeightThreshholdPercent = 100.0f;
 
 		m_splitter.Invalidate(false);
-	}			
+	}
 }
 
 void CMainFrame::OnEditBoneFilterDECThreshhold()
@@ -1148,39 +1120,38 @@ void CMainFrame::OnEditBoneFilterDECThreshhold()
 			AppVars.fBoneWeightThreshholdPercent = 0.0f;
 
 		m_splitter.Invalidate(false);
-	}			
+	}
 }
 
-
-void CMainFrame::OnViewCrackviewer() 
+void CMainFrame::OnViewCrackviewer()
 {
-	if (!stricmp(scGetUserName(),"scork"))
+	if (!stricmp(scGetUserName(), "scork"))
 	{
 		AppVars.bCrackHighlight = !AppVars.bCrackHighlight;
 		m_splitter.Invalidate(false);
 	}
 }
 
-void CMainFrame::OnUpdateViewCrackviewer(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewCrackviewer(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(AppVars.bCrackHighlight);
-	pCmdUI->Enable(!stricmp(scGetUserName(),"scork"));
+	pCmdUI->Enable(!stricmp(scGetUserName(), "scork"));
 }
 
-void CMainFrame::OnViewUnshadowablesurfaces() 
+void CMainFrame::OnViewUnshadowablesurfaces()
 {
 	AppVars.bShowUnshadowableSurfaces = !AppVars.bShowUnshadowableSurfaces;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewUnshadowablesurfaces(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewUnshadowablesurfaces(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck( AppVars.bShowUnshadowableSurfaces );	
+	pCmdUI->SetCheck(AppVars.bShowUnshadowableSurfaces);
 }
 
 #define sSOF2BASEDIR "s:\\base\\"
-void CMainFrame::OnFileViewSof2Npcs() 
-{	
+void CMainFrame::OnFileViewSof2Npcs()
+{
 	if (!gamedir[0])
 	{
 		LPCSTR psBasePathToCopy = sSOF2BASEDIR;
@@ -1191,32 +1162,32 @@ void CMainFrame::OnFileViewSof2Npcs()
 				return;
 		}
 
-		strcpy(gamedir,psBasePathToCopy);
+		strcpy(gamedir, psBasePathToCopy);
 	}
 
 	CString strScript;
-	CSOF2NPCViewer Viewer(true, &strScript, gamedir);	
+	CSOF2NPCViewer Viewer(true, &strScript, gamedir);
 
-	Model_StopAnim();	// or the screen update stops the GDI stuff from showing up
+	Model_StopAnim(); // or the screen update stops the GDI stuff from showing up
 
 	if (Viewer.DoModal() == IDOK)
 	{
 		if (Gallery_Active())
 		{
-// pick this up in the timer loop now...
-//
-//			CString strCaption;
-//			while (GalleryRead_ExtractEntry(strCaption, strScript))
-//			{
-//				OutputDebugString(va("\"%s\" (script len %d)\n",(LPCSTR)strCaption,strScript.GetLength()));
-//			}
+			// pick this up in the timer loop now...
+			//
+			//			CString strCaption;
+			//			while (GalleryRead_ExtractEntry(strCaption, strScript))
+			//			{
+			//				OutputDebugString(va("\"%s\" (script len %d)\n",(LPCSTR)strCaption,strScript.GetLength()));
+			//			}
 			extern CString strGalleryErrors;
 			extern CString strGalleryWarnings;
 			extern CString strGalleryInfo;
 
 			strGalleryErrors = strGalleryWarnings = strGalleryInfo = "";
 			Model_StopAnim();
-			gbTextInhibit = AppVars.bCleanScreenShots;	//true;
+			gbTextInhibit = AppVars.bCleanScreenShots; //true;
 			return;
 		}
 		else
@@ -1228,9 +1199,9 @@ void CMainFrame::OnFileViewSof2Npcs()
 				strScript += "\n\n\n";
 				//SendStringToNotepad(strScript,"temp.txt");
 
-				string strOutputFileName( va("%s\\%s",scGetTempPath(),"temp.mvs") );
-				
-				int iReturn = SaveFile(strOutputFileName.c_str(),(LPCSTR)strScript, strScript.GetLength());
+				string strOutputFileName(va("%s\\%s", scGetTempPath(), "temp.mvs"));
+
+				int iReturn = SaveFile(strOutputFileName.c_str(), (LPCSTR)strScript, strScript.GetLength());
 				if (iReturn != -1)
 				{
 					extern bool Document_ModelLoadPrimary(LPCSTR psFilename);
@@ -1241,66 +1212,57 @@ void CMainFrame::OnFileViewSof2Npcs()
 	}
 }
 
-void CMainFrame::OnUpdateFileViewSof2Npcs(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateFileViewSof2Npcs(CCmdUI *pCmdUI)
 {
 }
 
-void CMainFrame::OnEditAllowskeletonoverrides() 
+void CMainFrame::OnEditAllowskeletonoverrides()
 {
-	AppVars.bAllowGLAOverrides = !AppVars.bAllowGLAOverrides;	
+	AppVars.bAllowGLAOverrides = !AppVars.bAllowGLAOverrides;
 }
 
-void CMainFrame::OnUpdateEditAllowskeletonoverrides(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateEditAllowskeletonoverrides(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(AppVars.bAllowGLAOverrides);	
+	pCmdUI->SetCheck(AppVars.bAllowGLAOverrides);
 }
 
-void CMainFrame::OnViewDoublesidedpolys() 
+void CMainFrame::OnViewDoublesidedpolys()
 {
 	AppVars.bShowPolysAsDoubleSided = !AppVars.bShowPolysAsDoubleSided;
 	m_splitter.Invalidate(false);
 }
 
-void CMainFrame::OnUpdateViewDoublesidedpolys(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewDoublesidedpolys(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(AppVars.bShowPolysAsDoubleSided);
 }
 
-
-
-
-
-
-
-
-
-
-void GetUsedIDs(set <int> &UsedIDs, LPCSTR psLocalDir)
+void GetUsedIDs(set<int> &UsedIDs, LPCSTR psLocalDir)
 {
 	char **ppsFiles;
 	int iFiles;
 
 	// scan for skin files...
 	//
-	ppsFiles =	Sys_ListFiles(	psLocalDir,	// const char *directory, 
-								".sp",		// const char *extension, 
-								NULL,		// char *filter, 
-								&iFiles,	// int *numfiles, 
-								qfalse		// qboolean wantsubs 
-								);
+	ppsFiles = Sys_ListFiles(psLocalDir, // const char *directory,
+							 ".sp",		 // const char *extension,
+							 NULL,		 // char *filter,
+							 &iFiles,	 // int *numfiles,
+							 qfalse		 // qboolean wantsubs
+	);
 
-	if ( !ppsFiles || !iFiles )
+	if (!ppsFiles || !iFiles)
 	{
 		return;
 	}
 
 	// load and parse files...
 	//
-	for ( int i=0; i<iFiles; i++ )
+	for (int i = 0; i < iFiles; i++)
 	{
 		char *psText = NULL;
 
-		CString strFileName(va("%s\\%s",psLocalDir,ppsFiles[i]));
+		CString strFileName(va("%s\\%s", psLocalDir, ppsFiles[i]));
 		int iBytesLoaded = LoadFile(strFileName, (void **)&psText, true);
 		if (iBytesLoaded != -1)
 		{
@@ -1310,24 +1272,24 @@ void GetUsedIDs(set <int> &UsedIDs, LPCSTR psLocalDir)
 			int iLoc = strTemp.Find("\nID ");
 			if (iLoc != -1)
 			{
-				LPCSTR pID = &((LPCSTR)strTemp)[iLoc+4];
+				LPCSTR pID = &((LPCSTR)strTemp)[iLoc + 4];
 				int iID = atoi(pID);
 				UsedIDs.insert(iID);
 			}
 		}
 	}
 
-	Sys_FreeFileList( ppsFiles );
+	Sys_FreeFileList(ppsFiles);
 }
 
-int GetUniqueStripEdID( LPCSTR psLocalWorkDir, LPCSTR psNetDir)
+int GetUniqueStripEdID(LPCSTR psLocalWorkDir, LPCSTR psNetDir)
 {
-	set <int> UsedIDs;
+	set<int> UsedIDs;
 
 	GetUsedIDs(UsedIDs, psLocalWorkDir);
 	GetUsedIDs(UsedIDs, psNetDir);
 
-	for (int iID=1; iID<256; iID++)
+	for (int iID = 1; iID < 256; iID++)
 	{
 		if (!UsedIDs.count(iID))
 			return iID;
@@ -1336,9 +1298,6 @@ int GetUniqueStripEdID( LPCSTR psLocalWorkDir, LPCSTR psNetDir)
 	ErrorBox("Unable to find unique ID, all in use!\n");
 	return 0;
 }
-
-
-
 
 typedef struct
 {
@@ -1351,32 +1310,31 @@ typedef struct
 typedef struct
 {
 	SpeechLabel_t SpeechLabel;
-	
+
 	CString strCharacter;
 	CString strSpeech;
 
 } Speech_t;
 
-typedef vector <Speech_t>		Speeches_t;
-typedef map <int, Speeches_t>	SpeechesPerLevel_t;
-								SpeechesPerLevel_t SpeechesPerLevel;
+typedef vector<Speech_t> Speeches_t;
+typedef map<int, Speeches_t> SpeechesPerLevel_t;
+SpeechesPerLevel_t SpeechesPerLevel;
 
 static void XLS_To_SP(void)
-{		
+{
 	SpeechesPerLevel.clear();
 
 #define sWORKDIR "c:\\JK2Temp"
-#define sNETDIR  "w:\\game\\base\\strip"
+#define sNETDIR "w:\\game\\base\\strip"
 
-	CString strFileName_ExportedXLS		(sWORKDIR "\\JK2_final_script.txt");
-//	CString strFileName_XRefLevelnames	(sWORKDIR "\\JK2_LevelNamesInOrder.txt");
-
+	CString strFileName_ExportedXLS(sWORKDIR "\\JK2_final_script.txt");
+	//	CString strFileName_XRefLevelnames	(sWORKDIR "\\JK2_LevelNamesInOrder.txt");
 
 	LPCSTR psError = NULL;
 	char *psData_XLS = NULL;
-	
-	StatusMessage(va("Reading \"%s\"\n",(LPCSTR) strFileName_ExportedXLS));
-	int iSize = LoadFile(strFileName_ExportedXLS, (void**)&psData_XLS);
+
+	StatusMessage(va("Reading \"%s\"\n", (LPCSTR)strFileName_ExportedXLS));
+	int iSize = LoadFile(strFileName_ExportedXLS, (void **)&psData_XLS);
 	if (iSize != -1)
 	{
 		CWaitCursor wait;
@@ -1387,9 +1345,8 @@ static void XLS_To_SP(void)
 		// heh...
 		//
 		CString strStatsOnly_LineCount(strXLS);
-		int iStatsOnly_LinesRemaining = strStatsOnly_LineCount.Replace("\n","");
-		strStatsOnly_LineCount.Empty();	// tiny mem opt
-
+		int iStatsOnly_LinesRemaining = strStatsOnly_LineCount.Replace("\n", "");
+		strStatsOnly_LineCount.Empty(); // tiny mem opt
 
 		while (!strXLS.IsEmpty())
 		{
@@ -1400,8 +1357,8 @@ static void XLS_To_SP(void)
 			int iLoc = strXLS.Find('\n');
 			if (iLoc != -1)
 			{
-				strThisLine =	strXLS.Left(iLoc);
-								strXLS = strXLS.Mid(iLoc+1);
+				strThisLine = strXLS.Left(iLoc);
+				strXLS = strXLS.Mid(iLoc + 1);
 			}
 			else
 			{
@@ -1413,12 +1370,12 @@ static void XLS_To_SP(void)
 			strXLS.TrimRight();
 
 			if (!strThisLine.IsEmpty())
-			{	
+			{
 				CString strThisLineOriginalForErrorReporting(strThisLine);
 
 				// line example:
 				//
-				// 02KYK004	Kyle	Jan?  I’ve found an exit.				
+				// 02KYK004	Kyle	Jan?  Iï¿½ve found an exit.
 				//
 
 				// get the label...
@@ -1431,7 +1388,7 @@ static void XLS_To_SP(void)
 					strThisLine.TrimLeft();
 
 					// get the character name...
-					//					
+					//
 					iLoc = strThisLine.FindOneOf(" \t");
 					if (iLoc != -1)
 					{
@@ -1456,14 +1413,14 @@ static void XLS_To_SP(void)
 							//
 							// TCHAR versions of these won't fucking compile (thanks yet again, MS)
 							//
-							strXLS_Speech.Replace(va("%c",0x93),"\"");			// smart quotes -> '"'
-							strXLS_Speech.Replace(va("%c",0x94),"\"");			// smart quotes -> '"'
-							strXLS_Speech.Replace(va("%c",0x0B),".");			// full stop
-							strXLS_Speech.Replace(va("%c",0x85),"...");			// "..."-char ->  3-char "..."
-							strXLS_Speech.Replace(va("%c",0x91),va("%c",0x27));	// "'"
-							strXLS_Speech.Replace(va("%c",0x92),va("%c",0x27));	// "'"
-							strXLS_Speech.Replace(va("%c",0x96),va("%c",0x2D));	// "-"
-							strXLS_Speech.Replace(va("%c",0x97),va("%c",0x2D));	// "-"
+							strXLS_Speech.Replace(va("%c", 0x93), "\"");		   // smart quotes -> '"'
+							strXLS_Speech.Replace(va("%c", 0x94), "\"");		   // smart quotes -> '"'
+							strXLS_Speech.Replace(va("%c", 0x0B), ".");			   // full stop
+							strXLS_Speech.Replace(va("%c", 0x85), "...");		   // "..."-char ->  3-char "..."
+							strXLS_Speech.Replace(va("%c", 0x91), va("%c", 0x27)); // "'"
+							strXLS_Speech.Replace(va("%c", 0x92), va("%c", 0x27)); // "'"
+							strXLS_Speech.Replace(va("%c", 0x96), va("%c", 0x2D)); // "-"
+							strXLS_Speech.Replace(va("%c", 0x97), va("%c", 0x2D)); // "-"
 
 							// remove any leading or trailing double-quotes, but leave any in the middle,
 							//	so don't just blanket-delete them...
@@ -1473,31 +1430,29 @@ static void XLS_To_SP(void)
 								strXLS_Speech = strXLS_Speech.Mid(1);
 							}
 
-							while (strXLS_Speech.GetAt(strXLS_Speech.GetLength()-1) == '"')
+							while (strXLS_Speech.GetAt(strXLS_Speech.GetLength() - 1) == '"')
 							{
-								strXLS_Speech = strXLS_Speech.Left(strXLS_Speech.GetLength()-1);
+								strXLS_Speech = strXLS_Speech.Left(strXLS_Speech.GetLength() - 1);
 							}
-
 
 							// find any more crap lurking...
 							//
-							for (int i=0; i<strXLS_Speech.GetLength(); i++)
+							for (int i = 0; i < strXLS_Speech.GetLength(); i++)
 							{
 								if (!__isascii(strXLS_Speech.GetAt(i)))
 								{
-									int z=1;
+									int z = 1;
 								}
-								
-								if (strXLS_Speech.GetAt(i) > 127 )
+
+								if (strXLS_Speech.GetAt(i) > 127)
 								{
-									int z=1;
+									int z = 1;
 								}
 							}
 
 							if (!strXLS_Speech.IsEmpty())
 							{
-	//							OutputDebugString(va("Label: \"%s\", Char: \"%s\", Speech: \"%s\"\n",(LPCSTR)strXLS_Label, (LPCSTR)strXLS_Character, (LPCSTR) strXLS_Speech ));
-
+								//							OutputDebugString(va("Label: \"%s\", Char: \"%s\", Speech: \"%s\"\n",(LPCSTR)strXLS_Label, (LPCSTR)strXLS_Character, (LPCSTR) strXLS_Speech ));
 
 								// now enter into table...
 								//
@@ -1511,44 +1466,44 @@ static void XLS_To_SP(void)
 								int iLabel_Level = atoi(strTemp);
 
 								CString strLabel_Char = strXLS_Label.Mid(2);
-										strLabel_Char = strLabel_Char.Left(3);
+								strLabel_Char = strLabel_Char.Left(3);
 
 								strTemp = strXLS_Label.Mid(5);
 								int iLabel_CharSpeechNum = atoi(strTemp);
 
-	//							OutputDebugString(va("Level: %d, Char: \"%s\", Speech %d\n",iLabel_Level,(LPCSTR)strLabel_Char, iLabel_CharSpeechNum));
+								//							OutputDebugString(va("Level: %d, Char: \"%s\", Speech %d\n",iLabel_Level,(LPCSTR)strLabel_Char, iLabel_CharSpeechNum));
 
-								Speech_t Speech;							
-								
-								Speech.SpeechLabel.strLabel			= strXLS_Label;
-								Speech.SpeechLabel.iLevel			= iLabel_Level;
-								Speech.SpeechLabel.strChar			= strLabel_Char;
-								Speech.SpeechLabel.iCharSpeechNum	= iLabel_CharSpeechNum;
+								Speech_t Speech;
+
+								Speech.SpeechLabel.strLabel = strXLS_Label;
+								Speech.SpeechLabel.iLevel = iLabel_Level;
+								Speech.SpeechLabel.strChar = strLabel_Char;
+								Speech.SpeechLabel.iCharSpeechNum = iLabel_CharSpeechNum;
 								Speech.strCharacter = strXLS_Character;
-								Speech.strSpeech	= strXLS_Speech;
+								Speech.strSpeech = strXLS_Speech;
 
 								SpeechesPerLevel[iLabel_Level].push_back(Speech);
 
-								StatusMessage(va("Lines remaining %d\n",iStatsOnly_LinesRemaining));
+								StatusMessage(va("Lines remaining %d\n", iStatsOnly_LinesRemaining));
 							}
 							else
 							{
-								WarningBox(va("Unable to get speech from line:\n%s\n",(LPCSTR)strThisLineOriginalForErrorReporting));
+								WarningBox(va("Unable to get speech from line:\n%s\n", (LPCSTR)strThisLineOriginalForErrorReporting));
 							}
 						}
 						else
 						{
-							WarningBox(va("Unable to get speech from line:\n%s\n",(LPCSTR)strThisLineOriginalForErrorReporting));
+							WarningBox(va("Unable to get speech from line:\n%s\n", (LPCSTR)strThisLineOriginalForErrorReporting));
 						}
 					}
 					else
 					{
-						WarningBox(va("Unable to get character name from line:\n%s\n",(LPCSTR)strThisLineOriginalForErrorReporting));
+						WarningBox(va("Unable to get character name from line:\n%s\n", (LPCSTR)strThisLineOriginalForErrorReporting));
 					}
 				}
 				else
 				{
-					WarningBox(va("Unable to get label from line:\n%s\n",(LPCSTR)strThisLineOriginalForErrorReporting));
+					WarningBox(va("Unable to get label from line:\n%s\n", (LPCSTR)strThisLineOriginalForErrorReporting));
 				}
 			}
 		}
@@ -1560,14 +1515,15 @@ static void XLS_To_SP(void)
 		CString strFileName_LevelNames(sWORKDIR "\\levelnames.txt");
 
 		char *psData_LevelNames = NULL;
-		
-		StatusMessage(va("Reading \"%s\"\n",(LPCSTR) strFileName_LevelNames));
-		iSize = LoadFile(strFileName_LevelNames, (void**)&psData_LevelNames);
+
+		StatusMessage(va("Reading \"%s\"\n", (LPCSTR)strFileName_LevelNames));
+		iSize = LoadFile(strFileName_LevelNames, (void **)&psData_LevelNames);
 		if (iSize != -1)
 		{
 			CWaitCursor wait;
 
-			typedef map <int, CString> LevelNames_t; LevelNames_t LevelNames;
+			typedef map<int, CString> LevelNames_t;
+			LevelNames_t LevelNames;
 
 			CString strLevelNames(psData_LevelNames);
 			free(psData_LevelNames);
@@ -1579,8 +1535,8 @@ static void XLS_To_SP(void)
 				int iLoc = strLevelNames.Find('\n');
 				if (iLoc != -1)
 				{
-					strThisLine =	strLevelNames.Left(iLoc);
-									strLevelNames = strLevelNames.Mid(iLoc+1);
+					strThisLine = strLevelNames.Left(iLoc);
+					strLevelNames = strLevelNames.Mid(iLoc + 1);
 				}
 				else
 				{
@@ -1592,7 +1548,7 @@ static void XLS_To_SP(void)
 				{
 					// format example:
 					//
-					// 01 kejim_post	
+					// 01 kejim_post
 					//
 					strThisLine.TrimLeft();
 					strThisLine.TrimRight();
@@ -1609,90 +1565,87 @@ static void XLS_To_SP(void)
 						LevelNames[iLevelNumber] = strThisLine;
 					}
 				}
-			}		
+			}
 
 			// now write them out as SP files...
 			//
 			for (SpeechesPerLevel_t::iterator itLevel = SpeechesPerLevel.begin(); itLevel != SpeechesPerLevel.end(); ++itLevel)
 			{
-				int iLevel			= (*itLevel).first;
-				Speeches_t &Speeches= (*itLevel).second;
+				int iLevel = (*itLevel).first;
+				Speeches_t &Speeches = (*itLevel).second;
 
 				// simple stuff for now...
 				//
-				if (Speeches.size() > 256 )
+				if (Speeches.size() > 256)
 				{
-					int z=1;
+					int z = 1;
 				}
 				else
 				{
-					CString strStripEdFileNameBase((LevelNames.find(iLevel) != LevelNames.end())?(LPCSTR)LevelNames[iLevel]:"_unknown");
+					CString strStripEdFileNameBase((LevelNames.find(iLevel) != LevelNames.end()) ? (LPCSTR)LevelNames[iLevel] : "_unknown");
 
 					CString strStripEdText;
 
-					StatusMessage(va("Constructing SP file \"%s\"\n",(LPCSTR)strStripEdFileNameBase));
+					StatusMessage(va("Constructing SP file \"%s\"\n", (LPCSTR)strStripEdFileNameBase));
 
 					// some basic stuff first...
-					//				
+					//
 					strStripEdText += "VERSION 1\n";
 					strStripEdText += "CONFIG W:\\bin\\striped.cfg\n";
-					strStripEdText += va("ID %d\n",GetUniqueStripEdID( sWORKDIR, sNETDIR ));
-					strStripEdText += va("REFERENCE %s\n",String_ToUpper(strStripEdFileNameBase));
-					strStripEdText += va("DESCRIPTION \"%s\"\n",String_ToLower(strStripEdFileNameBase));
-					strStripEdText += va("COUNT %d\n",Speeches.size());
+					strStripEdText += va("ID %d\n", GetUniqueStripEdID(sWORKDIR, sNETDIR));
+					strStripEdText += va("REFERENCE %s\n", String_ToUpper(strStripEdFileNameBase));
+					strStripEdText += va("DESCRIPTION \"%s\"\n", String_ToLower(strStripEdFileNameBase));
+					strStripEdText += va("COUNT %d\n", Speeches.size());
 
-
-					for (int iSpeech=0; iSpeech < Speeches.size(); iSpeech++)
+					for (int iSpeech = 0; iSpeech < Speeches.size(); iSpeech++)
 					{
 						Speech_t &Speech = Speeches[iSpeech];
 
-	//					OutputDebugString(va("%d/%d: \"%s\"\n",iSpeech,Speeches.size(),(LPCSTR) Speeches[iSpeech].strSpeech));
+						//					OutputDebugString(va("%d/%d: \"%s\"\n",iSpeech,Speeches.size(),(LPCSTR) Speeches[iSpeech].strSpeech));
 
-						StatusMessage(va("%s: Adding string %d\n",(LPCSTR)strStripEdFileNameBase,iSpeech));
+						StatusMessage(va("%s: Adding string %d\n", (LPCSTR)strStripEdFileNameBase, iSpeech));
 
-						strStripEdText += va("INDEX %d\n",iSpeech);
+						strStripEdText += va("INDEX %d\n", iSpeech);
 						strStripEdText += "{\n";
-						strStripEdText += va("   REFERENCE %s\n",String_ToUpper(Speech.SpeechLabel.strLabel));
-						strStripEdText += va("   TEXT_LANGUAGE1 \"%s\"\n",Speech.strSpeech);    
+						strStripEdText += va("   REFERENCE %s\n", String_ToUpper(Speech.SpeechLabel.strLabel));
+						strStripEdText += va("   TEXT_LANGUAGE1 \"%s\"\n", Speech.strSpeech);
 						strStripEdText += "}\n";
 					}
 
-					CString strOutputFileName(va("%s\\%s.sp",sWORKDIR,(LPCSTR)strStripEdFileNameBase));
-					StatusMessage(va("Writing \"%s\"... \n",(LPCSTR) strOutputFileName));
+					CString strOutputFileName(va("%s\\%s.sp", sWORKDIR, (LPCSTR)strStripEdFileNameBase));
+					StatusMessage(va("Writing \"%s\"... \n", (LPCSTR)strOutputFileName));
 
-					strStripEdText.Replace("\n","\r\n");	// make it suitable for binary write
-					SaveFile((LPCSTR) strOutputFileName, (LPCSTR) strStripEdText, strStripEdText.GetLength() );
+					strStripEdText.Replace("\n", "\r\n"); // make it suitable for binary write
+					SaveFile((LPCSTR)strOutputFileName, (LPCSTR)strStripEdText, strStripEdText.GetLength());
 				}
 			}
 		}
 		else
 		{
-			ErrorBox(va("Unable to open \"%s\"!",(LPCSTR)strFileName_LevelNames));
+			ErrorBox(va("Unable to open \"%s\"!", (LPCSTR)strFileName_LevelNames));
 		}
 	}
 	else
 	{
-		ErrorBox(va("Unable to open \"%s\"!",(LPCSTR)strFileName_ExportedXLS));
+		ErrorBox(va("Unable to open \"%s\"!", (LPCSTR)strFileName_ExportedXLS));
 	}
 
 	StatusMessage(NULL);
 }
 
-
-
-void CMainFrame::OnEditTopmost() 
+void CMainFrame::OnEditTopmost()
 {
 	AppVars.bAlwaysOnTop = !AppVars.bAlwaysOnTop;
 
-	SetWindowPos(AppVars.bAlwaysOnTop?&wndTopMost:&wndNoTopMost,0,0,0,0,SWP_NOSIZE|SWP_NOMOVE);
+	SetWindowPos(AppVars.bAlwaysOnTop ? &wndTopMost : &wndNoTopMost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 }
 
-void CMainFrame::OnUpdateEditTopmost(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateEditTopmost(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(AppVars.bAlwaysOnTop);
 }
 
-void CMainFrame::OnViewTriindexes() 
+void CMainFrame::OnViewTriindexes()
 {
 	AppVars.bTriIndexes = !AppVars.bTriIndexes;
 	m_splitter.Invalidate(false);
@@ -1700,14 +1653,14 @@ void CMainFrame::OnViewTriindexes()
 
 // only allow this option if surface highlighting is on...
 //
-void CMainFrame::OnUpdateViewTriindexes(CCmdUI* pCmdUI) 
+void CMainFrame::OnUpdateViewTriindexes(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable	( AppVars.bSurfaceHighlight );	
-	pCmdUI->SetCheck( AppVars.bTriIndexes );
+	pCmdUI->Enable(AppVars.bSurfaceHighlight);
+	pCmdUI->SetCheck(AppVars.bTriIndexes);
 }
 
 #define sJK2BASEDIR "w:\\game\\base\\"
-void CMainFrame::OnFileViewJk2Bots() 
+void CMainFrame::OnFileViewJk2Bots()
 {
 	if (!gamedir[0])
 	{
@@ -1719,32 +1672,32 @@ void CMainFrame::OnFileViewJk2Bots()
 				return;
 		}
 
-		strcpy(gamedir,psBasePathToCopy);
+		strcpy(gamedir, psBasePathToCopy);
 	}
 
 	CString strScript;
-	CSOF2NPCViewer Viewer(false, &strScript, gamedir);	
+	CSOF2NPCViewer Viewer(false, &strScript, gamedir);
 
-	Model_StopAnim();	// or the screen update stops the GDI stuff from showing up
+	Model_StopAnim(); // or the screen update stops the GDI stuff from showing up
 
 	if (Viewer.DoModal() == IDOK)
 	{
 		if (Gallery_Active())
 		{
-// pick this up in the timer loop now...
-//
-//			CString strCaption;
-//			while (GalleryRead_ExtractEntry(strCaption, strScript))
-//			{
-//				OutputDebugString(va("\"%s\" (script len %d)\n",(LPCSTR)strCaption,strScript.GetLength()));
-//			}
+			// pick this up in the timer loop now...
+			//
+			//			CString strCaption;
+			//			while (GalleryRead_ExtractEntry(strCaption, strScript))
+			//			{
+			//				OutputDebugString(va("\"%s\" (script len %d)\n",(LPCSTR)strCaption,strScript.GetLength()));
+			//			}
 			extern CString strGalleryErrors;
 			extern CString strGalleryWarnings;
 			extern CString strGalleryInfo;
 
 			strGalleryErrors = strGalleryWarnings = strGalleryInfo = "";
 			Model_StopAnim();
-			gbTextInhibit = AppVars.bCleanScreenShots;	//true;
+			gbTextInhibit = AppVars.bCleanScreenShots; //true;
 			return;
 		}
 		else
@@ -1756,9 +1709,9 @@ void CMainFrame::OnFileViewJk2Bots()
 				strScript += "\n\n\n";
 				//SendStringToNotepad(strScript,"temp.txt");
 
-				string strOutputFileName( va("%s\\%s",scGetTempPath(),"temp.mvs") );
-				
-				int iReturn = SaveFile(strOutputFileName.c_str(),(LPCSTR)strScript, strScript.GetLength());
+				string strOutputFileName(va("%s\\%s", scGetTempPath(), "temp.mvs"));
+
+				int iReturn = SaveFile(strOutputFileName.c_str(), (LPCSTR)strScript, strScript.GetLength());
 				if (iReturn != -1)
 				{
 					extern bool Document_ModelLoadPrimary(LPCSTR psFilename);
@@ -1769,11 +1722,10 @@ void CMainFrame::OnFileViewJk2Bots()
 	}
 }
 
-void CMainFrame::OnAnimationEndframe() 
+void CMainFrame::OnAnimationEndframe()
 {
 	ModelList_GoToEndFrame();
 }
-
 
 #define sJK3BASEDIR "c:\\ja\\base\\"
 void CMainFrame::OnFileBatchconvert()
@@ -1790,36 +1742,36 @@ void CMainFrame::OnFileBatchconvert()
 	char **ppsGLMFiles;
 	int iGLMFiles;
 
-	ppsGLMFiles =	//ri.FS_ListFiles( "shaders", ".shader", &iSkinFiles );
-		Sys_ListFiles(	psBasePathToCopy,		// const char *directory, 
-		"/",		// const char *extension, 
-		"*.glm",		// char *filter, 
-		&iGLMFiles,	// int *numfiles, 
-		qfalse		// qboolean wantsubs 
+	ppsGLMFiles =						//ri.FS_ListFiles( "shaders", ".shader", &iSkinFiles );
+		Sys_ListFiles(psBasePathToCopy, // const char *directory,
+					  "/",				// const char *extension,
+					  "*.glm",			// char *filter,
+					  &iGLMFiles,		// int *numfiles,
+					  qfalse			// qboolean wantsubs
 		);
 
-	if(!iGLMFiles)
+	if (!iGLMFiles)
 	{
-		WarningBox(va("WARNING: no GLM files found in '%s'\n",psBasePathToCopy ));
+		WarningBox(va("WARNING: no GLM files found in '%s'\n", psBasePathToCopy));
 		return;
 	}
 
-	for ( int i=0; i<iGLMFiles; i++ )
+	for (int i = 0; i < iGLMFiles; i++)
 	{
 		char sFileName[128];
 
 		string strThisGLMFile(ppsGLMFiles[i]);
-		
-		Com_sprintf( sFileName, sizeof(sFileName), "%s%s", psBasePathToCopy, strThisGLMFile.c_str() );
-		StatusMessage( va("Scanning GLM file %d/%d: \"%s\"...",i+1,iGLMFiles,sFileName));
+
+		Com_sprintf(sFileName, sizeof(sFileName), "%s%s", psBasePathToCopy, strThisGLMFile.c_str());
+		StatusMessage(va("Scanning GLM file %d/%d: \"%s\"...", i + 1, iGLMFiles, sFileName));
 
 		// Load in this GLM file
 		GetActiveDocument()->OnOpenDocument(sFileName);
 
 		// Save compressed GLM file
-		StatusMessage( va("Saving compressed GLM file %d/%d: \"%s\"...",i+1,iGLMFiles,sFileName));
+		StatusMessage(va("Saving compressed GLM file %d/%d: \"%s\"...", i + 1, iGLMFiles, sFileName));
 		Model_Save(sFileName);
 	}
 
-	Sys_FreeFileList( ppsGLMFiles );
+	Sys_FreeFileList(ppsGLMFiles);
 }

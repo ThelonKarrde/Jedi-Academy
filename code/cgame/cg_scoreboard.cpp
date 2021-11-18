@@ -7,8 +7,7 @@
 #include "..\game\b_local.h"
 #include "..\ui\ui_shared.h"
 
-#define	SCOREBOARD_WIDTH	(26*BIGCHAR_WIDTH)
-
+#define SCOREBOARD_WIDTH (26 * BIGCHAR_WIDTH)
 
 /*
 static void Scoreboard_Draw( void )
@@ -62,8 +61,6 @@ static void Scoreboard_Draw( void )
 }
 */
 
-
-
 /*
 =================
 CG_MissionFailed
@@ -75,76 +72,76 @@ void CG_MissionFailed(void)
 	char *text;
 
 	if (!cg.missionFailedScreen)
-	{ 
+	{
 		cgi_UI_SetActive_Menu("missionfailed_menu");
 
 		// If you're in camera mode when when you lose (Chewie kills you)
 		// then the above fails. This should check for that. We'll end up
 		// waiting until the camera stuff stops:
-		if( !Menu_GetFocused() )
+		if (!Menu_GetFocused())
 			return;
 
 		cg.missionFailedScreen = qtrue;
 
 		switch (statusTextIndex)
 		{
-			case -1:	//Our HERO DIED!!!
-				text = "@SP_INGAME_MISSIONFAILED_PLAYER";
-				break;
-			case MISSIONFAILED_JAN:
-				text = "@SP_INGAME_MISSIONFAILED_JAN";
-					break;
-			case MISSIONFAILED_LUKE:
-				text = "@SP_INGAME_MISSIONFAILED_LUKE";
-					break;
-			case MISSIONFAILED_LANDO:
-				text = "@SP_INGAME_MISSIONFAILED_LANDO";
-					break;
-			case MISSIONFAILED_R5D2:
-				text = "@SP_INGAME_MISSIONFAILED_R5D2";
-					break;
-			case MISSIONFAILED_WARDEN:
-				text = "@SP_INGAME_MISSIONFAILED_WARDEN";
-					break;
-			case MISSIONFAILED_PRISONERS:
-				text = "@SP_INGAME_MISSIONFAILED_PRISONERS";
-					break;
-			case MISSIONFAILED_EMPLACEDGUNS:
-				text = "@SP_INGAME_MISSIONFAILED_EMPLACEDGUNS";
-					break;
-			case MISSIONFAILED_LADYLUCK:
-				text = "@SP_INGAME_MISSIONFAILED_LADYLUCK";
-					break;
-			case MISSIONFAILED_KYLECAPTURE:
-				text = "@SP_INGAME_MISSIONFAILED_KYLECAPTURE";
-					break;
-			case MISSIONFAILED_TOOMANYALLIESDIED:
-				text = "@SP_INGAME_MISSIONFAILED_TOOMANYALLIESDIED";
-					break;
+		case -1: //Our HERO DIED!!!
+			text = "@SP_INGAME_MISSIONFAILED_PLAYER";
+			break;
+		case MISSIONFAILED_JAN:
+			text = "@SP_INGAME_MISSIONFAILED_JAN";
+			break;
+		case MISSIONFAILED_LUKE:
+			text = "@SP_INGAME_MISSIONFAILED_LUKE";
+			break;
+		case MISSIONFAILED_LANDO:
+			text = "@SP_INGAME_MISSIONFAILED_LANDO";
+			break;
+		case MISSIONFAILED_R5D2:
+			text = "@SP_INGAME_MISSIONFAILED_R5D2";
+			break;
+		case MISSIONFAILED_WARDEN:
+			text = "@SP_INGAME_MISSIONFAILED_WARDEN";
+			break;
+		case MISSIONFAILED_PRISONERS:
+			text = "@SP_INGAME_MISSIONFAILED_PRISONERS";
+			break;
+		case MISSIONFAILED_EMPLACEDGUNS:
+			text = "@SP_INGAME_MISSIONFAILED_EMPLACEDGUNS";
+			break;
+		case MISSIONFAILED_LADYLUCK:
+			text = "@SP_INGAME_MISSIONFAILED_LADYLUCK";
+			break;
+		case MISSIONFAILED_KYLECAPTURE:
+			text = "@SP_INGAME_MISSIONFAILED_KYLECAPTURE";
+			break;
+		case MISSIONFAILED_TOOMANYALLIESDIED:
+			text = "@SP_INGAME_MISSIONFAILED_TOOMANYALLIESDIED";
+			break;
 
-			case MISSIONFAILED_CHEWIE:
-				text = "@SP_INGAME_MISSIONFAILED_CHEWIE";
-					break;
+		case MISSIONFAILED_CHEWIE:
+			text = "@SP_INGAME_MISSIONFAILED_CHEWIE";
+			break;
 
-			case MISSIONFAILED_KYLE:
-				text = "@SP_INGAME_MISSIONFAILED_KYLE";
-					break;
+		case MISSIONFAILED_KYLE:
+			text = "@SP_INGAME_MISSIONFAILED_KYLE";
+			break;
 
-			case MISSIONFAILED_ROSH:
-				text = "@SP_INGAME_MISSIONFAILED_ROSH";
-					break;
+		case MISSIONFAILED_ROSH:
+			text = "@SP_INGAME_MISSIONFAILED_ROSH";
+			break;
 
-			case MISSIONFAILED_WEDGE:
-				text = "@SP_INGAME_MISSIONFAILED_WEDGE";
-					break;
+		case MISSIONFAILED_WEDGE:
+			text = "@SP_INGAME_MISSIONFAILED_WEDGE";
+			break;
 
-			case MISSIONFAILED_TURNED:
-				text = "@SP_INGAME_MISSIONFAILED_TURNED";
-					break;
+		case MISSIONFAILED_TURNED:
+			text = "@SP_INGAME_MISSIONFAILED_TURNED";
+			break;
 
-			default:
-				text = "@SP_INGAME_MISSIONFAILED_UNKNOWN";
-					break;
+		default:
+			text = "@SP_INGAME_MISSIONFAILED_UNKNOWN";
+			break;
 		}
 		//done with the variable for this time so reset it.
 		statusTextIndex = -1;
@@ -160,17 +157,16 @@ Draw the normal in-game scoreboard
 return value is bool to NOT draw centerstring
 =================
 */
-qboolean CG_DrawScoreboard( void ) 
+qboolean CG_DrawScoreboard(void)
 {
 	// don't draw anything if the menu is up
-	if ( cg_paused.integer ) 
+	if (cg_paused.integer)
 	{
 		return qfalse;
 	}
 
 	// Character is either dead, or a script has brought up the screen
-	if (((cg.predicted_player_state.pm_type == PM_DEAD) && (cg.missionStatusDeadTime < level.time)) 
-		|| (cg.missionStatusShow))
+	if (((cg.predicted_player_state.pm_type == PM_DEAD) && (cg.missionStatusDeadTime < level.time)) || (cg.missionStatusShow))
 	{
 		CG_MissionFailed();
 		return qtrue;
@@ -184,4 +180,3 @@ void ScoreBoardReset(void)
 }
 
 //================================================================================
-

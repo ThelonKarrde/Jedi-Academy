@@ -24,70 +24,78 @@
  *	none
  *
  ************************************************************************************************/
-CRMGroupInstance::CRMGroupInstance ( CGPGroup *instGroup, CRMInstanceFile& instFile ) 
-	:  CRMInstance ( instGroup, instFile )
+CRMGroupInstance::CRMGroupInstance(CGPGroup *instGroup, CRMInstanceFile &instFile)
+	: CRMInstance(instGroup, instFile)
 {
 	// Grab the padding and confine radius
-	mPaddingSize   = atof ( instGroup->FindPairValue ( "padding", va("%i", TheRandomMissionManager->GetMission()->GetDefaultPadding() ) ) );
-	mConfineRadius = atof ( instGroup->FindPairValue ( "confine", "0" ) );
+	mPaddingSize = atof(instGroup->FindPairValue("padding", va("%i", TheRandomMissionManager->GetMission()->GetDefaultPadding())));
+	mConfineRadius = atof(instGroup->FindPairValue("confine", "0"));
 
-	const char * automapSymName = instGroup->FindPairValue ( "automap_symbol", "none" );
-	if (0 == strcmpi(automapSymName, "none"))	   	mAutomapSymbol = AUTOMAP_NONE ;
-	else if (0 == strcmpi(automapSymName, "building"))  	mAutomapSymbol = AUTOMAP_BLD  ;
-	else if (0 == strcmpi(automapSymName, "objective")) 	mAutomapSymbol = AUTOMAP_OBJ  ;
-	else if (0 == strcmpi(automapSymName, "start"))	   	mAutomapSymbol = AUTOMAP_START;
-	else if (0 == strcmpi(automapSymName, "end"))	   	mAutomapSymbol = AUTOMAP_END  ;
-	else if (0 == strcmpi(automapSymName, "enemy"))	   	mAutomapSymbol = AUTOMAP_ENEMY;
-	else if (0 == strcmpi(automapSymName, "friend"))	   	mAutomapSymbol = AUTOMAP_FRIEND;
-	else mAutomapSymbol	= atoi( automapSymName );
+	const char *automapSymName = instGroup->FindPairValue("automap_symbol", "none");
+	if (0 == strcmpi(automapSymName, "none"))
+		mAutomapSymbol = AUTOMAP_NONE;
+	else if (0 == strcmpi(automapSymName, "building"))
+		mAutomapSymbol = AUTOMAP_BLD;
+	else if (0 == strcmpi(automapSymName, "objective"))
+		mAutomapSymbol = AUTOMAP_OBJ;
+	else if (0 == strcmpi(automapSymName, "start"))
+		mAutomapSymbol = AUTOMAP_START;
+	else if (0 == strcmpi(automapSymName, "end"))
+		mAutomapSymbol = AUTOMAP_END;
+	else if (0 == strcmpi(automapSymName, "enemy"))
+		mAutomapSymbol = AUTOMAP_ENEMY;
+	else if (0 == strcmpi(automapSymName, "friend"))
+		mAutomapSymbol = AUTOMAP_FRIEND;
+	else
+		mAutomapSymbol = atoi(automapSymName);
 
 	// optional instance objective strings
-	SetMessage(instGroup->FindPairValue("objective_message",""));
-	SetDescription(instGroup->FindPairValue("objective_description",""));
-	SetInfo(instGroup->FindPairValue("objective_info",""));
+	SetMessage(instGroup->FindPairValue("objective_message", ""));
+	SetDescription(instGroup->FindPairValue("objective_description", ""));
+	SetInfo(instGroup->FindPairValue("objective_info", ""));
 
 	// Iterate through the sub groups to determine the instances which make up the group
-	instGroup = instGroup->GetSubGroups ( );
+	instGroup = instGroup->GetSubGroups();
 
-	while ( instGroup )
+	while (instGroup)
 	{
-		CRMInstance* instance;
-		const char*  name;
-		int			 mincount;
-		int			 maxcount;
-		int			 count;
-		float		 minrange;
-		float		 maxrange;
+		CRMInstance *instance;
+		const char *name;
+		int mincount;
+		int maxcount;
+		int count;
+		float minrange;
+		float maxrange;
 
 		// Make sure only instances are specified as sub groups
-		assert ( 0 == stricmp ( instGroup->GetName ( ), "instance" ) );
+		assert(0 == stricmp(instGroup->GetName(), "instance"));
 
 		// Grab the name
-		name     = instGroup->FindPairValue ( "name", "" );
+		name = instGroup->FindPairValue("name", "");
 
 		// Grab the range information
-		minrange = atof(instGroup->FindPairValue ( "minrange", "0" ) );
-		maxrange = atof(instGroup->FindPairValue ( "maxrange", "0" ) );
+		minrange = atof(instGroup->FindPairValue("minrange", "0"));
+		maxrange = atof(instGroup->FindPairValue("maxrange", "0"));
 
 		// Grab the count information and randomly generate a count value
-		mincount = atoi(instGroup->FindPairValue ( "mincount", "1" ) );
-		maxcount = atoi(instGroup->FindPairValue ( "maxcount", "1" ) );
-		count	 = mincount;
+		mincount = atoi(instGroup->FindPairValue("mincount", "1"));
+		maxcount = atoi(instGroup->FindPairValue("maxcount", "1"));
+		count = mincount;
 
-		if ( maxcount > mincount )
+		if (maxcount > mincount)
 		{
-			count += (TheRandomMissionManager->GetLandScape()->irand(0, maxcount-mincount));
+			count += (TheRandomMissionManager->GetLandScape()->irand(0, maxcount - mincount));
 		}
 
 		// For each count create and add the instance
-		for ( ; count ; count -- )
+		for (; count; count--)
 		{
 			// Create the instance
-			instance = instFile.CreateInstance ( name );
+			instance = instFile.CreateInstance(name);
 
 			// Skip this instance if it couldnt be created for some reason.  The CreateInstance
 			// method will report an error so no need to do so here.
-			if ( NULL == instance )
+			if (NULL == instance)
 			{
 				continue;
 			}
@@ -97,11 +105,11 @@ CRMGroupInstance::CRMGroupInstance ( CGPGroup *instGroup, CRMInstanceFile& instF
 			instance->SetTeamFilter(mTeamFilter);
 
 			// Add the instance to the list
-			mInstances.push_back ( instance );
+			mInstances.push_back(instance);
 		}
 
 		// Next sub group
-		instGroup = instGroup->GetNext ( );
+		instGroup = instGroup->GetNext();
 	}
 }
 
@@ -119,7 +127,7 @@ CRMGroupInstance::CRMGroupInstance ( CGPGroup *instGroup, CRMInstanceFile& instF
 CRMGroupInstance::~CRMGroupInstance(void)
 {
 	// Cleanup
-	RemoveInstances ( );
+	RemoveInstances();
 }
 
 /************************************************************************************************
@@ -133,12 +141,12 @@ CRMGroupInstance::~CRMGroupInstance(void)
  *	none
  *
  ************************************************************************************************/
-void CRMGroupInstance::SetFilter( const char *filter )
+void CRMGroupInstance::SetFilter(const char *filter)
 {
 	rmInstanceIter_t it;
 
 	CRMInstance::SetFilter(filter);
-	for(it = mInstances.begin(); it != mInstances.end(); it++)
+	for (it = mInstances.begin(); it != mInstances.end(); it++)
 	{
 		(*it)->SetFilter(filter);
 	}
@@ -155,12 +163,12 @@ void CRMGroupInstance::SetFilter( const char *filter )
  *	none
  *
  ************************************************************************************************/
-void CRMGroupInstance::SetTeamFilter( const char *teamFilter )
+void CRMGroupInstance::SetTeamFilter(const char *teamFilter)
 {
 	rmInstanceIter_t it;
 
 	CRMInstance::SetTeamFilter(teamFilter);
-	for(it = mInstances.begin(); it != mInstances.end(); it++)
+	for (it = mInstances.begin(); it != mInstances.end(); it++)
 	{
 		(*it)->SetTeamFilter(teamFilter);
 	}
@@ -178,16 +186,15 @@ void CRMGroupInstance::SetTeamFilter( const char *teamFilter )
  *
  ************************************************************************************************/
 void CRMGroupInstance::SetMirror(int mirror)
-{ 
+{
 	rmInstanceIter_t it;
 
 	CRMInstance::SetMirror(mirror);
-	for(it = mInstances.begin(); it != mInstances.end(); it++)
+	for (it = mInstances.begin(); it != mInstances.end(); it++)
 	{
 		(*it)->SetMirror(mirror);
 	}
 }
-
 
 /************************************************************************************************
  * CRMGroupInstance::RemoveInstances
@@ -200,11 +207,11 @@ void CRMGroupInstance::SetMirror(int mirror)
  *	none
  *
  ************************************************************************************************/
-void CRMGroupInstance::RemoveInstances ( )
+void CRMGroupInstance::RemoveInstances()
 {
 	rmInstanceIter_t it;
 
-	for(it = mInstances.begin(); it != mInstances.end(); it++)
+	for (it = mInstances.begin(); it != mInstances.end(); it++)
 	{
 		delete *it;
 	}
@@ -224,21 +231,21 @@ void CRMGroupInstance::RemoveInstances ( )
  *	none
  *
  ************************************************************************************************/
-bool CRMGroupInstance::PreSpawn ( CRandomTerrain* terrain, qboolean IsServer )
+bool CRMGroupInstance::PreSpawn(CRandomTerrain *terrain, qboolean IsServer)
 {
 	rmInstanceIter_t it;
 
-	for(it = mInstances.begin(); it != mInstances.end(); it++ )
+	for (it = mInstances.begin(); it != mInstances.end(); it++)
 	{
-		CRMInstance* instance = *it;
+		CRMInstance *instance = *it;
 
-		instance->SetFlattenHeight ( mFlattenHeight );
+		instance->SetFlattenHeight(mFlattenHeight);
 
 		// Add the instance to the landscape now
-		instance->PreSpawn ( terrain, IsServer );		
+		instance->PreSpawn(terrain, IsServer);
 	}
 
-	return CRMInstance::PreSpawn ( terrain, IsServer );
+	return CRMInstance::PreSpawn(terrain, IsServer);
 }
 
 /************************************************************************************************
@@ -254,18 +261,18 @@ bool CRMGroupInstance::PreSpawn ( CRandomTerrain* terrain, qboolean IsServer )
  *	none
  *
  ************************************************************************************************/
-bool CRMGroupInstance::Spawn ( CRandomTerrain* terrain, qboolean IsServer )
+bool CRMGroupInstance::Spawn(CRandomTerrain *terrain, qboolean IsServer)
 {
 	rmInstanceIter_t it;
 
 	// Spawn all the instances associated with this group
-	for(it = mInstances.begin(); it != mInstances.end(); it++)
+	for (it = mInstances.begin(); it != mInstances.end(); it++)
 	{
-		CRMInstance* instance = *it;
+		CRMInstance *instance = *it;
 		instance->SetSide(GetSide()); // which side owns it?
 
 		// Add the instance to the landscape now
-		instance->Spawn ( terrain, IsServer );
+		instance->Spawn(terrain, IsServer);
 	}
 #ifndef DEDICATED
 	DrawAutomapSymbol();
@@ -284,18 +291,18 @@ bool CRMGroupInstance::Spawn ( CRandomTerrain* terrain, qboolean IsServer )
  *	none
  *
  ************************************************************************************************/
-void CRMGroupInstance::Preview ( const vec3_t from )
+void CRMGroupInstance::Preview(const vec3_t from)
 {
 	rmInstanceIter_t it;
 
-	CRMInstance::Preview ( from );
-	
-	// Render all the instances
-	for(it = mInstances.begin(); it != mInstances.end(); it++)
-	{
-		CRMInstance* instance = *it;
+	CRMInstance::Preview(from);
 
-		instance->Preview ( from );
+	// Render all the instances
+	for (it = mInstances.begin(); it != mInstances.end(); it++)
+	{
+		CRMInstance *instance = *it;
+
+		instance->Preview(from);
 	}
 }
 
@@ -311,25 +318,25 @@ void CRMGroupInstance::Preview ( const vec3_t from )
  *	none
  *
  ************************************************************************************************/
-void CRMGroupInstance::SetArea ( CRMAreaManager* amanager, CRMArea* area )
+void CRMGroupInstance::SetArea(CRMAreaManager *amanager, CRMArea *area)
 {
 	rmInstanceIter_t it;
 
-	bool collide = area->IsCollisionEnabled ( );
+	bool collide = area->IsCollisionEnabled();
 
 	// Disable collision
-	area->EnableCollision ( false );
+	area->EnableCollision(false);
 
 	// Do what really needs to get done
-	CRMInstance::SetArea ( amanager, area );
+	CRMInstance::SetArea(amanager, area);
 
 	// Prepare for spawn by calculating all the positions of the sub instances
 	// and flattening the ground below them.
-	for(it = mInstances.begin(); it != mInstances.end(); it++ )
+	for (it = mInstances.begin(); it != mInstances.end(); it++)
 	{
-		CRMInstance  *instance = *it;
-		CRMArea		 *newarea;
-		vec3_t		 origin;
+		CRMInstance *instance = *it;
+		CRMArea *newarea;
+		vec3_t origin;
 
 		// Drop it in the center of the group for now
 		origin[0] = GetOrigin()[0];
@@ -337,7 +344,7 @@ void CRMGroupInstance::SetArea ( CRMAreaManager* amanager, CRMArea* area )
 		origin[2] = 2500;
 
 		// Set the area of position
-		newarea = amanager->CreateArea ( origin, instance->GetSpacingRadius(), instance->GetSpacingLine(), mPaddingSize, mConfineRadius, GetOrigin(), GetOrigin(), instance->GetFlattenRadius()?true:false, collide, instance->GetLockOrigin(), area->GetSymmetric ( ) );
-		instance->SetArea ( amanager, newarea );
+		newarea = amanager->CreateArea(origin, instance->GetSpacingRadius(), instance->GetSpacingLine(), mPaddingSize, mConfineRadius, GetOrigin(), GetOrigin(), instance->GetFlattenRadius() ? true : false, collide, instance->GetLockOrigin(), area->GetSymmetric());
+		instance->SetArea(amanager, newarea);
 	}
 }

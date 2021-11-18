@@ -13,7 +13,7 @@
 //
 //	Always pair with clear()
 //
-qboolean FFMultiSet::Init( FFSystem::Config &config )
+qboolean FFMultiSet::Init(FFSystem::Config &config)
 {
 	mConfig = &config;
 
@@ -25,29 +25,26 @@ qboolean FFMultiSet::Init( FFSystem::Config &config )
 	HWND hWnd = (HWND)g_wv.hWnd;
 
 	mDevices = new CImmDevices;
-	if ( mDevices && mDevices->CreateDevices( hInstance, hWnd ) )
+	if (mDevices && mDevices->CreateDevices(hInstance, hWnd))
 	{
-		for
-		(	int i = 0
-		;	i < mDevices->GetNumDevices()
-		;	i++
-		){
+		for (int i = 0; i < mDevices->GetNumDevices(); i++)
+		{
 			FFSet *ffSet = NULL;
-			ffSet = new FFSet( config, mDevices->GetDevice( i ) ); 
-			if ( ffSet )
+			ffSet = new FFSet(config, mDevices->GetDevice(i));
+			if (ffSet)
 			{
 #ifdef FF_PRINT
-				char ProductName[ FF_MAX_PATH ];
+				char ProductName[FF_MAX_PATH];
 				*ProductName = 0;
-				mDevices->GetDevice( i )->GetProductName( ProductName, FF_MAX_PATH - 1 );
-				Com_Printf( "%d) %s\n", i, ProductName );
+				mDevices->GetDevice(i)->GetProductName(ProductName, FF_MAX_PATH - 1);
+				Com_Printf("%d) %s\n", i, ProductName);
 #endif
-				mSet.push_back( ffSet );
+				mSet.push_back(ffSet);
 			}
 		}
 	}
 
-	return qboolean( mSet.size() );
+	return qboolean(mSet.size());
 }
 
 ////------------------------------
@@ -55,14 +52,11 @@ qboolean FFMultiSet::Init( FFSystem::Config &config )
 //----------------------------------
 //
 //
-qboolean FFMultiSet::GetRegisteredNames( TNameTable &NameTable )
+qboolean FFMultiSet::GetRegisteredNames(TNameTable &NameTable)
 {
-	for
-	(	int i = 0
-	;	i < mSet.size()
-	;	i++
-	){
-		mSet[ i ]->GetRegisteredNames( NameTable );
+	for (int i = 0; i < mSet.size(); i++)
+	{
+		mSet[i]->GetRegisteredNames(NameTable);
 	}
 
 	return qtrue;
@@ -78,12 +72,9 @@ qboolean FFMultiSet::StopAll()
 {
 	qboolean result = qtrue;
 
-	for
-	(	int i = 0
-	;	i < mSet.size()
-	;	i++
-	){
-		result &= mSet[ i ]->StopAll();
+	for (int i = 0; i < mSet.size(); i++)
+	{
+		result &= mSet[i]->StopAll();
 	}
 
 	return result;
@@ -97,22 +88,19 @@ qboolean FFMultiSet::StopAll()
 void FFMultiSet::clear()
 {
 	mConfig = NULL;
-	for
-	(	int i = 0
-	;	i < mSet.size()
-	;	i++
-	){
-		DeletePointer( mSet[ i ] );
+	for (int i = 0; i < mSet.size(); i++)
+	{
+		DeletePointer(mSet[i]);
 	}
 	mSet.clear();
-	DeletePointer( mDevices );
+	DeletePointer(mDevices);
 }
 
 #ifdef FF_CONSOLECOMMAND
 
-void FFMultiSet::GetDisplayTokens( TNameTable &Tokens )
+void FFMultiSet::GetDisplayTokens(TNameTable &Tokens)
 {
-	FFSet::GetDisplayTokens( Tokens );
+	FFSet::GetDisplayTokens(Tokens);
 }
 
 ////-------------------
@@ -120,18 +108,15 @@ void FFMultiSet::GetDisplayTokens( TNameTable &Tokens )
 //-----------------------
 //
 //
-void FFMultiSet::Display( TNameTable &Unprocessed, TNameTable &Processed )
+void FFMultiSet::Display(TNameTable &Unprocessed, TNameTable &Processed)
 {
-	for
-	(	int i = 0
-	;	i < mSet.size()
-	;	i++
-	){
+	for (int i = 0; i < mSet.size(); i++)
+	{
 		TNameTable Temp1, Temp2;
 		Temp1.clear();
 		Temp2.clear();
-		Temp1.insert( Temp1.begin(), Processed.begin(), Processed.end() );
-		mSet[ i ]->Display( Temp1, Temp2 );
+		Temp1.insert(Temp1.begin(), Processed.begin(), Processed.end());
+		mSet[i]->Display(Temp1, Temp2);
 	}
 }
 

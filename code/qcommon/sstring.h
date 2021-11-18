@@ -3,12 +3,10 @@
 // Gil's string template, used to replace Microsoft's <string> vrsion which doesn't compile under certain stl map<>
 //	conditions...
 
-
 #ifndef SSTRING_H
 #define SSTRING_H
 
-
-template<int MaxSize>
+template <int MaxSize>
 class sstring
 {
 	struct SStorage
@@ -16,31 +14,32 @@ class sstring
 		char data[MaxSize];
 	};
 	SStorage mStorage;
+
 public:
-/* don't figure we need this
+	/* don't figure we need this
 	template<int oMaxSize>
 	sstring(const sstring<oMaxSize> &o)
 	{
 		assert(strlen(o.mStorage.data)<MaxSize);
 		strcpy(mStorage.data,o.mStorage.data);
 	}
-*/	
+*/
 	sstring(const sstring<MaxSize> &o)
 	{
 		//strcpy(mStorage.data,o.mStorage.data);
-		Q_strncpyz(mStorage.data,o.mStorage.data,sizeof(mStorage.data),qtrue);
+		Q_strncpyz(mStorage.data, o.mStorage.data, sizeof(mStorage.data), qtrue);
 	}
 	sstring(const char *s)
 	{
 		//assert(strlen(s)<MaxSize);
 		//strcpy(mStorage.data,s);
-		Q_strncpyz(mStorage.data,s,sizeof(mStorage.data),qtrue);
+		Q_strncpyz(mStorage.data, s, sizeof(mStorage.data), qtrue);
 	}
 	sstring()
 	{
-		mStorage.data[0]=0;
+		mStorage.data[0] = 0;
 	}
-/* don't figure we need this
+	/* don't figure we need this
 	template<int oMaxSize>
 	sstring<oMaxSize> & operator =(const sstring<oMaxSize> &o)
 	{
@@ -48,31 +47,31 @@ public:
 		strcpy(mStorage.data,o.mStorage.data);
 		return *this;
 	}
-*/	
-	sstring<MaxSize> & operator=(const sstring<MaxSize> &o)
+*/
+	sstring<MaxSize> &operator=(const sstring<MaxSize> &o)
 	{
 		//strcpy(mStorage.data,o.mStorage.data);
-		Q_strncpyz(mStorage.data,o.mStorage.data,sizeof(mStorage.data),qtrue);
+		Q_strncpyz(mStorage.data, o.mStorage.data, sizeof(mStorage.data), qtrue);
 		return *this;
 	}
-	sstring<MaxSize> & operator=(const char *s)
+	sstring<MaxSize> &operator=(const char *s)
 	{
-		assert(strlen(s)<MaxSize);
+		assert(strlen(s) < MaxSize);
 		//strcpy(mStorage.data,s);
-		Q_strncpyz(mStorage.data,s,sizeof(mStorage.data),qtrue);
+		Q_strncpyz(mStorage.data, s, sizeof(mStorage.data), qtrue);
 		return *this;
 	}
 	char *c_str()
 	{
 		return mStorage.data;
-	}	
+	}
 	const char *c_str() const
 	{
 		return mStorage.data;
-	}	
+	}
 	int capacity() const
 	{
-		return MaxSize;	// not sure if this should be MaxSize-1? depends if talking bytes or strlen space I guess
+		return MaxSize; // not sure if this should be MaxSize-1? depends if talking bytes or strlen space I guess
 	}
 	int length() const
 	{
@@ -80,7 +79,7 @@ public:
 	}
 	bool operator==(const sstring<MaxSize> &o) const
 	{
-		if (!strcmpi(mStorage.data,o.mStorage.data))
+		if (!strcmpi(mStorage.data, o.mStorage.data))
 		{
 			return true;
 		}
@@ -88,7 +87,7 @@ public:
 	}
 	bool operator!=(const sstring<MaxSize> &o) const
 	{
-		if (strcmpi(mStorage.data,o.mStorage.data)!=0)
+		if (strcmpi(mStorage.data, o.mStorage.data) != 0)
 		{
 			return true;
 		}
@@ -96,7 +95,7 @@ public:
 	}
 	bool operator<(const sstring<MaxSize> &o) const
 	{
-		if (strcmpi(mStorage.data,o.mStorage.data)<0)
+		if (strcmpi(mStorage.data, o.mStorage.data) < 0)
 		{
 			return true;
 		}
@@ -104,7 +103,7 @@ public:
 	}
 	bool operator>(const sstring<MaxSize> &o) const
 	{
-		if (strcmpi(mStorage.data,o.mStorage.data)>0)
+		if (strcmpi(mStorage.data, o.mStorage.data) > 0)
 		{
 			return true;
 		}
@@ -114,7 +113,6 @@ public:
 
 typedef sstring<MAX_QPATH> sstring_t;
 
-#endif	// #ifndef SSTRING_H
+#endif // #ifndef SSTRING_H
 
 /////////////////// eof ////////////////////
-

@@ -32,4 +32,4 @@ typedef enum //# hitloc_e
 
 extern stringID_table_t HLTable[];
 
-#endif	// #ifndef HITLOCS_H
+#endif // #ifndef HITLOCS_H

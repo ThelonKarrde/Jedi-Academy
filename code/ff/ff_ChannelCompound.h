@@ -14,48 +14,43 @@ class ChannelCompound : public MultiCompound
 {
 protected:
 	int mChannel;
+
 public:
-	ChannelCompound( int channel = FF_CHANNEL_MAX ) 
-	:	MultiCompound()
+	ChannelCompound(int channel = FF_CHANNEL_MAX)
+		: MultiCompound()
 	{
-		mChannel = 
-		(	(channel >= 0 && channel < FF_CHANNEL_MAX)
-		?	channel
-		:	FF_CHANNEL_MAX
-		);
+		mChannel =
+			((channel >= 0 && channel < FF_CHANNEL_MAX)
+				 ? channel
+				 : FF_CHANNEL_MAX);
 	}
 
-	ChannelCompound( Set &compound, int channel = FF_CHANNEL_MAX )
-	:	MultiCompound( compound )
+	ChannelCompound(Set &compound, int channel = FF_CHANNEL_MAX)
+		: MultiCompound(compound)
 	{
-		mChannel = 
-		(	(channel >= 0 && channel < FF_CHANNEL_MAX)
-		?	channel
-		:	FF_CHANNEL_MAX
-		);
+		mChannel =
+			((channel >= 0 && channel < FF_CHANNEL_MAX)
+				 ? channel
+				 : FF_CHANNEL_MAX);
 	}
 
-	int GetChannel() 
+	int GetChannel()
 	{
 		return mChannel;
 	}
 	const char *GetName()
 	{
-		return mSet.size() 
-		?	(*mSet.begin())->GetName()
-		:	NULL
-		;
+		return mSet.size()
+				   ? (*mSet.begin())->GetName()
+				   : NULL;
 	}
-	qboolean operator == ( ChannelCompound &channelcompound )
+	qboolean operator==(ChannelCompound &channelcompound)
 	{
-		return qboolean
-		(	mChannel == channelcompound.mChannel
-		&&	(*(MultiCompound*)this) == *(MultiCompound*)&channelcompound
-		);
+		return qboolean(mChannel == channelcompound.mChannel && (*(MultiCompound *)this) == *(MultiCompound *)&channelcompound);
 	}
-	qboolean operator != ( ChannelCompound &channelcompound )
+	qboolean operator!=(ChannelCompound &channelcompound)
 	{
-		return qboolean( !( (*this) == channelcompound ) );
+		return qboolean(!((*this) == channelcompound));
 	}
 };
 

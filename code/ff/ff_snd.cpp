@@ -53,12 +53,12 @@ public:
 	ffHandle_t mHandle;
 	int mRefs;
 	qboolean mPlaying;
-//	int mEntNum;
-//	vec3_t mOrigin;
-//	struct SDistanceLimits
-//	{	int	min;
-//		int max;
-//	}	mDistance;
+	//	int mEntNum;
+	//	vec3_t mOrigin;
+	//	struct SDistanceLimits
+	//	{	int	min;
+	//		int max;
+	//	}	mDistance;
 
 public:
 	void zero()
@@ -66,32 +66,30 @@ public:
 		mHandle = FF_HANDLE_NULL;
 		mRefs = 0;
 		mPlaying = qfalse;
-//		mEntNum = 0;
-//		mDistance.min = 0;
-//		mDistance.max = 0;
-//		mOrigin[0] = 1.f;
-//		mOrigin[1] = 0.f;
-//		mOrigin[2] = 0.f;
+		//		mEntNum = 0;
+		//		mDistance.min = 0;
+		//		mDistance.max = 0;
+		//		mOrigin[0] = 1.f;
+		//		mOrigin[1] = 0.f;
+		//		mOrigin[2] = 0.f;
 	}
 	SndForce()
 	{
 		zero();
 	}
-	SndForce( const SndForce &other )
+	SndForce(const SndForce &other)
 	{
-		memcpy( this, &other, sizeof(SndForce) );
+		memcpy(this, &other, sizeof(SndForce));
 	}
-	SndForce( ffHandle_t handle/*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/ )
-	:	mHandle( handle )
-	,	mRefs( 0 )
-	,	mPlaying( qfalse )
-//	,	mEntNum( entNum )
+	SndForce(ffHandle_t handle /*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/)
+		: mHandle(handle), mRefs(0), mPlaying(qfalse)
+	//	,	mEntNum( entNum )
 	{
-//		mDistance.min = minDistance;
-//		mDistance.max = maxDistance;
-//		memcpy( mOrigin, origin, sizeof(mOrigin) );
+		//		mDistance.min = minDistance;
+		//		mDistance.max = maxDistance;
+		//		memcpy( mOrigin, origin, sizeof(mOrigin) );
 	}
-	void AddRef() 
+	void AddRef()
 	{
 		++mRefs;
 	}
@@ -99,14 +97,11 @@ public:
 	{
 		--mRefs;
 	}
-	qboolean Update( void ) const
+	qboolean Update(void) const
 	{
-		return qboolean
-		(	mRefs != 0
-		&&	(ChannelCompound*)mHandle
-		);
+		return qboolean(mRefs != 0 && (ChannelCompound *)mHandle);
 	}
-/*	int GetGain()
+	/*	int GetGain()
 	{
 		float distance = 1.f - GetRelativeDistance();
 
@@ -163,39 +158,38 @@ public:
 			memset( mOrigin, 0, sizeof(mOrigin) );
 		}
 	}*/
-	void operator += ( SndForce &other );
+	void operator+=(SndForce &other);
 };
 
 // Fancy comparator
 struct SndForceLess : public less<SndForce>
 {
-	bool operator() ( const SndForce &x, const SndForce &y )
+	bool operator()(const SndForce &x, const SndForce &y)
 	{
-		return bool
-		(/* x.mEntNum < y.mEntNum
-		||*/x.mHandle < y.mHandle
-//		||	x.mOrigin < y.mOrigin		// uhhh... compare components
-		||	x.mPlaying < y.mPlaying
-		);
+		return bool(/* x.mEntNum < y.mEntNum
+		||*/
+					x.mHandle < y.mHandle
+					//		||	x.mOrigin < y.mOrigin		// uhhh... compare components
+					|| x.mPlaying < y.mPlaying);
 	}
 };
-
 
 class LoopForce : public SndForce
 {
 public:
-	LoopForce(){}
-	LoopForce( const LoopForce &other )
+	LoopForce() {}
+	LoopForce(const LoopForce &other)
 	{
-		memcpy( this, &other, sizeof(LoopForce) );
+		memcpy(this, &other, sizeof(LoopForce));
 	}
-	LoopForce( ffHandle_t handle/*int entNum, , const vec3_t origin, float maxDistance, float minDistance*/ )
-	:	SndForce( handle/*, entNum, origin, maxDistance, minDistance*/ )
-	{}
+	LoopForce(ffHandle_t handle /*int entNum, , const vec3_t origin, float maxDistance, float minDistance*/)
+		: SndForce(handle /*, entNum, origin, maxDistance, minDistance*/)
+	{
+	}
 
-	void Add( ffHandle_t ff/*, int entNum, const vec3_t origin*/ );
-//	void Respatialize( int entNum, const vec3_t origin );
-	qboolean Update( void )
+	void Add(ffHandle_t ff /*, int entNum, const vec3_t origin*/);
+	//	void Respatialize( int entNum, const vec3_t origin );
+	qboolean Update(void)
 	{
 		qboolean result = SndForce::Update();
 		mRefs = 0;
@@ -210,13 +204,14 @@ public:
 	typedef map<ffHandle_t, SndForce> ActiveSet;
 	ActiveSet mActive;
 	PendingSet mPending;
+
 public:
-	void Add( ffHandle_t handle/*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/ )
+	void Add(ffHandle_t handle /*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/)
 	{
-		const_cast <SndForce&> (*mPending.insert( SndForce( handle/*, entNum, origin, maxDistance, minDistance*/ ) ).first).AddRef();
+		const_cast<SndForce &>(*mPending.insert(SndForce(handle /*, entNum, origin, maxDistance, minDistance*/)).first).AddRef();
 	}
-	qboolean Update( void );
-/*	void Respatialize( int entNum, const vec3_t origin )
+	qboolean Update(void);
+	/*	void Respatialize( int entNum, const vec3_t origin )
 	{
 		for
 		(	PendingSet::iterator itPending = mPending.begin()
@@ -228,20 +223,21 @@ public:
 	}*/
 };
 
-class LoopForceSet 
+class LoopForceSet
 {
 public:
 	typedef set<LoopForce, SndForceLess> PendingSet;
 	typedef map<ffHandle_t, LoopForce> ActiveSet;
 	ActiveSet mActive;
 	PendingSet mPending;
+
 public:
-	void Add( ffHandle_t handle/*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/ )
+	void Add(ffHandle_t handle /*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/)
 	{
-		const_cast <LoopForce&>(*mPending.insert( LoopForce( handle/*, entNum, origin, maxDistance, minDistance*/ ) ).first).AddRef();
+		const_cast<LoopForce &>(*mPending.insert(LoopForce(handle /*, entNum, origin, maxDistance, minDistance*/)).first).AddRef();
 	}
-	qboolean Update( void );
-/*	void Respatialize( int entNum, const vec3_t origin )
+	qboolean Update(void);
+	/*	void Respatialize( int entNum, const vec3_t origin )
 	{
 		for
 		(	PendingSet::iterator itPending = mPending.begin()
@@ -257,43 +253,44 @@ class MasterForceSet
 {
 protected:
 	int mEntityNum;
-//	vec3_t mOrigin;
+	//	vec3_t mOrigin;
 	SndForceSet mSnd;
 	LoopForceSet mLoop;
 
 public:
-	void Add( ffHandle_t handle/*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/ )
+	void Add(ffHandle_t handle /*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/)
 	{
-		mSnd.Add( handle/*, entNum, origin, maxDistance, minDistance*/ );
+		mSnd.Add(handle /*, entNum, origin, maxDistance, minDistance*/);
 	}
-	void AddLoop( ffHandle_t handle/*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/ )
+	void AddLoop(ffHandle_t handle /*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/)
 	{
-		mLoop.Add( handle/*, entNum, origin, maxDistance, minDistance*/ );
+		mLoop.Add(handle /*, entNum, origin, maxDistance, minDistance*/);
 	}
-/*	void Respatialize( int entNum, const vec3_t origin )
+	/*	void Respatialize( int entNum, const vec3_t origin )
 	{
 		memcpy( mOrigin, origin, sizeof(mOrigin) );
 		mEntityNum = entNum;
 		mSnd.Respatialize( entNum, origin );
 		mLoop.Respatialize( entNum, origin );
 	}
-*/	void Update( void );
+*/
+	void Update(void);
 };
 
-// 
+//
 //	===================================================================================
 //
 
 static MasterForceSet _MasterForceSet;
 
-void FF_AddForce( ffHandle_t ff/*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/ )
+void FF_AddForce(ffHandle_t ff /*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/)
 {
-	_MasterForceSet.Add( ff/*, entNum, origin, maxDistance, minDistance*/ );
+	_MasterForceSet.Add(ff /*, entNum, origin, maxDistance, minDistance*/);
 }
 
-void FF_AddLoopingForce( ffHandle_t ff/*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/ )
+void FF_AddLoopingForce(ffHandle_t ff /*, int entNum, const vec3_t origin, float maxDistance, float minDistance*/)
 {
-	_MasterForceSet.AddLoop( ff/*, entNum, origin, maxDistance, minDistance*/ );
+	_MasterForceSet.AddLoop(ff /*, entNum, origin, maxDistance, minDistance*/);
 }
 /*
 void FF_Respatialize( int entNum, const vec3_t origin )
@@ -301,7 +298,7 @@ void FF_Respatialize( int entNum, const vec3_t origin )
 	_MasterForceSet.Respatialize( entNum, origin );
 }
 */
-void FF_Update( void )
+void FF_Update(void)
 {
 	_MasterForceSet.Update();
 }
@@ -329,58 +326,50 @@ qboolean LoopForceSet::Update()
 
 	// Sum effects
 	ActiveSet active;
-	for
-	(	itPending = mPending.begin()
-	;	itPending != mPending.end()
-	;	itPending++
-	){
-		if ( (const_cast <LoopForce&> (*itPending)).Update() )
+	for (itPending = mPending.begin(); itPending != mPending.end(); itPending++)
+	{
+		if ((const_cast<LoopForce &>(*itPending)).Update())
 		{
-			active[ (*itPending).mHandle ] += const_cast <LoopForce&> (*itPending) ;
+			active[(*itPending).mHandle] += const_cast<LoopForce &>(*itPending);
 		}
 	}
 
-	// Stop and remove unreferenced effects 
-	for
-	(	itActive = mActive.begin()
-	;	itActive != mActive.end()
-	;	//itActive++
-	){
-		if ( active.find( (*itActive).first ) != active.end() )
+	// Stop and remove unreferenced effects
+	for (itActive = mActive.begin(); itActive != mActive.end(); //itActive++
+	)
+	{
+		if (active.find((*itActive).first) != active.end())
 		{
 			itActive++;
 		}
 		else
 		{
 			SndForce &sndForce = (*itActive).second;
-			FF_Stop( sndForce.mHandle );
-			itActive = mActive.erase( itActive );
+			FF_Stop(sndForce.mHandle);
+			itActive = mActive.erase(itActive);
 		}
 	}
 
 	// Decide whether to start or update
-	for
-	(	itActive = active.begin()
-	;	itActive != active.end()
-	;	itActive++
-	){
-		SndForce &sndForce = mActive[ (*itActive).first ];
+	for (itActive = active.begin(); itActive != active.end(); itActive++)
+	{
+		SndForce &sndForce = mActive[(*itActive).first];
 		sndForce.mHandle = (*itActive).first;
-		if ( sndForce.mPlaying )
+		if (sndForce.mPlaying)
 		{
 			// Just update it
 
-//			if ( (*itActive).second.GetGain() != sndForce.GetGain() )
-//			{
-//				gFFSystem.ChangeGain( sndForce.mHandle, sndForce.GetGain() );
-//			}
+			//			if ( (*itActive).second.GetGain() != sndForce.GetGain() )
+			//			{
+			//				gFFSystem.ChangeGain( sndForce.mHandle, sndForce.GetGain() );
+			//			}
 		}
 		else
 		{
 			// Update and start it
 
-//			gFFSystem.ChangeGain( sndForce.mHandle, sndForce.GetGain() );
-			FF_Play( sndForce.mHandle );
+			//			gFFSystem.ChangeGain( sndForce.mHandle, sndForce.GetGain() );
+			FF_Play(sndForce.mHandle);
 			sndForce.mPlaying = qtrue;
 		}
 	}
@@ -399,7 +388,7 @@ qboolean SndForceSet::Update()
 {
 	ActiveSet::iterator itActive;
 	PendingSet::iterator itPending;
-/*
+	/*
 	// Remove finished effects from active //and pending sets
 	for
 	(	itActive = mActive.begin()
@@ -431,25 +420,19 @@ qboolean SndForceSet::Update()
 	}
 */
 	// Sum effects
-	ActiveSet start; 
-	for
-	(	itPending = mPending.begin()
-	;	itPending != mPending.end()
-	;	itPending++
-	){
-		if ( (*itPending).Update() )
+	ActiveSet start;
+	for (itPending = mPending.begin(); itPending != mPending.end(); itPending++)
+	{
+		if ((*itPending).Update())
 		{
-			start[ (*itPending).mHandle ] += const_cast <SndForce&> (*itPending);
+			start[(*itPending).mHandle] += const_cast<SndForce &>(*itPending);
 		}
 	}
 
 	// Decide whether to start ( no updating one-shots )
-	for
-	(	itActive = start.begin()
-	;	itActive != start.end()
-	;	itActive++
-	){
-/*		SndForce &sndForce = mActive[ (*itActive).first ];
+	for (itActive = start.begin(); itActive != start.end(); itActive++)
+	{
+		/*		SndForce &sndForce = mActive[ (*itActive).first ];
 		sndForce.mHandle = (*itActive).first;
 		if ( (*itActive).second.GetGain() >= sndForce.GetGain() )
 		{
@@ -457,7 +440,8 @@ qboolean SndForceSet::Update()
 			FF_Start( sndForce.mHandle );
 			sndForce.mPlaying = qtrue;
 		}
-*/		FF_Play( (*itActive).first );
+*/
+		FF_Play((*itActive).first);
 	}
 
 	mPending.clear();
@@ -465,7 +449,7 @@ qboolean SndForceSet::Update()
 	return qfalse;
 }
 
-void SndForce::operator += ( SndForce &other )
+void SndForce::operator+=(SndForce &other)
 {
 	/*
 	float dist = other.GetRelativeDistance();
@@ -496,8 +480,8 @@ void SndForce::operator += ( SndForce &other )
 		}
 	*/
 
-		mRefs += other.mRefs;
-//	}
+	mRefs += other.mRefs;
+	//	}
 }
 
 #endif // _IMMERSION

@@ -4,7 +4,6 @@
 //
 #include "../server/exe_headers.h"
 
-
 #include "client.h"
 #include "client_ui.h"
 #include <limits.h>
@@ -29,73 +28,73 @@
 
 #endif
 
-#define	RETRANSMIT_TIMEOUT	3000	// time between connection packet retransmits
+#define RETRANSMIT_TIMEOUT 3000 // time between connection packet retransmits
 
-cvar_t	*cl_nodelta;
-cvar_t	*cl_debugMove;
+cvar_t *cl_nodelta;
+cvar_t *cl_debugMove;
 
-cvar_t	*cl_noprint;
+cvar_t *cl_noprint;
 
-cvar_t	*cl_timeout;
-cvar_t	*cl_maxpackets;
-cvar_t	*cl_packetdup;
-cvar_t	*cl_timeNudge;
-cvar_t	*cl_showTimeDelta;
-cvar_t	*cl_newClock=0;
+cvar_t *cl_timeout;
+cvar_t *cl_maxpackets;
+cvar_t *cl_packetdup;
+cvar_t *cl_timeNudge;
+cvar_t *cl_showTimeDelta;
+cvar_t *cl_newClock = 0;
 
-cvar_t	*cl_shownet;
-cvar_t	*cl_avidemo;
+cvar_t *cl_shownet;
+cvar_t *cl_avidemo;
 
-cvar_t	*cl_pano;
-cvar_t	*cl_panoNumShots;
-cvar_t	*cl_skippingcin;
-cvar_t	*cl_endcredits;
+cvar_t *cl_pano;
+cvar_t *cl_panoNumShots;
+cvar_t *cl_skippingcin;
+cvar_t *cl_endcredits;
 
-cvar_t	*cl_freelook;
-cvar_t	*cl_sensitivity;
+cvar_t *cl_freelook;
+cvar_t *cl_sensitivity;
 #ifdef _XBOX
-cvar_t	*cl_sensitivityY;
+cvar_t *cl_sensitivityY;
 #endif
 
 //cvar_t	*cl_mouseAccel;
 //cvar_t	*cl_showMouseRate;
-cvar_t  *cl_VideoQuality;
-cvar_t	*cl_VidFadeUp;	// deliberately kept as "Vid" rather than "Video" so tab-matching matches only VideoQuality
-cvar_t	*cl_VidFadeDown;
-cvar_t	*cl_framerate;
+cvar_t *cl_VideoQuality;
+cvar_t *cl_VidFadeUp; // deliberately kept as "Vid" rather than "Video" so tab-matching matches only VideoQuality
+cvar_t *cl_VidFadeDown;
+cvar_t *cl_framerate;
 
-cvar_t	*m_pitch;
-cvar_t	*m_yaw;
-cvar_t	*m_forward;
-cvar_t	*m_side;
+cvar_t *m_pitch;
+cvar_t *m_yaw;
+cvar_t *m_forward;
+cvar_t *m_side;
 //cvar_t	*m_filter;
 
 #ifdef _XBOX
 //MAP HACK
-cvar_t	*cl_mapname;
+cvar_t *cl_mapname;
 qboolean vidRestartReloadMap = qfalse;
 #endif
 
-cvar_t	*cl_activeAction;
+cvar_t *cl_activeAction;
 
-cvar_t	*cl_updateInfoString;
+cvar_t *cl_updateInfoString;
 
-cvar_t	*cl_ingameVideo;
+cvar_t *cl_ingameVideo;
 
-cvar_t	*cl_thumbStickMode;
+cvar_t *cl_thumbStickMode;
 
-clientActive_t		cl;
-clientConnection_t	clc;
-clientStatic_t		cls;
+clientActive_t cl;
+clientConnection_t clc;
+clientStatic_t cls;
 
 // Structure containing functions exported from refresh DLL
-refexport_t	re;
+refexport_t re;
 
-ping_t	cl_pinglist[MAX_PINGREQUESTS];
+ping_t cl_pinglist[MAX_PINGREQUESTS];
 
-void CL_ShutdownRef( void );
-void CL_InitRef( void );
-void CL_CheckForResend( void );
+void CL_ShutdownRef(void);
+void CL_InitRef(void);
+void CL_CheckForResend(void);
 
 /*
 =======================================================================
@@ -113,20 +112,23 @@ The given command will be transmitted to the server, and is gauranteed to
 not have future usercmd_t executed before it is executed
 ======================
 */
-void CL_AddReliableCommand( const char *cmd ) {
-	int		index;
+void CL_AddReliableCommand(const char *cmd)
+{
+	int index;
 
 	// if we would be losing an old command that hasn't been acknowledged,
 	// we must drop the connection
-	if ( clc.reliableSequence - clc.reliableAcknowledge > MAX_RELIABLE_COMMANDS ) {
-		Com_Error( ERR_DROP, "Client command overflow" );
+	if (clc.reliableSequence - clc.reliableAcknowledge > MAX_RELIABLE_COMMANDS)
+	{
+		Com_Error(ERR_DROP, "Client command overflow");
 	}
 	clc.reliableSequence++;
-	index = clc.reliableSequence & ( MAX_RELIABLE_COMMANDS - 1 );
-	if ( clc.reliableCommands[ index ] ) {
-		Z_Free( clc.reliableCommands[ index ] );
+	index = clc.reliableSequence & (MAX_RELIABLE_COMMANDS - 1);
+	if (clc.reliableCommands[index])
+	{
+		Z_Free(clc.reliableCommands[index]);
 	}
-	clc.reliableCommands[ index ] = CopyString( cmd );
+	clc.reliableCommands[index] = CopyString(cmd);
 }
 
 //======================================================================
@@ -139,19 +141,21 @@ Called when a demo or cinematic finishes
 If the "nextdemo" cvar is set, that command will be issued
 ==================
 */
-void CL_NextDemo( void ) {
-	char	v[MAX_STRING_CHARS];
+void CL_NextDemo(void)
+{
+	char v[MAX_STRING_CHARS];
 
-	Q_strncpyz( v, Cvar_VariableString ("nextdemo"), sizeof(v) );
-	v[MAX_STRING_CHARS-1] = 0;
-	Com_DPrintf("CL_NextDemo: %s\n", v );
-	if (!v[0]) {
+	Q_strncpyz(v, Cvar_VariableString("nextdemo"), sizeof(v));
+	v[MAX_STRING_CHARS - 1] = 0;
+	Com_DPrintf("CL_NextDemo: %s\n", v);
+	if (!v[0])
+	{
 		return;
 	}
 
-	Cvar_Set ("nextdemo","");
-	Cbuf_AddText (v);
-	Cbuf_AddText ("\n");
+	Cvar_Set("nextdemo", "");
+	Cbuf_AddText(v);
+	Cbuf_AddText("\n");
 	Cbuf_Execute();
 }
 
@@ -166,7 +170,8 @@ ways a client gets into a game
 Also called by Com_Error
 =================
 */
-void CL_FlushMemory( void ) {
+void CL_FlushMemory(void)
+{
 
 	// clear sounds (moved higher up within this func to avoid the odd sound stutter)
 	S_DisableSounds();
@@ -176,8 +181,9 @@ void CL_FlushMemory( void ) {
 
 	CL_ShutdownUI();
 
-	if ( re.Shutdown ) {
-		re.Shutdown( qfalse );		// don't destroy window or context
+	if (re.Shutdown)
+	{
+		re.Shutdown(qfalse); // don't destroy window or context
 	}
 
 	//rwwFIXMEFIXME: The game server appears to continue running, so clearing common bsp data causes crashing and other bad things
@@ -202,8 +208,10 @@ screen to let the user know about it, then dump all client
 memory on the hunk from cgame, ui, and renderer
 =====================
 */
-void CL_MapLoading( void ) {
-	if ( !com_cl_running->integer ) {
+void CL_MapLoading(void)
+{
+	if (!com_cl_running->integer)
+	{
 		return;
 	}
 
@@ -211,31 +219,34 @@ void CL_MapLoading( void ) {
 	cls.keyCatchers = 0;
 
 	// if we are already connected to the local host, stay connected
-	if ( cls.state >= CA_CONNECTED && !Q_stricmp( cls.servername, "localhost" ) )  {
-		cls.state = CA_CONNECTED;		// so the connect screen is drawn
-		memset( cls.updateInfoString, 0, sizeof( cls.updateInfoString ) );
-//		memset( clc.serverMessage, 0, sizeof( clc.serverMessage ) );
-		memset( &cl.gameState, 0, sizeof( cl.gameState ) );
+	if (cls.state >= CA_CONNECTED && !Q_stricmp(cls.servername, "localhost"))
+	{
+		cls.state = CA_CONNECTED; // so the connect screen is drawn
+		memset(cls.updateInfoString, 0, sizeof(cls.updateInfoString));
+		//		memset( clc.serverMessage, 0, sizeof( clc.serverMessage ) );
+		memset(&cl.gameState, 0, sizeof(cl.gameState));
 		clc.lastPacketSentTime = -9999;
 		SCR_UpdateScreen();
-	} else {
+	}
+	else
+	{
 		// clear nextmap so the cinematic shutdown doesn't execute it
-		Cvar_Set( "nextmap", "" );
-#ifdef _XBOX	// This was done at E3 time - it's nasty, but we may just keep it.
+		Cvar_Set("nextmap", "");
+#ifdef _XBOX // This was done at E3 time - it's nasty, but we may just keep it.
 		connstate_t oldState = cls.state;
 		cls.state = CA_CHALLENGING;
 		SCR_UpdateScreen();
 		cls.state = oldState;
 #endif
 		CL_Disconnect();
-		Q_strncpyz( cls.servername, "localhost", sizeof(cls.servername) );
-		cls.state = CA_CHALLENGING;		// so the connect screen is drawn
+		Q_strncpyz(cls.servername, "localhost", sizeof(cls.servername));
+		cls.state = CA_CHALLENGING; // so the connect screen is drawn
 		cls.keyCatchers = 0;
 #ifndef _XBOX
 		SCR_UpdateScreen();
 #endif
 		clc.connectTime = -RETRANSMIT_TIMEOUT;
-		NET_StringToAdr( cls.servername, &clc.serverAddress);
+		NET_StringToAdr(cls.servername, &clc.serverAddress);
 		// we don't need a challenge on the localhost
 
 		CL_CheckForResend();
@@ -251,12 +262,13 @@ CL_ClearState
 Called before parsing a gamestate
 =====================
 */
-void CL_ClearState (void) {
+void CL_ClearState(void)
+{
 	CL_ShutdownCGame();
 
 	S_StopAllSounds();
 
-	memset( &cl, 0, sizeof( cl ) );
+	memset(&cl, 0, sizeof(cl));
 }
 
 /*
@@ -266,17 +278,18 @@ CL_FreeReliableCommands
 Wipes all reliableCommands strings from clc
 =====================
 */
-void CL_FreeReliableCommands( void )
+void CL_FreeReliableCommands(void)
 {
 	// wipe the client connection
-	for ( int i = 0 ; i < MAX_RELIABLE_COMMANDS ; i++ ) {
-		if ( clc.reliableCommands[i] ) {
-			Z_Free( clc.reliableCommands[i] );
-		 	clc.reliableCommands[i] = NULL;
+	for (int i = 0; i < MAX_RELIABLE_COMMANDS; i++)
+	{
+		if (clc.reliableCommands[i])
+		{
+			Z_Free(clc.reliableCommands[i]);
+			clc.reliableCommands[i] = NULL;
 		}
 	}
 }
-
 
 /*
 =====================
@@ -288,8 +301,10 @@ Sends a disconnect message to the server
 This is also called on Com_Error and Com_Quit, so it shouldn't cause any errors
 =====================
 */
-void CL_Disconnect( void ) {
-	if ( !com_cl_running || !com_cl_running->integer ) {
+void CL_Disconnect(void)
+{
+	if (!com_cl_running || !com_cl_running->integer)
+	{
 		return;
 	}
 
@@ -297,47 +312,47 @@ void CL_Disconnect( void ) {
 	Cvar_Set("r_norefresh", "0");
 
 	// Make sure to stop all rumbling! - Prevents bug when quitting game during rumble:
-	extern void IN_KillRumbleScripts( void );
+	extern void IN_KillRumbleScripts(void);
 	IN_KillRumbleScripts();
 #endif
 
 	if (cls.uiStarted)
-		UI_SetActiveMenu( NULL,NULL );
+		UI_SetActiveMenu(NULL, NULL);
 
-	SCR_StopCinematic ();
+	SCR_StopCinematic();
 	S_ClearSoundBuffer();
 
 #ifdef _XBOX
-//	extern qboolean RE_RegisterImages_LevelLoadEnd(void);
-//	RE_RegisterImages_LevelLoadEnd();
+	//	extern qboolean RE_RegisterImages_LevelLoadEnd(void);
+	//	RE_RegisterImages_LevelLoadEnd();
 	R_DeleteTextures();
 #endif
 
 	// send a disconnect message to the server
 	// send it a few times in case one is dropped
-	if ( cls.state >= CA_CONNECTED ) {
-		CL_AddReliableCommand( "disconnect" );
+	if (cls.state >= CA_CONNECTED)
+	{
+		CL_AddReliableCommand("disconnect");
 		CL_WritePacket();
 		CL_WritePacket();
 		CL_WritePacket();
 	}
-	
-	CL_ClearState ();
+
+	CL_ClearState();
 
 	CL_FreeReliableCommands();
 
 	extern void CL_FreeServerCommands(void);
 	CL_FreeServerCommands();
 
-	memset( &clc, 0, sizeof( clc ) );
+	memset(&clc, 0, sizeof(clc));
 
 	cls.state = CA_DISCONNECTED;
 
 	// allow cheats locally
-	Cvar_Set( "timescale", "1" );//jic we were skipping
-	Cvar_Set( "skippingCinematic", "0" );//jic we were skipping
+	Cvar_Set("timescale", "1");			//jic we were skipping
+	Cvar_Set("skippingCinematic", "0"); //jic we were skipping
 }
-
 
 /*
 ===================
@@ -348,31 +363,36 @@ things like godmode, noclip, etc, are commands directed to the server,
 so when they are typed in at the console, they will need to be forwarded.
 ===================
 */
-void CL_ForwardCommandToServer( void ) {
-	char	*cmd;
-	char	string[MAX_STRING_CHARS];
+void CL_ForwardCommandToServer(void)
+{
+	char *cmd;
+	char string[MAX_STRING_CHARS];
 
 	cmd = Cmd_Argv(0);
 
 	// ignore key up commands
-	if ( cmd[0] == '-' ) {
+	if (cmd[0] == '-')
+	{
 		return;
 	}
 
-	if ( cls.state != CA_ACTIVE || cmd[0] == '+' ) {
-		Com_Printf ("Unknown command \"%s\"\n", cmd);
+	if (cls.state != CA_ACTIVE || cmd[0] == '+')
+	{
+		Com_Printf("Unknown command \"%s\"\n", cmd);
 		return;
 	}
 
-	if ( Cmd_Argc() > 1 ) {
-		Com_sprintf( string, sizeof(string), "%s %s", cmd, Cmd_Args() );
-	} else {
-		Q_strncpyz( string, cmd, sizeof(string) );
+	if (Cmd_Argc() > 1)
+	{
+		Com_sprintf(string, sizeof(string), "%s %s", cmd, Cmd_Args());
+	}
+	else
+	{
+		Q_strncpyz(string, cmd, sizeof(string));
 	}
 
-	CL_AddReliableCommand( string );
+	CL_AddReliableCommand(string);
 }
-
 
 /*
 ======================================================================
@@ -387,15 +407,18 @@ CONSOLE COMMANDS
 CL_ForwardToServer_f
 ==================
 */
-void CL_ForwardToServer_f( void ) {
-	if ( cls.state != CA_ACTIVE ) {
-		Com_Printf ("Not connected to a server.\n");
+void CL_ForwardToServer_f(void)
+{
+	if (cls.state != CA_ACTIVE)
+	{
+		Com_Printf("Not connected to a server.\n");
 		return;
 	}
-	
+
 	// don't forward the first argument
-	if ( Cmd_Argc() > 1 ) {
-		CL_AddReliableCommand( Cmd_Args() );
+	if (Cmd_Argc() > 1)
+	{
+		CL_AddReliableCommand(Cmd_Args());
 	}
 }
 
@@ -404,19 +427,20 @@ void CL_ForwardToServer_f( void ) {
 CL_Disconnect_f
 ==================
 */
-void CL_Disconnect_f( void ) {
-	SCR_StopCinematic();	
+void CL_Disconnect_f(void)
+{
+	SCR_StopCinematic();
 
 	//FIXME:
 	// TA codebase added additional CA_CINEMATIC check below, presumably so they could play cinematics
 	//	in the menus when disconnected, although having the SCR_StopCinematic() call above is weird.
 	// Either there's a bug, or the new version of that function conditionally-doesn't stop cinematics...
 	//
-	if ( cls.state != CA_DISCONNECTED && cls.state != CA_CINEMATIC ) {
-		Com_Error (ERR_DISCONNECT, "Disconnected from server");
+	if (cls.state != CA_DISCONNECTED && cls.state != CA_CINEMATIC)
+	{
+		Com_Error(ERR_DISCONNECT, "Disconnected from server");
 	}
 }
-
 
 /*
 =================
@@ -425,15 +449,16 @@ CL_Vid_Restart_f
 Restart the video subsystem
 =================
 */
-void CL_Vid_Restart_f( void ) {
-	S_StopAllSounds();		// don't let them loop during the restart
-	S_BeginRegistration();	// all sound handles are now invalid
+void CL_Vid_Restart_f(void)
+{
+	S_StopAllSounds();	   // don't let them loop during the restart
+	S_BeginRegistration(); // all sound handles are now invalid
 	CL_ShutdownRef();
 	CL_ShutdownUI();
 	CL_ShutdownCGame();
 
 	//rww - sof2mp does this here, but it seems to cause problems in this codebase.
-//	CM_ClearMap();
+	//	CM_ClearMap();
 
 	CL_InitRef();
 
@@ -452,7 +477,7 @@ void CL_Vid_Restart_f( void ) {
 #endif
 
 	// unpause so the cgame definately gets a snapshot and renders a frame
-	Cvar_Set( "cl_paused", "0" );
+	Cvar_Set("cl_paused", "0");
 }
 
 /*
@@ -464,15 +489,16 @@ The cgame and game must also be forced to restart because
 handles will be invalid
 =================
 */
-void CL_Snd_Restart_f( void ) {
+void CL_Snd_Restart_f(void)
+{
 	S_Shutdown();
 
 	S_Init();
 
-//	CL_Vid_Restart_f();
+	//	CL_Vid_Restart_f();
 
-	extern qboolean	s_soundMuted;
-	s_soundMuted = qfalse;		// we can play again
+	extern qboolean s_soundMuted;
+	s_soundMuted = qfalse; // we can play again
 
 	S_RestartMusic();
 
@@ -488,21 +514,22 @@ void CL_Snd_Restart_f( void ) {
 CL_FF_Restart_f
 =================
 */
-void CL_FF_Restart_f( void ) {
+void CL_FF_Restart_f(void)
+{
 
-	if ( FF_IsInitialized() )
+	if (FF_IsInitialized())
 	{
 		// Apply cvar changes w/o losing registered effects
 		// Allows changing devices in-game without restarting the map
-		if ( !FF_Init() )
-			FF_Shutdown();	// error (shouldn't happen)
+		if (!FF_Init())
+			FF_Shutdown(); // error (shouldn't happen)
 	}
-	else if ( cls.state >= CA_PRIMED )	// maybe > CA_DISCONNECTED
+	else if (cls.state >= CA_PRIMED) // maybe > CA_DISCONNECTED
 	{
 		// Restart map or menu
 		CL_Vid_Restart_f();
 	}
-	else if ( cls.uiStarted )
+	else if (cls.uiStarted)
 	{
 		// Restart menu
 		CL_ShutdownUI();
@@ -515,21 +542,25 @@ void CL_FF_Restart_f( void ) {
 CL_Configstrings_f
 ==================
 */
-void CL_Configstrings_f( void ) {
-	int		i;
-	int		ofs;
+void CL_Configstrings_f(void)
+{
+	int i;
+	int ofs;
 
-	if ( cls.state != CA_ACTIVE ) {
-		Com_Printf( "Not connected to a server.\n");
+	if (cls.state != CA_ACTIVE)
+	{
+		Com_Printf("Not connected to a server.\n");
 		return;
 	}
 
-	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
-		ofs = cl.gameState.stringOffsets[ i ];
-		if ( !ofs ) {
+	for (i = 0; i < MAX_CONFIGSTRINGS; i++)
+	{
+		ofs = cl.gameState.stringOffsets[i];
+		if (!ofs)
+		{
 			continue;
 		}
-		Com_Printf( "%4i: %s\n", i, cl.gameState.stringData + ofs );
+		Com_Printf("%4i: %s\n", i, cl.gameState.stringData + ofs);
 	}
 }
 
@@ -538,19 +569,19 @@ void CL_Configstrings_f( void ) {
 CL_Clientinfo_f
 ==============
 */
-void CL_Clientinfo_f( void ) {
-	Com_Printf( "--------- Client Information ---------\n" );
-	Com_Printf( "state: %i\n", cls.state );
-	Com_Printf( "Server: %s\n", cls.servername );
-	Com_Printf ("User info settings:\n");
-	Info_Print( Cvar_InfoString( CVAR_USERINFO ) );
-	Com_Printf( "--------------------------------------\n" );
+void CL_Clientinfo_f(void)
+{
+	Com_Printf("--------- Client Information ---------\n");
+	Com_Printf("state: %i\n", cls.state);
+	Com_Printf("Server: %s\n", cls.servername);
+	Com_Printf("User info settings:\n");
+	Info_Print(Cvar_InfoString(CVAR_USERINFO));
+	Com_Printf("--------------------------------------\n");
 }
-
 
 //====================================================================
 
-void UI_UpdateConnectionString( char *string );
+void UI_UpdateConnectionString(char *string);
 
 /*
 =================
@@ -559,57 +590,60 @@ CL_CheckForResend
 Resend a connect message if the last one has timed out
 =================
 */
-void CL_CheckForResend( void ) {
-	int		port;
-	char	info[MAX_INFO_STRING];
+void CL_CheckForResend(void)
+{
+	int port;
+	char info[MAX_INFO_STRING];
 
-//	if ( cls.state == CA_CINEMATIC )  
-	if ( cls.state == CA_CINEMATIC || CL_IsRunningInGameCinematic())
+	//	if ( cls.state == CA_CINEMATIC )
+	if (cls.state == CA_CINEMATIC || CL_IsRunningInGameCinematic())
 	{
 		return;
 	}
 
 	// resend if we haven't gotten a reply yet
-	if ( cls.state < CA_CONNECTING || cls.state > CA_CHALLENGING ) {
+	if (cls.state < CA_CONNECTING || cls.state > CA_CHALLENGING)
+	{
 		return;
 	}
 
-	if ( cls.realtime - clc.connectTime < RETRANSMIT_TIMEOUT ) {
+	if (cls.realtime - clc.connectTime < RETRANSMIT_TIMEOUT)
+	{
 		return;
 	}
 
-	clc.connectTime = cls.realtime;	// for retransmit requests
+	clc.connectTime = cls.realtime; // for retransmit requests
 	clc.connectPacketCount++;
 
 	// requesting a challenge
-	switch ( cls.state ) {
+	switch (cls.state)
+	{
 	case CA_CONNECTING:
-		UI_UpdateConnectionString( va("(%i)", clc.connectPacketCount ) );
+		UI_UpdateConnectionString(va("(%i)", clc.connectPacketCount));
 
 		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "getchallenge");
 		break;
 
 	case CA_CHALLENGING:
-	// sending back the challenge
+		// sending back the challenge
 		port = Cvar_VariableIntegerValue("qport");
 
-//		UI_UpdateConnectionString( va("(%i)", clc.connectPacketCount ) );
+		//		UI_UpdateConnectionString( va("(%i)", clc.connectPacketCount ) );
 
-		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
-		Info_SetValueForKey( info, "protocol", va("%i", PROTOCOL_VERSION ) );
-		Info_SetValueForKey( info, "qport", va("%i", port ) );
-		Info_SetValueForKey( info, "challenge", va("%i", clc.challenge ) );
-		NET_OutOfBandPrint( NS_CLIENT, clc.serverAddress, "connect \"%s\"", info );
+		Q_strncpyz(info, Cvar_InfoString(CVAR_USERINFO), sizeof(info));
+		Info_SetValueForKey(info, "protocol", va("%i", PROTOCOL_VERSION));
+		Info_SetValueForKey(info, "qport", va("%i", port));
+		Info_SetValueForKey(info, "challenge", va("%i", clc.challenge));
+		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "connect \"%s\"", info);
 		// the most current userinfo has been sent, so watch for any
 		// newer changes to userinfo variables
 		cvar_modifiedFlags &= ~CVAR_USERINFO;
 		break;
 
 	default:
-		Com_Error( ERR_FATAL, "CL_CheckForResend: bad cls.state" );
+		Com_Error(ERR_FATAL, "CL_CheckForResend: bad cls.state");
 	}
 }
-
 
 /*
 ===================
@@ -621,27 +655,30 @@ to the server, the server will send out of band disconnect packets
 to the client so it doesn't have to wait for the full timeout period.
 ===================
 */
-void CL_DisconnectPacket( netadr_t from ) {
-	if ( cls.state != CA_ACTIVE ) {
+void CL_DisconnectPacket(netadr_t from)
+{
+	if (cls.state != CA_ACTIVE)
+	{
 		return;
 	}
 
 	// if not from our server, ignore it
-	if ( !NET_CompareAdr( from, clc.netchan.remoteAddress ) ) {
+	if (!NET_CompareAdr(from, clc.netchan.remoteAddress))
+	{
 		return;
 	}
 
 	// if we have received packets within three seconds, ignore it
 	// (it might be a malicious spoof)
-	if ( cls.realtime - clc.lastPacketTime < 3000 ) {
+	if (cls.realtime - clc.lastPacketTime < 3000)
+	{
 		return;
 	}
 
 	// drop the connection (FIXME: connection dropped dialog)
-	Com_Printf( "Server disconnected for unknown reason\n" );
+	Com_Printf("Server disconnected for unknown reason\n");
 	CL_Disconnect();
 }
-
 
 /*
 =================
@@ -650,26 +687,31 @@ CL_ConnectionlessPacket
 Responses to broadcasts, etc
 =================
 */
-void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
-	char	*s;
-	char	*c;
-	
-	MSG_BeginReading( msg );
-	MSG_ReadLong( msg );	// skip the -1
+void CL_ConnectionlessPacket(netadr_t from, msg_t *msg)
+{
+	char *s;
+	char *c;
 
-	s = MSG_ReadStringLine( msg );
+	MSG_BeginReading(msg);
+	MSG_ReadLong(msg); // skip the -1
 
-	Cmd_TokenizeString( s );
+	s = MSG_ReadStringLine(msg);
+
+	Cmd_TokenizeString(s);
 
 	c = Cmd_Argv(0);
 
-	Com_DPrintf ("CL packet %s: %s\n", NET_AdrToString(from), c);
+	Com_DPrintf("CL packet %s: %s\n", NET_AdrToString(from), c);
 
 	// challenge from the server we are connecting to
-	if ( !strcmp(c, "challengeResponse") ) {
-		if ( cls.state != CA_CONNECTING ) {
-			Com_Printf( "Unwanted challenge response received.  Ignored.\n" );
-		} else {
+	if (!strcmp(c, "challengeResponse"))
+	{
+		if (cls.state != CA_CONNECTING)
+		{
+			Com_Printf("Unwanted challenge response received.  Ignored.\n");
+		}
+		else
+		{
 			// start sending challenge repsonse instead of challenge request packets
 			clc.challenge = atoi(Cmd_Argv(1));
 			cls.state = CA_CHALLENGING;
@@ -684,52 +726,57 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	}
 
 	// server connection
-	if ( !strcmp(c, "connectResponse") ) {
-		if ( cls.state >= CA_CONNECTED ) {
-			Com_Printf ("Dup connect received.  Ignored.\n");
+	if (!strcmp(c, "connectResponse"))
+	{
+		if (cls.state >= CA_CONNECTED)
+		{
+			Com_Printf("Dup connect received.  Ignored.\n");
 			return;
 		}
-		if ( cls.state != CA_CHALLENGING ) {
-			Com_Printf ("connectResponse packet while not connecting.  Ignored.\n");
+		if (cls.state != CA_CHALLENGING)
+		{
+			Com_Printf("connectResponse packet while not connecting.  Ignored.\n");
 			return;
 		}
-		if ( !NET_CompareBaseAdr( from, clc.serverAddress ) ) {
-			Com_Printf( "connectResponse from a different address.  Ignored.\n" );
-			Com_Printf( "%s should have been %s\n", NET_AdrToString( from ), 
-				NET_AdrToString( clc.serverAddress ) );
+		if (!NET_CompareBaseAdr(from, clc.serverAddress))
+		{
+			Com_Printf("connectResponse from a different address.  Ignored.\n");
+			Com_Printf("%s should have been %s\n", NET_AdrToString(from),
+					   NET_AdrToString(clc.serverAddress));
 			return;
 		}
-		Netchan_Setup (NS_CLIENT, &clc.netchan, from, Cvar_VariableIntegerValue( "qport" ) );
+		Netchan_Setup(NS_CLIENT, &clc.netchan, from, Cvar_VariableIntegerValue("qport"));
 		cls.state = CA_CONNECTED;
-		clc.lastPacketSentTime = -9999;		// send first packet immediately
+		clc.lastPacketSentTime = -9999; // send first packet immediately
 		return;
 	}
 
 	// a disconnect message from the server, which will happen if the server
 	// dropped the connection but it is still getting packets from us
-	if (!strcmp(c, "disconnect")) {
-		CL_DisconnectPacket( from );
+	if (!strcmp(c, "disconnect"))
+	{
+		CL_DisconnectPacket(from);
 		return;
 	}
 
 	// echo request from server
-	if ( !strcmp(c, "echo") ) {
-		NET_OutOfBandPrint( NS_CLIENT, from, "%s", Cmd_Argv(1) );
+	if (!strcmp(c, "echo"))
+	{
+		NET_OutOfBandPrint(NS_CLIENT, from, "%s", Cmd_Argv(1));
 		return;
 	}
 
 	// print request from server
-	if ( !strcmp(c, "print") ) {
-		s = MSG_ReadString( msg );
-		UI_UpdateConnectionMessageString( s );
-		Com_Printf( "%s", s );
+	if (!strcmp(c, "print"))
+	{
+		s = MSG_ReadString(msg);
+		UI_UpdateConnectionMessageString(s);
+		Com_Printf("%s", s);
 		return;
 	}
 
-
-	Com_DPrintf ("Unknown connectionless packet command.\n");
+	Com_DPrintf("Unknown connectionless packet command.\n");
 }
-
 
 /*
 =================
@@ -738,44 +785,49 @@ CL_PacketEvent
 A packet has arrived from the main event loop
 =================
 */
-void CL_PacketEvent( netadr_t from, msg_t *msg ) {
-	int		headerBytes;
+void CL_PacketEvent(netadr_t from, msg_t *msg)
+{
+	int headerBytes;
 
 	clc.lastPacketTime = cls.realtime;
 
-	if ( msg->cursize >= 4 && *(int *)msg->data == -1 ) {
-		CL_ConnectionlessPacket( from, msg );
+	if (msg->cursize >= 4 && *(int *)msg->data == -1)
+	{
+		CL_ConnectionlessPacket(from, msg);
 		return;
 	}
 
-	if ( cls.state < CA_CONNECTED ) {
-		return;		// can't be a valid sequenced packet
+	if (cls.state < CA_CONNECTED)
+	{
+		return; // can't be a valid sequenced packet
 	}
 
-	if ( msg->cursize < 8 ) {
-		Com_Printf ("%s: Runt packet\n",NET_AdrToString( from ));
+	if (msg->cursize < 8)
+	{
+		Com_Printf("%s: Runt packet\n", NET_AdrToString(from));
 		return;
 	}
 
 	//
 	// packet from server
 	//
-	if ( !NET_CompareAdr( from, clc.netchan.remoteAddress ) ) {
-		Com_DPrintf ("%s:sequenced packet without connection\n"
-			,NET_AdrToString( from ) );
+	if (!NET_CompareAdr(from, clc.netchan.remoteAddress))
+	{
+		Com_DPrintf("%s:sequenced packet without connection\n", NET_AdrToString(from));
 		// FIXME: send a client disconnect?
 		return;
 	}
 
-	if (!Netchan_Process( &clc.netchan, msg) ) {
-		return;		// out of order, duplicated, etc
+	if (!Netchan_Process(&clc.netchan, msg))
+	{
+		return; // out of order, duplicated, etc
 	}
 
 	// the header is different lengths for reliable and unreliable messages
 	headerBytes = msg->readcount;
 
 	clc.lastPacketTime = cls.realtime;
-	CL_ParseServerMessage( msg );
+	CL_ParseServerMessage(msg);
 }
 
 /*
@@ -784,24 +836,27 @@ CL_CheckTimeout
 
 ==================
 */
-void CL_CheckTimeout( void ) {
+void CL_CheckTimeout(void)
+{
 	//
 	// check timeout
 	//
-	if ( ( !cl_paused->integer || !sv_paused->integer ) 
-//		&& cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC
-		&& cls.state >= CA_CONNECTED && (cls.state != CA_CINEMATIC && !CL_IsRunningInGameCinematic())
-		&& cls.realtime - clc.lastPacketTime > cl_timeout->value*1000) {
-		if (++cl.timeoutcount > 5) {	// timeoutcount saves debugger
-			Com_Printf ("\nServer connection timed out.\n");
-			CL_Disconnect ();
+	if ((!cl_paused->integer || !sv_paused->integer)
+		//		&& cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC
+		&& cls.state >= CA_CONNECTED && (cls.state != CA_CINEMATIC && !CL_IsRunningInGameCinematic()) && cls.realtime - clc.lastPacketTime > cl_timeout->value * 1000)
+	{
+		if (++cl.timeoutcount > 5)
+		{ // timeoutcount saves debugger
+			Com_Printf("\nServer connection timed out.\n");
+			CL_Disconnect();
 			return;
 		}
-	} else {
+	}
+	else
+	{
 		cl.timeoutcount = 0;
 	}
 }
-
 
 //============================================================================
 
@@ -811,19 +866,20 @@ CL_CheckUserinfo
 
 ==================
 */
-void CL_CheckUserinfo( void ) {
-	if ( cls.state < CA_CHALLENGING ) {
+void CL_CheckUserinfo(void)
+{
+	if (cls.state < CA_CHALLENGING)
+	{
 		return;
 	}
 
 	// send a reliable userinfo update if needed
-	if ( cvar_modifiedFlags & CVAR_USERINFO ) {
+	if (cvar_modifiedFlags & CVAR_USERINFO)
+	{
 		cvar_modifiedFlags &= ~CVAR_USERINFO;
-		CL_AddReliableCommand( va("userinfo \"%s\"", Cvar_InfoString( CVAR_USERINFO ) ) );
+		CL_AddReliableCommand(va("userinfo \"%s\"", Cvar_InfoString(CVAR_USERINFO)));
 	}
-
 }
-
 
 /*
 ==================
@@ -832,43 +888,46 @@ CL_Frame
 ==================
 */
 
-extern cvar_t	*cl_newClock;
+extern cvar_t *cl_newClock;
 static unsigned int frameCount;
-float avgFrametime=0.0;
-void CL_Frame ( int msec,float fractionMsec ) {
+float avgFrametime = 0.0;
+void CL_Frame(int msec, float fractionMsec)
+{
 
-	checkAutoSave();	//saves the game immediately after starting a level
+	checkAutoSave(); //saves the game immediately after starting a level
 
-	if ( !com_cl_running->integer ) {
+	if (!com_cl_running->integer)
+	{
 		return;
 	}
 
 	// load the ref / cgame if needed
 	CL_StartHunkUsers();
 
-#if defined (_XBOX)// && !defined(_DEBUG)
+#if defined(_XBOX) // && !defined(_DEBUG)
 	// Play the intro movies once
-	extern bool Sys_QuickStart( void );
+	extern bool Sys_QuickStart(void);
 	static bool firstRun = true;
-	if(firstRun)
+	if (firstRun)
 	{
-	//	SP_DoLicense();
+		//	SP_DoLicense();
 		SP_DisplayLogos();
 	}
-	
+
 #endif
 
-#if defined (_XBOX)	//xbox doesn't load ui in StartHunkUsers, so check it here
+#if defined(_XBOX) //xbox doesn't load ui in StartHunkUsers, so check it here
 	// load ui if needed
-	if ( !cls.uiStarted && cls.state != CA_CINEMATIC) {
+	if (!cls.uiStarted && cls.state != CA_CINEMATIC)
+	{
 		cls.uiStarted = qtrue;
 		SCR_StopCinematic();
 		CL_InitUI();
 	}
 #endif
 
-	if ( cls.state == CA_DISCONNECTED && !( cls.keyCatchers & KEYCATCH_UI )
-		&& !com_sv_running->integer ) {		
+	if (cls.state == CA_DISCONNECTED && !(cls.keyCatchers & KEYCATCH_UI) && !com_sv_running->integer)
+	{
 		// if disconnected, bring up the menu
 #ifdef _XBOX
 		if (firstRun && !Sys_QuickStart())
@@ -880,8 +939,8 @@ void CL_Frame ( int msec,float fractionMsec ) {
 		{
 			// Came from MP:
 			UI_SetActiveMenu("mainMenu", NULL);
-			extern void XB_Startup( XBStartupState startupState );
-			XB_Startup( STARTUP_LOAD_SETTINGS );
+			extern void XB_Startup(XBStartupState startupState);
+			XB_Startup(STARTUP_LOAD_SETTINGS);
 		}
 		else
 		{
@@ -895,33 +954,40 @@ void CL_Frame ( int msec,float fractionMsec ) {
 #endif
 		}
 #else
-		if (!CL_CheckPendingCinematic())	// this avoid having the menu flash for one frame before pending cinematics
+		if (!CL_CheckPendingCinematic()) // this avoid having the menu flash for one frame before pending cinematics
 		{
 			UI_SetActiveMenu("mainMenu", NULL);
 		}
 #endif
-		S_StartBackgroundTrack("music/mp/MP_action4.mp3","",0);
+		S_StartBackgroundTrack("music/mp/MP_action4.mp3", "", 0);
 	}
 
 #ifdef _XBOX
 	firstRun = false;
 #endif
 
-
 	// if recording an avi, lock to a fixed fps
-	if ( cl_avidemo->integer ) {
+	if (cl_avidemo->integer)
+	{
 		// save the current screen
-		if ( cls.state == CA_ACTIVE ) {
-			if (cl_avidemo->integer > 0) {
-				Cbuf_ExecuteText( EXEC_NOW, "screenshot silent\n" );
-			} else {
-				Cbuf_ExecuteText( EXEC_NOW, "screenshot_tga silent\n" );
+		if (cls.state == CA_ACTIVE)
+		{
+			if (cl_avidemo->integer > 0)
+			{
+				Cbuf_ExecuteText(EXEC_NOW, "screenshot silent\n");
+			}
+			else
+			{
+				Cbuf_ExecuteText(EXEC_NOW, "screenshot_tga silent\n");
 			}
 		}
 		// fixed time for next frame
-		if (cl_avidemo->integer > 0) {
+		if (cl_avidemo->integer > 0)
+		{
 			msec = 1000 / cl_avidemo->integer;
-		} else {
+		}
+		else
+		{
 			msec = 1000 / -cl_avidemo->integer;
 		}
 	}
@@ -945,23 +1011,23 @@ void CL_Frame ( int msec,float fractionMsec ) {
 	//	frameCount++;
 	//}
 	// Always calculate framerate, bias the LOD if low
-	avgFrametime+=msec;
+	avgFrametime += msec;
 	extern bool in_camera;
-	float framerate = 1000.0f*(1.0/(avgFrametime/32.0f));
+	float framerate = 1000.0f * (1.0 / (avgFrametime / 32.0f));
 	static int lodFrameCount = 0;
 	int bias = Cvar_VariableIntegerValue("r_lodbias");
-	if(!(frameCount&0x1f))
+	if (!(frameCount & 0x1f))
 	{
-        if(cl_framerate->integer)
+		if (cl_framerate->integer)
 		{
 			char mess[256];
-			sprintf(mess,"Frame rate=%f LOD=%d\n\n",framerate,bias);
+			sprintf(mess, "Frame rate=%f LOD=%d\n\n", framerate, bias);
 			Com_Printf(mess);
 		}
-		avgFrametime=0.0f;
+		avgFrametime = 0.0f;
 
 		// If we drop below 20FPS, pull down the LOD bias
-		if(framerate < 20.0f && bias == 0)
+		if (framerate < 20.0f && bias == 0)
 		{
 			bias++;
 			Cvar_SetValue("r_lodbias", bias);
@@ -969,7 +1035,7 @@ void CL_Frame ( int msec,float fractionMsec ) {
 		}
 
 		lodFrameCount++;
-		if(lodFrameCount==5 && bias > 0)
+		if (lodFrameCount == 5 && bias > 0)
 		{
 			bias--;
 			Cvar_SetValue("r_lodBias", bias);
@@ -978,26 +1044,27 @@ void CL_Frame ( int msec,float fractionMsec ) {
 	}
 	frameCount++;
 
-	if(in_camera)
+	if (in_camera)
 	{
 		// No LOD stuff during cutscenes
 		Cvar_SetValue("r_lodBias", 0);
 	}
 
-	cls.frametimeFraction=fractionMsec;
+	cls.frametimeFraction = fractionMsec;
 	cls.realtime += msec;
-	cls.realtimeFraction+=fractionMsec;
-	if (cls.realtimeFraction>=1.0f)
+	cls.realtimeFraction += fractionMsec;
+	if (cls.realtimeFraction >= 1.0f)
 	{
-		if (cl_newClock&&cl_newClock->integer)
+		if (cl_newClock && cl_newClock->integer)
 		{
 			cls.realtime++;
 		}
-		cls.realtimeFraction-=1.0f;
+		cls.realtimeFraction -= 1.0f;
 	}
 #ifndef _XBOX
-	if ( cl_timegraph->integer ) {
-		SCR_DebugGraph ( cls.realFrametime * 0.25, 0 );
+	if (cl_timegraph->integer)
+	{
+		SCR_DebugGraph(cls.realFrametime * 0.25, 0);
 	}
 #endif
 
@@ -1022,29 +1089,35 @@ void CL_Frame ( int msec,float fractionMsec ) {
 	// decide on the serverTime to render
 	CL_SetCGameTime();
 
-	if (cl_pano->integer && cls.state == CA_ACTIVE) {	//grab some panoramic shots
+	if (cl_pano->integer && cls.state == CA_ACTIVE)
+	{ //grab some panoramic shots
 		int i = 1;
 		int pref = cl_pano->integer;
 		int oldnoprint = cl_noprint->integer;
 		Con_Close();
-		cl_noprint->integer = 1;	//hide the screen shot msgs
-		for (; i <= cl_panoNumShots->integer; i++) {
-			Cvar_SetValue( "pano", i );
-			SCR_UpdateScreen();// update the screen
-			Cbuf_ExecuteText( EXEC_NOW, va("screenshot %dpano%02d\n", pref, i) );	//grab this screen
+		cl_noprint->integer = 1; //hide the screen shot msgs
+		for (; i <= cl_panoNumShots->integer; i++)
+		{
+			Cvar_SetValue("pano", i);
+			SCR_UpdateScreen();													// update the screen
+			Cbuf_ExecuteText(EXEC_NOW, va("screenshot %dpano%02d\n", pref, i)); //grab this screen
 		}
-		Cvar_SetValue( "pano", 0 );	//done
+		Cvar_SetValue("pano", 0); //done
 		cl_noprint->integer = oldnoprint;
 	}
 
-	if (cl_skippingcin->integer && !cl_endcredits->integer && !com_developer->integer ) {
-		if (cl_skippingcin->modified){
-			S_StopSounds();		//kill em all but music	
-			cl_skippingcin->modified=qfalse;
-			Com_Printf (va(S_COLOR_YELLOW"%s"), SE_GetString("CON_TEXT_SKIPPING"));
+	if (cl_skippingcin->integer && !cl_endcredits->integer && !com_developer->integer)
+	{
+		if (cl_skippingcin->modified)
+		{
+			S_StopSounds(); //kill em all but music
+			cl_skippingcin->modified = qfalse;
+			Com_Printf(va(S_COLOR_YELLOW "%s"), SE_GetString("CON_TEXT_SKIPPING"));
 			SCR_UpdateScreen();
 		}
-	} else {
+	}
+	else
+	{
 		// update the screen
 		SCR_UpdateScreen();
 
@@ -1067,7 +1140,6 @@ void CL_Frame ( int msec,float fractionMsec ) {
 	cls.framecount++;
 }
 
-
 //============================================================================
 
 /*
@@ -1077,38 +1149,43 @@ VID_Printf
 DLL glue
 ================
 */
-#define	MAXPRINTMSG	4096
-void VID_Printf (int print_level, const char *fmt, ...)
+#define MAXPRINTMSG 4096
+void VID_Printf(int print_level, const char *fmt, ...)
 {
-	va_list		argptr;
-	char		msg[MAXPRINTMSG];
-	
-	va_start (argptr,fmt);
-	vsprintf (msg,fmt,argptr);
-	va_end (argptr);
+	va_list argptr;
+	char msg[MAXPRINTMSG];
 
-	if ( print_level == PRINT_ALL ) {
-		Com_Printf ("%s", msg);
-	} else if ( print_level == PRINT_WARNING ) {
-		Com_Printf (S_COLOR_YELLOW "%s", msg);		// yellow
-	} else if ( print_level == PRINT_DEVELOPER ) {
-		Com_DPrintf (S_COLOR_RED"%s", msg);
+	va_start(argptr, fmt);
+	vsprintf(msg, fmt, argptr);
+	va_end(argptr);
+
+	if (print_level == PRINT_ALL)
+	{
+		Com_Printf("%s", msg);
+	}
+	else if (print_level == PRINT_WARNING)
+	{
+		Com_Printf(S_COLOR_YELLOW "%s", msg); // yellow
+	}
+	else if (print_level == PRINT_DEVELOPER)
+	{
+		Com_DPrintf(S_COLOR_RED "%s", msg);
 	}
 }
-
-
 
 /*
 ============
 CL_ShutdownRef
 ============
 */
-void CL_ShutdownRef( void ) {
-	if ( !re.Shutdown ) {
+void CL_ShutdownRef(void)
+{
+	if (!re.Shutdown)
+	{
 		return;
 	}
-	re.Shutdown( qtrue );
-	memset( &re, 0, sizeof( re ) );
+	re.Shutdown(qtrue);
+	memset(&re, 0, sizeof(re));
 }
 
 /*
@@ -1119,13 +1196,16 @@ Convenience function for the sound system to be started
 REALLY early on Xbox, helps with memory fragmentation.
 ============================
 */
-void CL_StartSound( void ) {
-	if ( !cls.soundStarted ) {
+void CL_StartSound(void)
+{
+	if (!cls.soundStarted)
+	{
 		cls.soundStarted = qtrue;
 		S_Init();
 	}
 
-	if ( !cls.soundRegistered ) {
+	if (!cls.soundRegistered)
+	{
 		cls.soundRegistered = qtrue;
 		S_BeginRegistration();
 	}
@@ -1139,12 +1219,15 @@ After the server has cleared the hunk, these will need to be restarted
 This is the only place that any of these functions are called from
 ============================
 */
-void CL_StartHunkUsers( void ) {
-	if ( !com_cl_running->integer ) {
+void CL_StartHunkUsers(void)
+{
+	if (!com_cl_running->integer)
+	{
 		return;
 	}
 
-	if ( !cls.rendererStarted ) {
+	if (!cls.rendererStarted)
+	{
 #ifdef _XBOX
 		//if ((!com_sv_running->integer || com_errorEntered) && !vidRestartReloadMap)
 		//{
@@ -1155,13 +1238,13 @@ void CL_StartHunkUsers( void ) {
 #endif
 
 		cls.rendererStarted = qtrue;
-		re.BeginRegistration( &cls.glconfig );
+		re.BeginRegistration(&cls.glconfig);
 
 		// load character sets
-//		cls.charSetShader = re.RegisterShaderNoMip( "gfx/2d/bigchars" );
-		cls.charSetShader = re.RegisterShaderNoMip( "gfx/2d/charsgrid_med" );
-		cls.whiteShader = re.RegisterShader( "white" );
-//		cls.consoleShader = re.RegisterShader( "console" );
+		//		cls.charSetShader = re.RegisterShaderNoMip( "gfx/2d/bigchars" );
+		cls.charSetShader = re.RegisterShaderNoMip("gfx/2d/charsgrid_med");
+		cls.whiteShader = re.RegisterShader("white");
+		//		cls.consoleShader = re.RegisterShader( "console" );
 		g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
 		kg.g_consoleField.widthInChars = g_console_field_width;
 #ifndef _IMMERSION
@@ -1174,11 +1257,11 @@ void CL_StartHunkUsers( void ) {
 		//	so we can now go ahead and (re)setup the input stuff that needs hWnds for DI...
 		//  (especially Force feedback)...
 		//
-		static qboolean bOnceOnly = qfalse;	// only do once, not every renderer re-start
+		static qboolean bOnceOnly = qfalse; // only do once, not every renderer re-start
 		if (!bOnceOnly)
 		{
 			bOnceOnly = qtrue;
-			extern void Sys_In_Restart_f( void );
+			extern void Sys_In_Restart_f(void);
 			Sys_In_Restart_f();
 		}
 
@@ -1195,33 +1278,37 @@ void CL_StartHunkUsers( void ) {
 #endif // _IMMERSION
 	}
 
-	if ( !cls.soundStarted ) {
+	if (!cls.soundStarted)
+	{
 		cls.soundStarted = qtrue;
 		S_Init();
 	}
 
-	if ( !cls.soundRegistered ) {
+	if (!cls.soundRegistered)
+	{
 		cls.soundRegistered = qtrue;
 		S_BeginRegistration();
 	}
 
 #ifdef _IMMERSION
-	if ( !cls.forceStarted ) {
+	if (!cls.forceStarted)
+	{
 		cls.forceStarted = qtrue;
 		CL_InitFF();
 	}
 #endif // _IMMERSION
 
-#if !defined (_XBOX)	//i guess xbox doesn't want the ui loaded all the time?
+#if !defined(_XBOX) //i guess xbox doesn't want the ui loaded all the time?
 	//we require the ui to be loaded here or else it crashes trying to access the ui on command line map loads
-	if ( !cls.uiStarted ) {
+	if (!cls.uiStarted)
+	{
 		cls.uiStarted = qtrue;
 		CL_InitUI();
 	}
 #endif
 
-//	if ( !cls.cgameStarted && cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC ) {
-	if ( !cls.cgameStarted && cls.state > CA_CONNECTED && (cls.state != CA_CINEMATIC && !CL_IsRunningInGameCinematic()) ) 
+	//	if ( !cls.cgameStarted && cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC ) {
+	if (!cls.cgameStarted && cls.state > CA_CONNECTED && (cls.state != CA_CINEMATIC && !CL_IsRunningInGameCinematic()))
 	{
 		cls.cgameStarted = qtrue;
 		CL_InitCGame();
@@ -1233,27 +1320,28 @@ void CL_StartHunkUsers( void ) {
 CL_InitRef
 ============
 */
-void CL_InitRef( void ) {
-	refexport_t	*ret;
+void CL_InitRef(void)
+{
+	refexport_t *ret;
 
-	Com_Printf( "----- Initializing Renderer ----\n" );
+	Com_Printf("----- Initializing Renderer ----\n");
 
 	// cinematic stuff
 
-	ret = GetRefAPI( REF_API_VERSION );
+	ret = GetRefAPI(REF_API_VERSION);
 
-	Com_Printf( "-------------------------------\n");
+	Com_Printf("-------------------------------\n");
 
-	if ( !ret ) {
-		Com_Error (ERR_FATAL, "Couldn't initialize refresh" );
+	if (!ret)
+	{
+		Com_Error(ERR_FATAL, "Couldn't initialize refresh");
 	}
 
 	re = *ret;
 
 	// unpause so the cgame definately gets a snapshot and renders a frame
-	Cvar_Set( "cl_paused", "0" );
+	Cvar_Set("cl_paused", "0");
 }
-
 
 //===========================================================================================
 
@@ -1262,133 +1350,134 @@ void CL_InitRef( void ) {
 CL_Init
 ====================
 */
-void CL_Init( void ) {
-	Com_Printf( "----- Client Initialization -----\n" );
-	
-	Con_Init ();
+void CL_Init(void)
+{
+	Com_Printf("----- Client Initialization -----\n");
 
-	CL_ClearState ();
+	Con_Init();
 
-	cls.state = CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
+	CL_ClearState();
+
+	cls.state = CA_DISCONNECTED; // no longer CA_UNINITIALIZED
 	cls.keyCatchers = KEYCATCH_CONSOLE;
 	cls.realtime = 0;
-	cls.realtimeFraction=0.0f;	// fraction of a msec accumulated
+	cls.realtimeFraction = 0.0f; // fraction of a msec accumulated
 
-	CL_InitInput ();
+	CL_InitInput();
 
-#ifndef _XBOX	// No terrain on Xbox
+#ifndef _XBOX // No terrain on Xbox
 	RM_InitTerrain();
 #endif
 
 	//
 	// register our variables
 	//
-	cl_noprint = Cvar_Get( "cl_noprint", "0", 0 );
+	cl_noprint = Cvar_Get("cl_noprint", "0", 0);
 
-	cl_timeout = Cvar_Get ("cl_timeout", "125", 0);
+	cl_timeout = Cvar_Get("cl_timeout", "125", 0);
 
-	cl_timeNudge = Cvar_Get ("cl_timeNudge", "0", CVAR_TEMP );
-	cl_shownet = Cvar_Get ("cl_shownet", "0", CVAR_TEMP );
-	cl_showTimeDelta = Cvar_Get ("cl_showTimeDelta", "0", CVAR_TEMP );
-	cl_newClock = Cvar_Get ("cl_newClock", "1", 0);
-	cl_activeAction = Cvar_Get( "activeAction", "", CVAR_TEMP );
-	
-	cl_avidemo = Cvar_Get ("cl_avidemo", "0", 0);
-	cl_pano = Cvar_Get ("pano", "0", 0);
-	cl_panoNumShots= Cvar_Get ("panoNumShots", "10", CVAR_ARCHIVE);
-	cl_skippingcin = Cvar_Get ("skippingCinematic", "0", CVAR_ROM);
-	cl_endcredits = Cvar_Get ("cg_endcredits", "0", 0);
+	cl_timeNudge = Cvar_Get("cl_timeNudge", "0", CVAR_TEMP);
+	cl_shownet = Cvar_Get("cl_shownet", "0", CVAR_TEMP);
+	cl_showTimeDelta = Cvar_Get("cl_showTimeDelta", "0", CVAR_TEMP);
+	cl_newClock = Cvar_Get("cl_newClock", "1", 0);
+	cl_activeAction = Cvar_Get("activeAction", "", CVAR_TEMP);
 
-	cl_yawspeed = Cvar_Get ("cl_yawspeed", "140", CVAR_ARCHIVE);
-	cl_pitchspeed = Cvar_Get ("cl_pitchspeed", "140", CVAR_ARCHIVE);
-	cl_anglespeedkey = Cvar_Get ("cl_anglespeedkey", "1.5", CVAR_ARCHIVE);
+	cl_avidemo = Cvar_Get("cl_avidemo", "0", 0);
+	cl_pano = Cvar_Get("pano", "0", 0);
+	cl_panoNumShots = Cvar_Get("panoNumShots", "10", CVAR_ARCHIVE);
+	cl_skippingcin = Cvar_Get("skippingCinematic", "0", CVAR_ROM);
+	cl_endcredits = Cvar_Get("cg_endcredits", "0", 0);
 
-	cl_maxpackets = Cvar_Get ("cl_maxpackets", "30", CVAR_ARCHIVE );
-	cl_packetdup = Cvar_Get ("cl_packetdup", "1", CVAR_ARCHIVE );
+	cl_yawspeed = Cvar_Get("cl_yawspeed", "140", CVAR_ARCHIVE);
+	cl_pitchspeed = Cvar_Get("cl_pitchspeed", "140", CVAR_ARCHIVE);
+	cl_anglespeedkey = Cvar_Get("cl_anglespeedkey", "1.5", CVAR_ARCHIVE);
 
-	cl_run = Cvar_Get ("cl_run", "1", CVAR_ARCHIVE);
-	cl_sensitivity = Cvar_Get ("sensitivity", "2", CVAR_ARCHIVE);
+	cl_maxpackets = Cvar_Get("cl_maxpackets", "30", CVAR_ARCHIVE);
+	cl_packetdup = Cvar_Get("cl_packetdup", "1", CVAR_ARCHIVE);
+
+	cl_run = Cvar_Get("cl_run", "1", CVAR_ARCHIVE);
+	cl_sensitivity = Cvar_Get("sensitivity", "2", CVAR_ARCHIVE);
 
 #ifdef _XBOX
-	cl_sensitivityY = Cvar_Get ("sensitivityY", "2", CVAR_ARCHIVE);
+	cl_sensitivityY = Cvar_Get("sensitivityY", "2", CVAR_ARCHIVE);
 #endif
 
-//	cl_mouseAccel = Cvar_Get ("cl_mouseAccel", "0", CVAR_ARCHIVE);
-	cl_freelook = Cvar_Get( "cl_freelook", "1", CVAR_ARCHIVE );
+	//	cl_mouseAccel = Cvar_Get ("cl_mouseAccel", "0", CVAR_ARCHIVE);
+	cl_freelook = Cvar_Get("cl_freelook", "1", CVAR_ARCHIVE);
 
-//	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", 0);
+	//	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", 0);
 
-	cl_ingameVideo = Cvar_Get ("cl_ingameVideo", "1", CVAR_ARCHIVE);
-	cl_VideoQuality = Cvar_Get ("cl_VideoQuality", "0", CVAR_ARCHIVE);
-	cl_VidFadeUp	= Cvar_Get ("cl_VidFadeUp", "1", CVAR_TEMP);
-	cl_VidFadeDown	= Cvar_Get ("cl_VidFadeDown", "1", CVAR_TEMP);
-	cl_framerate	= Cvar_Get ("cl_framerate", "0", CVAR_TEMP);
+	cl_ingameVideo = Cvar_Get("cl_ingameVideo", "1", CVAR_ARCHIVE);
+	cl_VideoQuality = Cvar_Get("cl_VideoQuality", "0", CVAR_ARCHIVE);
+	cl_VidFadeUp = Cvar_Get("cl_VidFadeUp", "1", CVAR_TEMP);
+	cl_VidFadeDown = Cvar_Get("cl_VidFadeDown", "1", CVAR_TEMP);
+	cl_framerate = Cvar_Get("cl_framerate", "0", CVAR_TEMP);
 
-	cl_thumbStickMode = Cvar_Get ("ui_thumbStickMode", "0", CVAR_ARCHIVE);
+	cl_thumbStickMode = Cvar_Get("ui_thumbStickMode", "0", CVAR_ARCHIVE);
 
 	// init autoswitch so the ui will have it correctly even
 	// if the cgame hasn't been started
-	Cvar_Get ("cg_autoswitch", "1", CVAR_ARCHIVE);
+	Cvar_Get("cg_autoswitch", "1", CVAR_ARCHIVE);
 //JLF
 #ifdef _XBOX
-	Cvar_Get ("cl_autolevel","0",CVAR_ARCHIVE);
+	Cvar_Get("cl_autolevel", "0", CVAR_ARCHIVE);
 #endif
 
-	m_pitch = Cvar_Get ("m_pitch", "0.022", CVAR_ARCHIVE);
-	m_yaw = Cvar_Get ("m_yaw", "0.022", CVAR_ARCHIVE);
-	m_forward = Cvar_Get ("m_forward", "0.25", CVAR_ARCHIVE);
-	m_side = Cvar_Get ("m_side", "0.25", CVAR_ARCHIVE);
-//	m_filter = Cvar_Get ("m_filter", "0", CVAR_ARCHIVE);
+	m_pitch = Cvar_Get("m_pitch", "0.022", CVAR_ARCHIVE);
+	m_yaw = Cvar_Get("m_yaw", "0.022", CVAR_ARCHIVE);
+	m_forward = Cvar_Get("m_forward", "0.25", CVAR_ARCHIVE);
+	m_side = Cvar_Get("m_side", "0.25", CVAR_ARCHIVE);
+	//	m_filter = Cvar_Get ("m_filter", "0", CVAR_ARCHIVE);
 
 #ifdef _XBOX
-	cl_mapname = Cvar_Get ("cl_mapname", "t3_bounty", CVAR_TEMP);
+	cl_mapname = Cvar_Get("cl_mapname", "t3_bounty", CVAR_TEMP);
 #endif
 
-	cl_updateInfoString = Cvar_Get( "cl_updateInfoString", "", CVAR_ROM );
+	cl_updateInfoString = Cvar_Get("cl_updateInfoString", "", CVAR_ROM);
 
 	// userinfo
-	Cvar_Get ("name", "Jaden", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE );
-	
-	Cvar_Get ("sex", "f", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_SAVEGAME );
-	Cvar_Get ("snd", "jaden_fmle", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART );//UI_SetSexandSoundForModel changes to match sounds.cfg for model
-	Cvar_Get ("handicap", "100", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_SAVEGAME );
+	Cvar_Get("name", "Jaden", CVAR_USERINFO | CVAR_ARCHIVE);
+	Cvar_Get("snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE);
+
+	Cvar_Get("sex", "f", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_SAVEGAME);
+	Cvar_Get("snd", "jaden_fmle", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART); //UI_SetSexandSoundForModel changes to match sounds.cfg for model
+	Cvar_Get("handicap", "100", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_SAVEGAME);
 
 	// Hot-swap (programmable) buttons:
-	Cvar_Get ("hotswap0", "", CVAR_ARCHIVE);
-	Cvar_Get ("hotswap1", "", CVAR_ARCHIVE);
-	Cvar_Get ("hotswap2", "", CVAR_ARCHIVE);
+	Cvar_Get("hotswap0", "", CVAR_ARCHIVE);
+	Cvar_Get("hotswap1", "", CVAR_ARCHIVE);
+	Cvar_Get("hotswap2", "", CVAR_ARCHIVE);
 
 	//
 	// register our commands
 	//
-	Cmd_AddCommand ("cmd", CL_ForwardToServer_f);
-	Cmd_AddCommand ("configstrings", CL_Configstrings_f);
-	Cmd_AddCommand ("clientinfo", CL_Clientinfo_f);
-	Cmd_AddCommand ("snd_restart", CL_Snd_Restart_f);
-	Cmd_AddCommand ("vid_restart", CL_Vid_Restart_f);
-	Cmd_AddCommand ("disconnect", CL_Disconnect_f);
-	Cmd_AddCommand ("cinematic", CL_PlayCinematic_f);
-	Cmd_AddCommand ("ingamecinematic", CL_PlayInGameCinematic_f);
-	Cmd_AddCommand ("uimenu", CL_GenericMenu_f);
-	Cmd_AddCommand ("datapad", CL_DataPad_f);
-	Cmd_AddCommand ("endscreendissolve", CL_EndScreenDissolve_f);
+	Cmd_AddCommand("cmd", CL_ForwardToServer_f);
+	Cmd_AddCommand("configstrings", CL_Configstrings_f);
+	Cmd_AddCommand("clientinfo", CL_Clientinfo_f);
+	Cmd_AddCommand("snd_restart", CL_Snd_Restart_f);
+	Cmd_AddCommand("vid_restart", CL_Vid_Restart_f);
+	Cmd_AddCommand("disconnect", CL_Disconnect_f);
+	Cmd_AddCommand("cinematic", CL_PlayCinematic_f);
+	Cmd_AddCommand("ingamecinematic", CL_PlayInGameCinematic_f);
+	Cmd_AddCommand("uimenu", CL_GenericMenu_f);
+	Cmd_AddCommand("datapad", CL_DataPad_f);
+	Cmd_AddCommand("endscreendissolve", CL_EndScreenDissolve_f);
 #ifdef _IMMERSION
-	Cmd_AddCommand ("ff_restart", CL_FF_Restart_f);
+	Cmd_AddCommand("ff_restart", CL_FF_Restart_f);
 #endif // _IMMERSION
 
 	CL_InitRef();
 
 	CL_StartHunkUsers();
 
-	SCR_Init ();
+	SCR_Init();
 
-	Cbuf_Execute ();
-	
-	Cvar_Set( "cl_running", "1" );
+	Cbuf_Execute();
+
+	Cvar_Set("cl_running", "1");
 
 #ifdef _XBOX
-	Com_Printf( "Initializing Cinematics...\n");
+	Com_Printf("Initializing Cinematics...\n");
 	CIN_Init();
 #endif
 //JLF MPMOVED
@@ -1398,9 +1487,8 @@ void CL_Init( void ) {
 
 	Cvar_Get("levelSelectCheat", "-1", CVAR_ARCHIVE | CVAR_SAVEGAME);
 
-	Com_Printf( "----- Client Initialization Complete -----\n" );
+	Com_Printf("----- Client Initialization Complete -----\n");
 }
-
 
 /*
 ===============
@@ -1408,17 +1496,20 @@ CL_Shutdown
 
 ===============
 */
-void CL_Shutdown( void ) {
+void CL_Shutdown(void)
+{
 	static qboolean recursive = qfalse;
-	
-	if ( !com_cl_running || !com_cl_running->integer ) {
+
+	if (!com_cl_running || !com_cl_running->integer)
+	{
 		return;
 	}
 
-	Com_Printf( "----- CL_Shutdown -----\n" );
+	Com_Printf("----- CL_Shutdown -----\n");
 
-	if ( recursive ) {
-		printf ("recursive shutdown\n");
+	if (recursive)
+	{
+		printf("recursive shutdown\n");
 		return;
 	}
 	recursive = qtrue;
@@ -1432,35 +1523,34 @@ void CL_Shutdown( void ) {
 #ifdef _IMMERSION
 	CL_ShutdownFF();
 #endif // _IMMERSION
-	Cmd_RemoveCommand ("cmd");
-	Cmd_RemoveCommand ("configstrings");
-	Cmd_RemoveCommand ("clientinfo");
-	Cmd_RemoveCommand ("snd_restart");
-	Cmd_RemoveCommand ("vid_restart");
-	Cmd_RemoveCommand ("disconnect");
-	Cmd_RemoveCommand ("cinematic");	
-	Cmd_RemoveCommand ("ingamecinematic");
-	Cmd_RemoveCommand ("pause");
+	Cmd_RemoveCommand("cmd");
+	Cmd_RemoveCommand("configstrings");
+	Cmd_RemoveCommand("clientinfo");
+	Cmd_RemoveCommand("snd_restart");
+	Cmd_RemoveCommand("vid_restart");
+	Cmd_RemoveCommand("disconnect");
+	Cmd_RemoveCommand("cinematic");
+	Cmd_RemoveCommand("ingamecinematic");
+	Cmd_RemoveCommand("pause");
 
-	Cvar_Set( "cl_running", "0" );
+	Cvar_Set("cl_running", "0");
 
 	recursive = qfalse;
 
-	memset( &cls, 0, sizeof( cls ) );
+	memset(&cls, 0, sizeof(cls));
 
-	Com_Printf( "-----------------------\n" );
+	Com_Printf("-----------------------\n");
 }
-
 
 /*
 ==================
 CL_GetPing
 ==================
 */
-void CL_GetPing( int n, char *adrstr, int *pingtime )
+void CL_GetPing(int n, char *adrstr, int *pingtime)
 {
-	const char*	str;
-	int		time;
+	const char *str;
+	int time;
 
 	if (!cl_pinglist[n].adr.port)
 	{
@@ -1470,8 +1560,8 @@ void CL_GetPing( int n, char *adrstr, int *pingtime )
 		return;
 	}
 
-	str = NET_AdrToString( cl_pinglist[n].adr );
-	strcpy( adrstr, str );
+	str = NET_AdrToString(cl_pinglist[n].adr);
+	strcpy(adrstr, str);
 
 	time = cl_pinglist[n].time;
 	if (!time)
@@ -1493,7 +1583,7 @@ void CL_GetPing( int n, char *adrstr, int *pingtime )
 CL_ClearPing
 ==================
 */
-void CL_ClearPing( int n )
+void CL_ClearPing(int n)
 {
 	if (n < 0 || n >= MAX_PINGREQUESTS)
 		return;
@@ -1506,15 +1596,15 @@ void CL_ClearPing( int n )
 CL_GetPingQueueCount
 ==================
 */
-int CL_GetPingQueueCount( void )
+int CL_GetPingQueueCount(void)
 {
-	int		i;
-	int		count;
-	ping_t*	pingptr;
+	int i;
+	int count;
+	ping_t *pingptr;
 
-	count   = 0;
+	count = 0;
 	pingptr = cl_pinglist;
-	for (i=0; i<MAX_PINGREQUESTS; i++, pingptr++ )
+	for (i = 0; i < MAX_PINGREQUESTS; i++, pingptr++)
 		if (pingptr->adr.port)
 			count++;
 
@@ -1526,16 +1616,16 @@ int CL_GetPingQueueCount( void )
 CL_GetFreePing
 ==================
 */
-ping_t* CL_GetFreePing( void )
+ping_t *CL_GetFreePing(void)
 {
-	ping_t*	pingptr;
-	ping_t*	best;	
-	int		oldest;
-	int		i;
-	int		time;
+	ping_t *pingptr;
+	ping_t *best;
+	int oldest;
+	int i;
+	int time;
 
 	pingptr = cl_pinglist;
-	for (i=0; i<MAX_PINGREQUESTS; i++, pingptr++ )
+	for (i = 0; i < MAX_PINGREQUESTS; i++, pingptr++)
 	{
 		// find free ping slot
 		if (pingptr->adr.port)
@@ -1562,16 +1652,16 @@ ping_t* CL_GetFreePing( void )
 
 	// use oldest entry
 	pingptr = cl_pinglist;
-	best    = cl_pinglist;
-	oldest  = INT_MIN;
-	for (i=0; i<MAX_PINGREQUESTS; i++, pingptr++ )
+	best = cl_pinglist;
+	oldest = INT_MIN;
+	for (i = 0; i < MAX_PINGREQUESTS; i++, pingptr++)
 	{
 		// scan for oldest
 		time = cls.realtime - pingptr->start;
 		if (time > oldest)
 		{
 			oldest = time;
-			best   = pingptr;
+			best = pingptr;
 		}
 	}
 
@@ -1585,9 +1675,9 @@ bool allowNormalAutosave = true;
 static void checkAutoSave()
 {
 	static int timeToCheckpoint = 0;
-	static int delayCountdown = 3;		// delay a few frames before saving
+	static int delayCountdown = 3; // delay a few frames before saving
 
-	if(sv.time < timeToCheckpoint && timeToCheckpoint != 0)
+	if (sv.time < timeToCheckpoint && timeToCheckpoint != 0)
 	{
 		allowNormalAutosave = false;
 	}
@@ -1597,17 +1687,16 @@ static void checkAutoSave()
 		timeToCheckpoint = 0;
 	}
 
-	if(autosaveTrigger)
+	if (autosaveTrigger)
 	{
-		if( cls.uiStarted && cls.state == CA_ACTIVE && SG_GameAllowedToSaveHere(qfalse)
-			&& Cvar_VariableIntegerValue("disableAutoSave") == 0 )
+		if (cls.uiStarted && cls.state == CA_ACTIVE && SG_GameAllowedToSaveHere(qfalse) && Cvar_VariableIntegerValue("disableAutoSave") == 0)
 		{
-			if(delayCountdown <= 0)
+			if (delayCountdown <= 0)
 			{
-				if(doAutoSave)
+				if (doAutoSave)
 				{
-					CG_CenterPrint( "@SP_INGAME_CHECKPOINT", SCREEN_HEIGHT * 0.25 );	//jump the network
-					Cbuf_AddText( "save auto\n" );
+					CG_CenterPrint("@SP_INGAME_CHECKPOINT", SCREEN_HEIGHT * 0.25); //jump the network
+					Cbuf_AddText("save auto\n");
 				}
 				timeToCheckpoint = sv.time + 10000;
 				autosaveTrigger = false;
@@ -1624,6 +1713,5 @@ static void checkAutoSave()
 		{
 			delayCountdown = 3;
 		}
-
 	}
 }

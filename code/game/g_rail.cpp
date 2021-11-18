@@ -11,39 +11,37 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 #include "g_headers.h"
 
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // Externs & Fwd Decl.
 ////////////////////////////////////////////////////////////////////////////////////////
 //extern cvar_t*		g_nav1;
-extern void		G_SoundAtSpot( vec3_t org, int soundIndex, qboolean broadcast );
+extern void G_SoundAtSpot(vec3_t org, int soundIndex, qboolean broadcast);
 
-class	CRailTrack;
-class	CRailLane;
-class	CRailMover;
-
+class CRailTrack;
+class CRailLane;
+class CRailMover;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Includes
 ////////////////////////////////////////////////////////////////////////////////////////
 #include "b_local.h"
 #if !defined(RATL_ARRAY_VS_INC)
-	#include "..\Ratl\array_vs.h"
+#include "..\Ratl\array_vs.h"
 #endif
 #if !defined(RATL_VECTOR_VS_INC)
-	#include "..\Ratl\vector_vs.h"
+#include "..\Ratl\vector_vs.h"
 #endif
 #if !defined(RAVL_VEC_INC)
-	#include "..\Ravl\CVec.h"
+#include "..\Ravl\CVec.h"
 #endif
 #if !defined(RUFL_HSTRING_INC)
-	#include "..\Rufl\hstring.h"
+#include "..\Rufl\hstring.h"
 #endif
 #if !defined(RATL_GRID_VS_INC)
-	#include "..\Ratl\grid_vs.h"
+#include "..\Ratl\grid_vs.h"
 #endif
 #if !defined(RATL_POOL_VS_INC)
-	#include "..\Ratl\pool_vs.h"
+#include "..\Ratl\pool_vs.h"
 #endif
 
 #ifdef _XBOX
@@ -53,23 +51,21 @@ using dllNamespace::hstring;
 ////////////////////////////////////////////////////////////////////////////////////////
 // Constants
 ////////////////////////////////////////////////////////////////////////////////////////
-#define		MAX_TRACKS			4
-#define		MAX_LANES			8
-#define		MAX_MOVERS			150
-#define		MAX_MOVER_ENTS		10
-#define		MAX_MOVERS_TRACK	80
-#define		MAX_COLS			32
-#define		MAX_ROWS			96
-#define		MAX_ROW_HISTORY		10
+#define MAX_TRACKS 4
+#define MAX_LANES 8
+#define MAX_MOVERS 150
+#define MAX_MOVER_ENTS 10
+#define MAX_MOVERS_TRACK 80
+#define MAX_COLS 32
+#define MAX_ROWS 96
+#define MAX_ROW_HISTORY 10
 
-#define		WOOSH_DEBUG			0
-#define		WOOSH_ALL_RANGE		1500.0f
-#define		WOOSH_SUPPORT_RANGE	2500.0f
-#define		WOOSH_TUNNEL_RANGE	3000.0f
+#define WOOSH_DEBUG 0
+#define WOOSH_ALL_RANGE 1500.0f
+#define WOOSH_SUPPORT_RANGE 2500.0f
+#define WOOSH_TUNNEL_RANGE 3000.0f
 
-
-bool		mRailSystemActive = false;
-
+bool mRailSystemActive = false;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // The Rail Track
@@ -78,74 +74,71 @@ bool		mRailSystemActive = false;
 // repositry of all movers and maintain the list of available movers as well as
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-class	CRailTrack
+class CRailTrack
 {
 public:
-	void	Setup(gentity_t *ent)
+	void Setup(gentity_t *ent)
 	{
-		mName						= ent->targetname;
-		mSpeedGridCellsPerSecond	= ent->speed;
-		mNumMoversPerRow			= ent->count;
-		mMins						= ent->mins;
-		mMaxs						= ent->maxs;
-		mStartTime					= ent->delay + level.time;
-		mGridCellSize				= (ent->radius!=0.0f)?(ent->radius):(1.0f);
-		mVertical					= (ent->s.angles[1]==90.0f || ent->s.angles[1]==270.0f);	
-		mNegative					= (ent->s.angles[1]==180.0f || ent->s.angles[1]==270.0f);	// From Maxs To Mins
-		mWAxis						= (mVertical)?(0):(1);
-		mHAxis						= (mVertical)?(1):(0);
-		mTravelDistanceUnits		= ent->maxs[mHAxis] - ent->mins[mHAxis];
+		mName = ent->targetname;
+		mSpeedGridCellsPerSecond = ent->speed;
+		mNumMoversPerRow = ent->count;
+		mMins = ent->mins;
+		mMaxs = ent->maxs;
+		mStartTime = ent->delay + level.time;
+		mGridCellSize = (ent->radius != 0.0f) ? (ent->radius) : (1.0f);
+		mVertical = (ent->s.angles[1] == 90.0f || ent->s.angles[1] == 270.0f);
+		mNegative = (ent->s.angles[1] == 180.0f || ent->s.angles[1] == 270.0f); // From Maxs To Mins
+		mWAxis = (mVertical) ? (0) : (1);
+		mHAxis = (mVertical) ? (1) : (0);
+		mTravelDistanceUnits = ent->maxs[mHAxis] - ent->mins[mHAxis];
 
-		mRow						= 0;
-		mNextUpdateTime				= 0;
-	
-		mCenterLocked				= false;
+		mRow = 0;
+		mNextUpdateTime = 0;
+
+		mCenterLocked = false;
 
 		SnapVectorToGrid(mMins);
 		SnapVectorToGrid(mMaxs);
 
 		// Calculate Number Of Rows And Columns
 		//--------------------------------------
-		mRows						= ((mMaxs[mHAxis] - mMins[mHAxis]) / mGridCellSize);
-		mCols						= ((mMaxs[mWAxis] - mMins[mWAxis]) / mGridCellSize);
+		mRows = ((mMaxs[mHAxis] - mMins[mHAxis]) / mGridCellSize);
+		mCols = ((mMaxs[mWAxis] - mMins[mWAxis]) / mGridCellSize);
 
 		// Calculate Grid Center
 		//-----------------------
-		mGridCenter = ((mMins+mMaxs)*0.5f);
+		mGridCenter = ((mMins + mMaxs) * 0.5f);
 		SnapVectorToGrid(mGridCenter);
 
 		// Calculate Speed & Velocity
 		//----------------------------
-		mSpeedUnitsPerMillisecond	= mSpeedGridCellsPerSecond * mGridCellSize / 1000.0f;
-		mTravelTimeMilliseconds		= mTravelDistanceUnits / mSpeedUnitsPerMillisecond;
+		mSpeedUnitsPerMillisecond = mSpeedGridCellsPerSecond * mGridCellSize / 1000.0f;
+		mTravelTimeMilliseconds = mTravelDistanceUnits / mSpeedUnitsPerMillisecond;
 
 		AngleVectors(ent->s.angles, mDirection.v, 0, 0);
 		mDirection.SafeNorm();
-		mVelocity					= mDirection;
-		mVelocity					*= (mSpeedGridCellsPerSecond * mGridCellSize);
+		mVelocity = mDirection;
+		mVelocity *= (mSpeedGridCellsPerSecond * mGridCellSize);
 
-		mNextUpdateDelay			= 1000.0f / (float)(mSpeedGridCellsPerSecond);
-
+		mNextUpdateDelay = 1000.0f / (float)(mSpeedGridCellsPerSecond);
 
 		// Calculate Bottom Left Corner
 		//------------------------------
 		mGridBottomLeftCorner = ent->mins;
-		if (ent->s.angles[1]==180.0f)
+		if (ent->s.angles[1] == 180.0f)
 		{
 			mGridBottomLeftCorner[0] = mMaxs[0];
 		}
-		else if (ent->s.angles[1]==270.0f)
+		else if (ent->s.angles[1] == 270.0f)
 		{
 			mGridBottomLeftCorner[1] = mMaxs[1];
 		}
 		SnapVectorToGrid(mGridBottomLeftCorner);
 
-
-		mCells.set_size(mCols/*xSize*/, mRows/*ySize*/);
+		mCells.set_size(mCols /*xSize*/, mRows /*ySize*/);
 		mCells.init(0);
 
 		mMovers.clear();
-
 
 		if (!mNumMoversPerRow)
 		{
@@ -154,37 +147,37 @@ public:
 
 		// Safe Clamp Number Of Rows & Cols
 		//----------------------------------
-		if (mRows>(MAX_ROWS-1))
+		if (mRows > (MAX_ROWS - 1))
 		{
-			mRows = (MAX_ROWS-1);
+			mRows = (MAX_ROWS - 1);
 			assert(0);
 		}
-		if (mCols>(MAX_COLS-1))
+		if (mCols > (MAX_COLS - 1))
 		{
-			mCols = (MAX_COLS-1);
+			mCols = (MAX_COLS - 1);
 			assert(0);
 		}
 	}
 
-	void	SnapVectorToGrid(CVec3&	Vec)
+	void SnapVectorToGrid(CVec3 &Vec)
 	{
 		SnapFloatToGrid(Vec[0]);
 		SnapFloatToGrid(Vec[1]);
 	}
 
-	void	SnapFloatToGrid(float& f)
+	void SnapFloatToGrid(float &f)
 	{
 		f = (int)(f);
 
-		bool	fNeg		= (f<0);
+		bool fNeg = (f < 0);
 		if (fNeg)
 		{
-			f *= -1;		// Temporarly make it positive
+			f *= -1; // Temporarly make it positive
 		}
 
-		int		Offset		= ((int)(f) % (int)(mGridCellSize));
-		int		OffsetAbs	= abs(Offset);
-		if (OffsetAbs>(mGridCellSize/2))
+		int Offset = ((int)(f) % (int)(mGridCellSize));
+		int OffsetAbs = abs(Offset);
+		if (OffsetAbs > (mGridCellSize / 2))
 		{
 			Offset = (mGridCellSize - OffsetAbs) * -1;
 		}
@@ -193,68 +186,58 @@ public:
 
 		if (fNeg)
 		{
-			f *= -1;		// Put It Back To Negative
+			f *= -1; // Put It Back To Negative
 		}
 
 		f = (int)(f);
 
-		assert(((int)(f)%(int)(mGridCellSize)) == 0);
+		assert(((int)(f) % (int)(mGridCellSize)) == 0);
 	}
 
-
-
-
-
-	void	Update();
-	bool	TestMoverInCells(CRailMover* mover, int atCol);
-	void	InsertMoverInCells(CRailMover* mover, int atCol);
-	void	RandomizeTestCols(int startCol, int stopCol);
-
-
-
-
-
-
+	void Update();
+	bool TestMoverInCells(CRailMover *mover, int atCol);
+	void InsertMoverInCells(CRailMover *mover, int atCol);
+	void RandomizeTestCols(int startCol, int stopCol);
 
 public:
-	hstring		mName;
+	hstring mName;
 
-	int			mRow;
-	int			mNumMoversPerRow;
-	
-	int			mNextUpdateTime;
-	int			mNextUpdateDelay;
-	int			mStartTime;
+	int mRow;
+	int mNumMoversPerRow;
 
-	int			mRows;
-	int			mCols;
+	int mNextUpdateTime;
+	int mNextUpdateDelay;
+	int mStartTime;
 
-	bool		mVertical;
-	bool		mNegative;
-	int			mHAxis;
-	int			mWAxis;
+	int mRows;
+	int mCols;
 
-	int			mSpeedGridCellsPerSecond;
-	float		mSpeedUnitsPerMillisecond;
-	int			mTravelTimeMilliseconds;
-	float		mTravelDistanceUnits;
-	CVec3		mDirection;
-	CVec3		mVelocity;
+	bool mVertical;
+	bool mNegative;
+	int mHAxis;
+	int mWAxis;
 
-	CVec3		mMins;
-	CVec3		mMaxs;
+	int mSpeedGridCellsPerSecond;
+	float mSpeedUnitsPerMillisecond;
+	int mTravelTimeMilliseconds;
+	float mTravelDistanceUnits;
+	CVec3 mDirection;
+	CVec3 mVelocity;
 
-	CVec3		mGridBottomLeftCorner;
-	CVec3		mGridCenter;
-	float		mGridCellSize;
+	CVec3 mMins;
+	CVec3 mMaxs;
 
-	bool		mCenterLocked;
+	CVec3 mGridBottomLeftCorner;
+	CVec3 mGridCenter;
+	float mGridCellSize;
 
-	ratl::grid2_vs<CRailMover*, MAX_COLS, MAX_ROWS>	mCells;
-	ratl::vector_vs<CRailMover*, MAX_MOVERS_TRACK>	mMovers;
-	ratl::vector_vs<int, MAX_ROWS>					mTestCols;
+	bool mCenterLocked;
+
+	ratl::grid2_vs<CRailMover *, MAX_COLS, MAX_ROWS> mCells;
+	ratl::vector_vs<CRailMover *, MAX_MOVERS_TRACK> mMovers;
+	ratl::vector_vs<int, MAX_ROWS> mTestCols;
 };
-ratl::vector_vs<CRailTrack, MAX_TRACKS>				mRailTracks;
+ratl::vector_vs<CRailTrack, MAX_TRACKS> mRailTracks;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 /*QUAKED rail_track (0 .5 .8) ? x x x x x x x x
@@ -276,36 +259,32 @@ void SP_rail_track(gentity_t *ent)
 	mRailSystemActive = true;
 }
 
-
-
-
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // The Rail Lane
 //
 //
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-class	CRailLane
+class CRailLane
 {
 public:
 	////////////////////////////////////////////////////////////////////////////////////
 	// From Entity Setup Spawn
 	////////////////////////////////////////////////////////////////////////////////////
-	void		Setup(gentity_t* ent)
+	void Setup(gentity_t *ent)
 	{
-		mName		= ent->targetname;
-		mNameTrack	= ent->target;
-		mMins		= ent->mins;
-		mMaxs		= ent->maxs;
-		mStartTime	= ent->delay + level.time;
+		mName = ent->targetname;
+		mNameTrack = ent->target;
+		mMins = ent->mins;
+		mMaxs = ent->maxs;
+		mStartTime = ent->delay + level.time;
 	}
 
-	hstring		mName;
-	hstring		mNameTrack;
-	CVec3		mMins;
-	CVec3		mMaxs;
-	int			mStartTime;
+	hstring mName;
+	hstring mNameTrack;
+	CVec3 mMins;
+	CVec3 mMaxs;
+	int mStartTime;
 
 public:
 	////////////////////////////////////////////////////////////////////////////////////
@@ -314,23 +293,23 @@ public:
 	// This function scans through the list of tracks and hooks itself up with the
 	// track
 	////////////////////////////////////////////////////////////////////////////////////
-	void		Initialize()
+	void Initialize()
 	{
-		mTrack		= 0;
-		mMinCol		= 0;
-		mMaxCol		= 0;
+		mTrack = 0;
+		mMinCol = 0;
+		mMaxCol = 0;
 
-//		int		dummy;
-		for (int i=0; i<mRailTracks.size(); i++)
+		//		int		dummy;
+		for (int i = 0; i < mRailTracks.size(); i++)
 		{
-			if (mRailTracks[i].mName==mNameTrack)
+			if (mRailTracks[i].mName == mNameTrack)
 			{
-				mTrack	= &(mRailTracks[i]);
+				mTrack = &(mRailTracks[i]);
 				mTrack->SnapVectorToGrid(mMins);
 				mTrack->SnapVectorToGrid(mMaxs);
 
-				mMinCol = (int)((mMins[mTrack->mWAxis] - mTrack->mMins[mTrack->mWAxis])/mTrack->mGridCellSize);
-				mMaxCol = (int)((mMaxs[mTrack->mWAxis] - mTrack->mMins[mTrack->mWAxis] - (mTrack->mGridCellSize/2.0f))/mTrack->mGridCellSize);
+				mMinCol = (int)((mMins[mTrack->mWAxis] - mTrack->mMins[mTrack->mWAxis]) / mTrack->mGridCellSize);
+				mMaxCol = (int)((mMaxs[mTrack->mWAxis] - mTrack->mMins[mTrack->mWAxis] - (mTrack->mGridCellSize / 2.0f)) / mTrack->mGridCellSize);
 
 				//if (mTrack->mNegative)
 				//{
@@ -338,20 +317,19 @@ public:
 				//	mMaxCol = (mTrack->mCols - mMaxCol - 1);
 				//}
 
-
-//				mTrack->mCells.get_cell_coords(mMins[mTrack->mWAxis], 0, mMinCol, dummy);
-//				mTrack->mCells.get_cell_coords((mMaxs[mTrack->mWAxis]-10.0f), 0, mMaxCol, dummy);
+				//				mTrack->mCells.get_cell_coords(mMins[mTrack->mWAxis], 0, mMinCol, dummy);
+				//				mTrack->mCells.get_cell_coords((mMaxs[mTrack->mWAxis]-10.0f), 0, mMaxCol, dummy);
 				break;
 			}
 		}
-		assert(mTrack!=0);
+		assert(mTrack != 0);
 	}
 
-	CRailTrack*	mTrack;
-	int			mMinCol;
-	int			mMaxCol;
+	CRailTrack *mTrack;
+	int mMinCol;
+	int mMaxCol;
 };
-ratl::vector_vs<CRailLane, MAX_LANES>		mRailLanes;
+ratl::vector_vs<CRailLane, MAX_LANES> mRailLanes;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 /*QUAKED rail_lane (0 .5 .8) ? x x x x x x x x
@@ -362,65 +340,58 @@ Use rail lanes to split up tracks.  Just target it to a track that you want to b
 ////////////////////////////////////////////////////////////////////////////////////////
 void SP_rail_lane(gentity_t *ent)
 {
- 	gi.SetBrushModel(ent, ent->model);
+	gi.SetBrushModel(ent, ent->model);
 	G_SpawnInt("delay", "0", &ent->delay);
 	mRailLanes.push_back().Setup(ent);
 	G_FreeEntity(ent);
 }
 
-
-
-
-
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-class	CRailMover
+class CRailMover
 {
 public:
 	////////////////////////////////////////////////////////////////////////////////////
 	// From Entity Setup Spawn
 	////////////////////////////////////////////////////////////////////////////////////
-	void		Setup(gentity_t* ent)
+	void Setup(gentity_t *ent)
 	{
-		mEnt					= ent;
-		mCenter					= (ent->spawnflags&1);
-		mSoundPlayed			= false;
-		mOriginOffset			= ent->mins;
-		mOriginOffset			+= ent->maxs;
-		mOriginOffset			*= 0.5f;
-		mOriginOffset[2]		= 0;//((ent->maxs[2] - ent->mins[2]) * 0.5);
+		mEnt = ent;
+		mCenter = (ent->spawnflags & 1);
+		mSoundPlayed = false;
+		mOriginOffset = ent->mins;
+		mOriginOffset += ent->maxs;
+		mOriginOffset *= 0.5f;
+		mOriginOffset[2] = 0; //((ent->maxs[2] - ent->mins[2]) * 0.5);
 
-		ent->e_ReachedFunc		= reachedF_NULL;
-		ent->moverState			= MOVER_POS1;
-		ent->svFlags			= SVF_USE_CURRENT_ORIGIN;
-		ent->s.eType			= ET_MOVER;
-		ent->s.eFlags			|= EF_NODRAW;
-		ent->contents			= 0;
-		ent->clipmask			= 0;
+		ent->e_ReachedFunc = reachedF_NULL;
+		ent->moverState = MOVER_POS1;
+		ent->svFlags = SVF_USE_CURRENT_ORIGIN;
+		ent->s.eType = ET_MOVER;
+		ent->s.eFlags |= EF_NODRAW;
+		ent->contents = 0;
+		ent->clipmask = 0;
 
-		ent->s.pos.trType		= TR_STATIONARY;
-		ent->s.pos.trDuration	= 0;
-		ent->s.pos.trTime		= 0;
+		ent->s.pos.trType = TR_STATIONARY;
+		ent->s.pos.trDuration = 0;
+		ent->s.pos.trTime = 0;
 
-		VectorCopy( ent->pos1, ent->currentOrigin );
-		VectorCopy( ent->pos1, ent->s.pos.trBase );
-
+		VectorCopy(ent->pos1, ent->currentOrigin);
+		VectorCopy(ent->pos1, ent->s.pos.trBase);
 
 		gi.linkentity(ent);
 	}
-	gentity_t*	mEnt;
-	bool		mCenter;
-	CVec3		mOriginOffset;
-	bool		mSoundPlayed;
+	gentity_t *mEnt;
+	bool mCenter;
+	CVec3 mOriginOffset;
+	bool mSoundPlayed;
 
-
-	bool		Active()
+	bool Active()
 	{
-		assert(mEnt!=0);
-		return (level.time<(mEnt->s.pos.trDuration + mEnt->s.pos.trTime));
+		assert(mEnt != 0);
+		return (level.time < (mEnt->s.pos.trDuration + mEnt->s.pos.trTime));
 	}
-
 
 public:
 	////////////////////////////////////////////////////////////////////////////////////
@@ -429,67 +400,67 @@ public:
 	// This function scans through the list of tracks and hooks itself up with the
 	// track (and possibly lane)
 	////////////////////////////////////////////////////////////////////////////////////
-	void		Initialize()
+	void Initialize()
 	{
-		mTrack	= 0;
-		mLane	= 0;
-		mCols	= 0;
-		mRows	= 0;
+		mTrack = 0;
+		mLane = 0;
+		mCols = 0;
+		mRows = 0;
 
-		hstring	target = mEnt->target;
-		for (int track=0; track<mRailTracks.size(); track++)
+		hstring target = mEnt->target;
+		for (int track = 0; track < mRailTracks.size(); track++)
 		{
-			if (mRailTracks[track].mName==target)
+			if (mRailTracks[track].mName == target)
 			{
 				mTrack = &(mRailTracks[track]);
 				break;
 			}
 		}
-		if (mTrack==0)
+		if (mTrack == 0)
 		{
-			for (int lane=0; lane<mRailLanes.size(); lane++)
+			for (int lane = 0; lane < mRailLanes.size(); lane++)
 			{
-				if (mRailLanes[lane].mName==target)
+				if (mRailLanes[lane].mName == target)
 				{
-					mLane	= &(mRailLanes[lane]);
-					mTrack	= mLane->mTrack;
+					mLane = &(mRailLanes[lane]);
+					mTrack = mLane->mTrack;
 					break;
 				}
 			}
 		}
-		assert(mTrack!=0);
+		assert(mTrack != 0);
 		if (mTrack)
 		{
 			mTrack->mMovers.push_back(this);
-			mCols	= (int)((mEnt->maxs[mTrack->mWAxis] - mEnt->mins[mTrack->mWAxis]) / mTrack->mGridCellSize) + 1;
-			mRows	= (int)((mEnt->maxs[mTrack->mHAxis] - mEnt->mins[mTrack->mHAxis]) / mTrack->mGridCellSize) + 1;
+			mCols = (int)((mEnt->maxs[mTrack->mWAxis] - mEnt->mins[mTrack->mWAxis]) / mTrack->mGridCellSize) + 1;
+			mRows = (int)((mEnt->maxs[mTrack->mHAxis] - mEnt->mins[mTrack->mHAxis]) / mTrack->mGridCellSize) + 1;
 
 			// Make Sure The Mover Fits In The Track And Lane
 			//------------------------------------------------
-			if (mRows>mTrack->mRows)
+			if (mRows > mTrack->mRows)
 			{
-//				assert(0);
+				//				assert(0);
 				mRows = mTrack->mRows;
 			}
-			if (mCols>mTrack->mCols)
+			if (mCols > mTrack->mCols)
 			{
-//				assert(0);
+				//				assert(0);
 				mCols = mTrack->mCols;
 			}
-			if (mLane && mCols>(mLane->mMaxCol - mLane->mMinCol + 1))
+			if (mLane && mCols > (mLane->mMaxCol - mLane->mMinCol + 1))
 			{
-//				assert(0);
+				//				assert(0);
 				mCols = (mLane->mMaxCol - mLane->mMinCol + 1);
 			}
 		}
 	}
 
-	CRailTrack*	mTrack;
-	CRailLane*	mLane;
-	int			mCols;
-	int			mRows;
+	CRailTrack *mTrack;
+	CRailLane *mLane;
+	int mCols;
+	int mRows;
 };
-ratl::vector_vs<CRailMover, MAX_MOVERS>		mRailMovers;
+ratl::vector_vs<CRailMover, MAX_MOVERS> mRailMovers;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 /*QUAKED rail_mover (0 .5 .8) ? CENTER x x x x x x x
@@ -508,20 +479,16 @@ void SP_rail_mover(gentity_t *ent)
 	mRailMovers.push_back().Setup(ent);
 }
 
-
-ratl::vector_vs<int, 20>				mWooshSml;	// Small Building
-ratl::vector_vs<int, 20>				mWooshMed;	// Medium Building
-ratl::vector_vs<int, 10>				mWooshLar;	// Large Building
-ratl::vector_vs<int, 10>				mWooshSup;	// Track Support
-ratl::vector_vs<int, 3>					mWooshTun;	// Tunnel
-
-
-
+ratl::vector_vs<int, 20> mWooshSml; // Small Building
+ratl::vector_vs<int, 20> mWooshMed; // Medium Building
+ratl::vector_vs<int, 10> mWooshLar; // Large Building
+ratl::vector_vs<int, 10> mWooshSup; // Track Support
+ratl::vector_vs<int, 3> mWooshTun;	// Tunnel
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-void	Rail_Reset()
+void Rail_Reset()
 {
 	mRailSystemActive = false;
 	mRailTracks.clear();
@@ -538,14 +505,14 @@ void	Rail_Reset()
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-void	Rail_Initialize()
+void Rail_Initialize()
 {
-	for (int lane=0; lane<mRailLanes.size(); lane++)
+	for (int lane = 0; lane < mRailLanes.size(); lane++)
 	{
 		mRailLanes[lane].Initialize();
 	}
 
-	for (int mover=0; mover<mRailMovers.size(); mover++)
+	for (int mover = 0; mover < mRailMovers.size(); mover++)
 	{
 		mRailMovers[mover].Initialize();
 	}
@@ -590,13 +557,13 @@ void	Rail_Initialize()
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-void	Rail_Update()
+void Rail_Update()
 {
-	if (mRailSystemActive)// && false)
+	if (mRailSystemActive) // && false)
 	{
-		for (int track=0; track<mRailTracks.size(); track++)
+		for (int track = 0; track < mRailTracks.size(); track++)
 		{
-			if (level.time>mRailTracks[track].mNextUpdateTime && !mRailTracks[track].mMovers.empty())
+			if (level.time > mRailTracks[track].mNextUpdateTime && !mRailTracks[track].mMovers.empty())
 			{
 				mRailTracks[track].Update();
 			}
@@ -604,40 +571,39 @@ void	Rail_Update()
 
 		// Is The Player Outside?
 		//------------------------
- 		if (player && gi.WE_IsOutside(player->currentOrigin))
+		if (player && gi.WE_IsOutside(player->currentOrigin))
 		{
-			int		wooshSound;
-			vec3_t	wooshSoundPos;
-			vec3_t	moverOrigin;
-			vec3_t	playerToMover;
-			float	playerToMoverDistance;
-			float	playerToMoverDistanceFraction;
+			int wooshSound;
+			vec3_t wooshSoundPos;
+			vec3_t moverOrigin;
+			vec3_t playerToMover;
+			float playerToMoverDistance;
+			float playerToMoverDistanceFraction;
 
 			// Iterate Over All The Movers
 			//-----------------------------
- 			for (int moverIndex=0; moverIndex<mRailMovers.size(); moverIndex++)
+			for (int moverIndex = 0; moverIndex < mRailMovers.size(); moverIndex++)
 			{
- 				CRailMover&	mover = mRailMovers[moverIndex];
+				CRailMover &mover = mRailMovers[moverIndex];
 
 				// Is It Active, And Has The Sound Already Played On It?
 				//--------------------------------------------------------
-   			 	if (mover.Active() && !mover.mSoundPlayed)
-				{ 
- 					VectorAdd(mover.mEnt->currentOrigin, mover.mOriginOffset.v, moverOrigin);
- 					VectorSubtract(moverOrigin, player->currentOrigin, playerToMover);
-					playerToMover[2]		= 0.0f;
- 					playerToMoverDistance	= VectorNormalize(playerToMover);
-
+				if (mover.Active() && !mover.mSoundPlayed)
+				{
+					VectorAdd(mover.mEnt->currentOrigin, mover.mOriginOffset.v, moverOrigin);
+					VectorSubtract(moverOrigin, player->currentOrigin, playerToMover);
+					playerToMover[2] = 0.0f;
+					playerToMoverDistance = VectorNormalize(playerToMover);
 
 					// Is It Close Enough?
 					//---------------------
-					if ((( mover.mLane || !mover.mCenter) &&								// Not Center Track
-						 (playerToMoverDistance<WOOSH_ALL_RANGE) && 						//  And Close Enough
-						 (DotProduct(playerToMover, mover.mTrack->mDirection.v)>-0.45f))	//  And On The Side
+					if (((mover.mLane || !mover.mCenter) &&									// Not Center Track
+						 (playerToMoverDistance < WOOSH_ALL_RANGE) &&						//  And Close Enough
+						 (DotProduct(playerToMover, mover.mTrack->mDirection.v) > -0.45f))	//  And On The Side
 						||																	//OR
-						((!mover.mLane &&  mover.mCenter) &&								// Is Center Track
-						  (playerToMoverDistance<WOOSH_SUPPORT_RANGE ||						//  And Close Enough for Support
-						  (playerToMoverDistance<WOOSH_TUNNEL_RANGE && mover.mRows>10))		//   Or Close Enough For Tunnel
+						((!mover.mLane && mover.mCenter) &&									// Is Center Track
+						 (playerToMoverDistance < WOOSH_SUPPORT_RANGE ||					//  And Close Enough for Support
+						  (playerToMoverDistance < WOOSH_TUNNEL_RANGE && mover.mRows > 10)) //   Or Close Enough For Tunnel
 						 ))
 					{
 						mover.mSoundPlayed = true;
@@ -647,55 +613,55 @@ void	Rail_Update()
 						//-----------------------------------------------------------------------
 						if (mover.mCenter && !mover.mLane)
 						{
- 							VectorCopy(player->currentOrigin, wooshSoundPos);
- 							wooshSoundPos[2] += 50;
+							VectorCopy(player->currentOrigin, wooshSoundPos);
+							wooshSoundPos[2] += 50;
 
 							// If It Is Very Long, Play The Tunnel Sound
 							//-------------------------------------------
-							if (mover.mRows>10)
+							if (mover.mRows > 10)
 							{
-								wooshSound = mWooshTun[Q_irand(0, mWooshTun.size()-1)];
+								wooshSound = mWooshTun[Q_irand(0, mWooshTun.size() - 1)];
 							}
 
 							// Otherwise It Is A Support
 							//---------------------------
-							else 
-							{ 
-								wooshSound = mWooshSup[Q_irand(0, mWooshSup.size()-1)];
+							else
+							{
+								wooshSound = mWooshSup[Q_irand(0, mWooshSup.size() - 1)];
 							}
 						}
 
 						// All Other Entities Play At A Fraction Of Their Normal Range
 						//-------------------------------------------------------------
- 						else 
+						else
 						{
 							// Scale The Play Pos By The Square Of The Distance
 							//--------------------------------------------------
-							playerToMoverDistanceFraction = playerToMoverDistance/WOOSH_ALL_RANGE;
- 							playerToMoverDistanceFraction *= playerToMoverDistanceFraction;
+							playerToMoverDistanceFraction = playerToMoverDistance / WOOSH_ALL_RANGE;
+							playerToMoverDistanceFraction *= playerToMoverDistanceFraction;
 							playerToMoverDistanceFraction *= 0.6f;
 							playerToMoverDistance *= playerToMoverDistanceFraction;
- 							VectorMA(player->currentOrigin, playerToMoverDistance, playerToMover, wooshSoundPos);
+							VectorMA(player->currentOrigin, playerToMoverDistance, playerToMover, wooshSoundPos);
 
 							// Large Building
 							//----------------
-							if (mover.mRows>4)
+							if (mover.mRows > 4)
 							{
-								wooshSound = mWooshLar[Q_irand(0, mWooshLar.size()-1)];
+								wooshSound = mWooshLar[Q_irand(0, mWooshLar.size() - 1)];
 							}
 
 							// Medium Building
 							//-----------------
-							else if (mover.mRows>2)
+							else if (mover.mRows > 2)
 							{
-								wooshSound = mWooshMed[Q_irand(0, mWooshMed.size()-1)];
+								wooshSound = mWooshMed[Q_irand(0, mWooshMed.size() - 1)];
 							}
 
 							// Small Building
 							//----------------
-							else 
-							{ 
-								wooshSound = mWooshSml[Q_irand(0, mWooshSml.size()-1)];
+							else
+							{
+								wooshSound = mWooshSml[Q_irand(0, mWooshSml.size() - 1)];
 							}
 						}
 
@@ -719,12 +685,12 @@ void	Rail_Update()
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-void	Rail_LockCenterOfTrack(const char* trackName)
+void Rail_LockCenterOfTrack(const char *trackName)
 {
-	hstring	name = trackName;
-	for (int track=0; track<mRailTracks.size(); track++)
+	hstring name = trackName;
+	for (int track = 0; track < mRailTracks.size(); track++)
 	{
-		if (mRailTracks[track].mName==name)
+		if (mRailTracks[track].mName == name)
 		{
 			mRailTracks[track].mCenterLocked = true;
 			return;
@@ -736,12 +702,12 @@ void	Rail_LockCenterOfTrack(const char* trackName)
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-void	Rail_UnLockCenterOfTrack(const char* trackName)
+void Rail_UnLockCenterOfTrack(const char *trackName)
 {
-	hstring	name = trackName;
-	for (int track=0; track<mRailTracks.size(); track++)
+	hstring name = trackName;
+	for (int track = 0; track < mRailTracks.size(); track++)
 	{
-		if (mRailTracks[track].mName==name)
+		if (mRailTracks[track].mName == name)
 		{
 			mRailTracks[track].mCenterLocked = false;
 			return;
@@ -753,24 +719,23 @@ void	Rail_UnLockCenterOfTrack(const char* trackName)
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-void	CRailTrack::Update()
+void CRailTrack::Update()
 {
 	mNextUpdateTime = level.time + mNextUpdateDelay;
 
-
 	// Now, Attempt To Add A Number Of Movers To The Track
 	//-----------------------------------------------------
-	int		attempt;
-	int		startCol;
-	int		stopCol;
-	int		atCol;
-	int		testColIndex;
+	int attempt;
+	int startCol;
+	int stopCol;
+	int atCol;
+	int testColIndex;
 
-	for (attempt=0; attempt<mNumMoversPerRow; attempt++)
+	for (attempt = 0; attempt < mNumMoversPerRow; attempt++)
 	{
 		// Randomly Select A Mover And Test To See If It Is Active
 		//---------------------------------------------------------
-		CRailMover*	mover = mMovers[Q_irand(0, mMovers.size()-1)];
+		CRailMover *mover = mMovers[Q_irand(0, mMovers.size() - 1)];
 		if (mover->Active())
 		{
 			continue;
@@ -778,7 +743,7 @@ void	CRailTrack::Update()
 
 		// Don't Spawn Until Start Time Has Expired
 		//------------------------------------------
-		if (level.time < ((mover->mLane)?(mover->mLane->mStartTime):(mStartTime)))
+		if (level.time < ((mover->mLane) ? (mover->mLane->mStartTime) : (mStartTime)))
 		{
 			continue;
 		}
@@ -789,47 +754,44 @@ void	CRailTrack::Update()
 		{
 			continue;
 		}
-	
 
 		// Restrict It To A Lane
 		//-----------------------
 		if (mover->mLane)
 		{
-			startCol	= mover->mLane->mMinCol;
-			stopCol		= mover->mLane->mMaxCol+1;
+			startCol = mover->mLane->mMinCol;
+			stopCol = mover->mLane->mMaxCol + 1;
 		}
 
 		// Or Let It Go Anywhere On The Track
 		//------------------------------------
 		else
 		{
-			startCol	= 0;
-			stopCol		= mCols;
+			startCol = 0;
+			stopCol = mCols;
 		}
-		stopCol -= (mover->mCols-1);
-
+		stopCol -= (mover->mCols - 1);
 
 		// If The Mover Is Too Big To Fit In The Lane, Go On To Next Attempt
 		//-------------------------------------------------------------------
-		if (stopCol<=startCol)
+		if (stopCol <= startCol)
 		{
-			assert(0);	// Should Not Happen
+			assert(0); // Should Not Happen
 			continue;
 		}
 
 		// Force It To Center
 		//--------------------
-		if (mover->mCenter && stopCol!=(startCol+1))
+		if (mover->mCenter && stopCol != (startCol + 1))
 		{
-			startCol	= ((mCols/2) - (mover->mCols/2));
-			stopCol		= startCol+1;
+			startCol = ((mCols / 2) - (mover->mCols / 2));
+			stopCol = startCol + 1;
 		}
-
 
 		// Construct A List Of Columns To Test For Insertion
 		//---------------------------------------------------
 		mTestCols.clear();
-		for (int i=startCol; i<stopCol; i++)
+		for (int i = startCol; i < stopCol; i++)
 		{
 			mTestCols.push_back(i);
 		}
@@ -840,7 +802,7 @@ void	CRailTrack::Update()
 		{
 			// Randomly Pick A Column, Then Remove It From The Vector
 			//--------------------------------------------------------
-			testColIndex = Q_irand(0, mTestCols.size()-1);
+			testColIndex = Q_irand(0, mTestCols.size() - 1);
 			atCol = mTestCols[testColIndex];
 			mTestCols.erase_swap(testColIndex);
 
@@ -852,9 +814,9 @@ void	CRailTrack::Update()
 
 				// Now Transport The Actual Mover Entity Into Position, Link It & Send It Off
 				//----------------------------------------------------------------------------
-				CVec3	StartPos(mGridBottomLeftCorner);
-				StartPos[mWAxis] += ((atCol * mGridCellSize) + ((mover->mCols/2.0f) * mGridCellSize));
-				StartPos[mHAxis] += (((mover->mRows/2.0f) * mGridCellSize) * ((mNegative)?(1):(-1)));
+				CVec3 StartPos(mGridBottomLeftCorner);
+				StartPos[mWAxis] += ((atCol * mGridCellSize) + ((mover->mCols / 2.0f) * mGridCellSize));
+				StartPos[mHAxis] += (((mover->mRows / 2.0f) * mGridCellSize) * ((mNegative) ? (1) : (-1)));
 				StartPos[2] = 0;
 
 				// If Centered, Actually Put It At EXACTLY The Right Position On The Width Axis
@@ -862,8 +824,8 @@ void	CRailTrack::Update()
 				if (mover->mCenter)
 				{
 					StartPos[mWAxis] = mGridCenter[mWAxis];
-					float	deltaOffset = mGridCenter[mWAxis] - mover->mOriginOffset[mWAxis];
-					if (deltaOffset<(mGridCellSize*0.5f) )
+					float deltaOffset = mGridCenter[mWAxis] - mover->mOriginOffset[mWAxis];
+					if (deltaOffset < (mGridCellSize * 0.5f))
 					{
 						StartPos[mWAxis] -= deltaOffset;
 					}
@@ -876,13 +838,12 @@ void	CRailTrack::Update()
 				//-----------------
 				VectorCopy(StartPos.v, mover->mEnt->s.pos.trBase);
 				VectorCopy(mVelocity.v, mover->mEnt->s.pos.trDelta);
-				mover->mEnt->s.pos.trTime		= level.time;
-				mover->mEnt->s.pos.trDuration	= mTravelTimeMilliseconds + (mNextUpdateDelay*mover->mRows);
-				mover->mEnt->s.pos.trType		= TR_LINEAR_STOP;
-				mover->mEnt->s.eFlags			&= ~EF_NODRAW;
+				mover->mEnt->s.pos.trTime = level.time;
+				mover->mEnt->s.pos.trDuration = mTravelTimeMilliseconds + (mNextUpdateDelay * mover->mRows);
+				mover->mEnt->s.pos.trType = TR_LINEAR_STOP;
+				mover->mEnt->s.eFlags &= ~EF_NODRAW;
 
-				mover->mSoundPlayed				= false;
-
+				mover->mSoundPlayed = false;
 
 				// Successfully Inserted This Mover.  Now Move On To The Next Mover
 				//------------------------------------------------------------------
@@ -894,19 +855,19 @@ void	CRailTrack::Update()
 	// Incriment The Current Row
 	//---------------------------
 	mRow++;
-	if (mRow>=mRows)
+	if (mRow >= mRows)
 	{
 		mRow = 0;
 	}
 
 	// Erase The Erase Row
 	//---------------------
-	int	EraseRow = mRow - MAX_ROW_HISTORY;
-	if (EraseRow<0)
+	int EraseRow = mRow - MAX_ROW_HISTORY;
+	if (EraseRow < 0)
 	{
 		EraseRow += mRows;
 	}
-	for (int col=0; col<mCols; col++)
+	for (int col = 0; col < mCols; col++)
 	{
 		mCells.get(col, EraseRow) = 0;
 	}
@@ -915,19 +876,17 @@ void	CRailTrack::Update()
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-void	CRailTrack::RandomizeTestCols(int startCol, int stopCol)
+void CRailTrack::RandomizeTestCols(int startCol, int stopCol)
 {
 	int numCols = (stopCol - startCol);
 	int swapA;
-	int	swapB;
+	int swapB;
 
-
-
-	for (int swapNum=0; swapNum<numCols; swapNum++)
+	for (int swapNum = 0; swapNum < numCols; swapNum++)
 	{
-		swapA = Q_irand(0, numCols-1);
-		swapB = Q_irand(0, numCols-1);
-		if (swapA!=swapB)
+		swapA = Q_irand(0, numCols - 1);
+		swapB = Q_irand(0, numCols - 1);
+		if (swapA != swapB)
 		{
 			mTestCols.swap(swapA, swapB);
 		}
@@ -937,17 +896,17 @@ void	CRailTrack::RandomizeTestCols(int startCol, int stopCol)
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-bool	CRailTrack::TestMoverInCells(CRailMover* mover, int atCol)
+bool CRailTrack::TestMoverInCells(CRailMover *mover, int atCol)
 {
 	//for (int moverRow=0; (moverRow<mover->mRows); moverRow++)
 	//{
-		for (int moverCol=0; (moverCol<mover->mCols); moverCol++)
+	for (int moverCol = 0; (moverCol < mover->mCols); moverCol++)
+	{
+		if (mCells.get(atCol + moverCol, mRow /*+moverRow*/) != 0)
 		{
-			if (mCells.get(atCol+moverCol, mRow/*+moverRow*/)!=0)
-			{
-				return false;
-			}
+			return false;
 		}
+	}
 	//}
 	return true;
 }
@@ -955,21 +914,20 @@ bool	CRailTrack::TestMoverInCells(CRailMover* mover, int atCol)
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-void	CRailTrack::InsertMoverInCells(CRailMover* mover, int atCol)
+void CRailTrack::InsertMoverInCells(CRailMover *mover, int atCol)
 {
-	for (int moverCol=0; (moverCol<mover->mCols); moverCol++)
+	for (int moverCol = 0; (moverCol < mover->mCols); moverCol++)
 	{
-		int col = atCol+moverCol;
-		for (int moverRow=0; (moverRow<mover->mRows); moverRow++)
+		int col = atCol + moverCol;
+		for (int moverRow = 0; (moverRow < mover->mRows); moverRow++)
 		{
-			int row = mRow+moverRow;
-			if (row>=mRows)
+			int row = mRow + moverRow;
+			if (row >= mRows)
 			{
 				row -= mRows;
 			}
-			assert(mCells.get(col, row)==0);
+			assert(mCells.get(col, row) == 0);
 			mCells.get(col, row) = mover;
 		}
 	}
 }
-

@@ -1,39 +1,42 @@
 #include "../renderer/tr_local.h"
 
+qboolean (*qwglSwapIntervalEXT)(int interval);
+void (*qglMultiTexCoord2fARB)(enum texture, float s, float t);
+void (*qglActiveTextureARB)(enum texture);
+void (*qglClientActiveTextureARB)(enum texture);
 
-qboolean ( * qwglSwapIntervalEXT)( int interval );
-void ( * qglMultiTexCoord2fARB )( enum texture, float s, float t );
-void ( * qglActiveTextureARB )( enum texture );
-void ( * qglClientActiveTextureARB )( enum texture );
+void (*qglLockArraysEXT)(int, int);
+void (*qglUnlockArraysEXT)(void);
 
-
-void ( * qglLockArraysEXT)( int, int);
-void ( * qglUnlockArraysEXT) ( void );
-
-
-void		GLimp_EndFrame( void ) {
-}
-
-int 		GLimp_Init( void )
+void GLimp_EndFrame(void)
 {
 }
 
-void		GLimp_Shutdown( void ) {
+int GLimp_Init(void)
+{
 }
 
-rserr_t		GLimp_SetMode( const char *drivername, int *pWidth, int *pHeight, int mode, qboolean fullscreen ) {
+void GLimp_Shutdown(void)
+{
 }
 
-
-void		GLimp_EnableLogging( qboolean enable ) {
+rserr_t GLimp_SetMode(const char *drivername, int *pWidth, int *pHeight, int mode, qboolean fullscreen)
+{
 }
 
-void GLimp_LogComment( char *comment ) {
+void GLimp_EnableLogging(qboolean enable)
+{
 }
 
-qboolean QGL_Init( const char *dllname ) {
+void GLimp_LogComment(char *comment)
+{
+}
+
+qboolean QGL_Init(const char *dllname)
+{
 	return true;
 }
 
-void		QGL_Shutdown( void ) {
+void QGL_Shutdown(void)
+{
 }

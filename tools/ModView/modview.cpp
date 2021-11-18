@@ -27,14 +27,14 @@ static char THIS_FILE[] = __FILE__;
 // CModViewApp
 
 BEGIN_MESSAGE_MAP(CModViewApp, CWinApp)
-	//{{AFX_MSG_MAP(CModViewApp)
-	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
-	//}}AFX_MSG_MAP
-	// Standard file based document commands
-	ON_COMMAND(ID_FILE_NEW, CWinApp::OnFileNew)
-	ON_COMMAND(ID_FILE_OPEN, CWinApp::OnFileOpen)
-	// Standard print setup command
-	ON_COMMAND(ID_FILE_PRINT_SETUP, CWinApp::OnFilePrintSetup)
+//{{AFX_MSG_MAP(CModViewApp)
+ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
+//}}AFX_MSG_MAP
+// Standard file based document commands
+ON_COMMAND(ID_FILE_NEW, CWinApp::OnFileNew)
+ON_COMMAND(ID_FILE_OPEN, CWinApp::OnFileOpen)
+// Standard print setup command
+ON_COMMAND(ID_FILE_PRINT_SETUP, CWinApp::OnFilePrintSetup)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ END_MESSAGE_MAP()
 CModViewApp::CModViewApp()
 {
 	// TODO: add construction code here,
-	// Place all significant initialization in InitInstance	
+	// Place all significant initialization in InitInstance
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -59,17 +59,14 @@ bool gbMainFrameInitialised = false;
 BOOL CModViewApp::InitInstance()
 {
 	// CG: The following block was added by the Splash Screen component.
-\
-	{
-\
-		CCommandLineInfo cmdInfo;
-\
-		ParseCommandLine(cmdInfo);
-\
 
-\
+	{
+
+		CCommandLineInfo cmdInfo;
+
+		ParseCommandLine(cmdInfo);
+
 		CSplashWnd::EnableSplashScreen(cmdInfo.m_bShowSplash);
-\
 	}
 	// Standard initialization
 	// If you are not using these features and wish to reduce the size
@@ -77,9 +74,9 @@ BOOL CModViewApp::InitInstance()
 	//  the specific initialization routines you do not need.
 
 #ifdef _AFXDLL
-	Enable3dControls();			// Call this when using MFC in a shared DLL
+	Enable3dControls(); // Call this when using MFC in a shared DLL
 #else
-	Enable3dControlsStatic();	// Call this when linking to MFC statically
+	Enable3dControlsStatic(); // Call this when linking to MFC statically
 #endif
 
 	// Change the registry key under which our settings are stored.
@@ -87,16 +84,16 @@ BOOL CModViewApp::InitInstance()
 	// such as the name of your company or organization.
 	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
 
-	LoadStdProfileSettings(16);  // Load standard INI file options (including MRU)
+	LoadStdProfileSettings(16); // Load standard INI file options (including MRU)
 
 	// Register the application's document templates.  Document templates
 	//  serve as the connection between documents, frame windows and views.
 
-	CSingleDocTemplate* pDocTemplate;
+	CSingleDocTemplate *pDocTemplate;
 	pDocTemplate = new CSingleDocTemplate(
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CModViewDoc),
-		RUNTIME_CLASS(CMainFrame),       // main SDI frame window
+		RUNTIME_CLASS(CMainFrame), // main SDI frame window
 		RUNTIME_CLASS(CModViewView));
 	AddDocTemplate(pDocTemplate);
 
@@ -106,11 +103,11 @@ BOOL CModViewApp::InitInstance()
 
 	App_Init();
 
-/*	TEMP ADDITION ONLY
+	/*	TEMP ADDITION ONLY
 // enable file manager drag/drop and DDE Execute open
    EnableShellOpen();
    RegisterShellFileTypes();
-*/   
+*/
 
 	// Dispatch commands specified on the command line  (ignore this, try and avoid that crappy document class)
 	if (!ProcessShellCommand(cmdInfo))
@@ -119,11 +116,11 @@ BOOL CModViewApp::InitInstance()
 	if (gbStartMinimized)
 	{
 		extern void FuckingWellSetTheDocumentNameAndDontBloodyIgnoreMeYouCunt(LPCSTR psDocName);
-					FuckingWellSetTheDocumentNameAndDontBloodyIgnoreMeYouCunt("Untitled");
+		FuckingWellSetTheDocumentNameAndDontBloodyIgnoreMeYouCunt("Untitled");
 	}
 
 	// The one and only window has been initialized, so show and update it.
-	m_pMainWnd->ShowWindow(gbStartMinimized?SW_MINIMIZE:SW_SHOW);
+	m_pMainWnd->ShowWindow(gbStartMinimized ? SW_MINIMIZE : SW_SHOW);
 	m_pMainWnd->UpdateWindow();
 
 	bSafeToAddToMRU = true;
@@ -148,7 +145,6 @@ void Filename_AddToMRU(LPCSTR psFilename)
 	}
 }
 
-
 /////////////////////////////////////////////////////////////////////////////
 // CAboutDlg dialog used for App About
 
@@ -157,21 +153,24 @@ class CAboutDlg : public CDialog
 public:
 	CAboutDlg();
 
-// Dialog Data
+	// Dialog Data
 	//{{AFX_DATA(CAboutDlg)
-	enum { IDD = IDD_ABOUTBOX };
+	enum
+	{
+		IDD = IDD_ABOUTBOX
+	};
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAboutDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+protected:
+	virtual void DoDataExchange(CDataExchange *pDX); // DDX/DDV support
+													 //}}AFX_VIRTUAL
 
-// Implementation
+	// Implementation
 protected:
 	//{{AFX_MSG(CAboutDlg)
-		// No message handlers
+	// No message handlers
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -182,7 +181,7 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
 	//}}AFX_DATA_INIT
 }
 
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+void CAboutDlg::DoDataExchange(CDataExchange *pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAboutDlg)
@@ -190,9 +189,9 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
-	//{{AFX_MSG_MAP(CAboutDlg)
-		// No message handlers
-	//}}AFX_MSG_MAP
+//{{AFX_MSG_MAP(CAboutDlg)
+// No message handlers
+//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 // App command to run the dialog
@@ -205,15 +204,14 @@ void CModViewApp::OnAppAbout()
 /////////////////////////////////////////////////////////////////////////////
 // CModViewApp message handlers
 
-
-BOOL CModViewApp::OnIdle(LONG lCount) 
+BOOL CModViewApp::OnIdle(LONG lCount)
 {
 	// this works, but doesn't get called fast/often enough to be useful at the moment. Maybe one day...
 
-//	static int i=0;
-//	i++;
-//	OutputDebugString(va("%d\n",i));
-  	
+	//	static int i=0;
+	//	i++;
+	//	OutputDebugString(va("%d\n",i));
+
 	if (WinTalk_HandleMessages())
 	{
 		OnAppExit();
@@ -221,7 +219,6 @@ BOOL CModViewApp::OnIdle(LONG lCount)
 
 	return CWinApp::OnIdle(lCount);
 }
-
 
 // a place I can just stuff any remaining non-windows shutdown code...
 //
@@ -241,19 +238,16 @@ void App_Init(void)
 	CommArea_ServerInitOnceOnly();
 }
 
-
-int CModViewApp::ExitInstance() 
+int CModViewApp::ExitInstance()
 {
 	bSafeToAddToMRU = false;
 
 	App_FinalExit();
-	
+
 	return CWinApp::ExitInstance();
 }
 
-
-
-BOOL CModViewApp::PreTranslateMessage(MSG* pMsg)
+BOOL CModViewApp::PreTranslateMessage(MSG *pMsg)
 {
 	// CG: The following lines were added by the Splash Screen component.
 	if (CSplashWnd::PreTranslateAppMessage(pMsg))

@@ -2,45 +2,47 @@
 #if !defined(RM_TERRAIN_H_INC)
 #define RM_TERRAIN_H_INC
 
-#define MAX_RANDOM_MODELS		8
+#define MAX_RANDOM_MODELS 8
 
 class CRandomModel
 {
 private:
-	char		mModelName[MAX_QPATH];
-	float		mFrequency;
-	float		mMinScale;
-	float		mMaxScale;
-public:
-	CRandomModel(void) { }
-	~CRandomModel(void) { }
+	char mModelName[MAX_QPATH];
+	float mFrequency;
+	float mMinScale;
+	float mMaxScale;
 
-	// Accessors 
-	const bool GetModel( void ) const { return(!!strlen(mModelName)); }
-	const char *GetModelName( void ) const { return(mModelName); }
+public:
+	CRandomModel(void) {}
+	~CRandomModel(void) {}
+
+	// Accessors
+	const bool GetModel(void) const { return (!!strlen(mModelName)); }
+	const char *GetModelName(void) const { return (mModelName); }
 	void SetModel(const char *name) { Com_sprintf(mModelName, MAX_QPATH, "%s.md3", name); }
-	const float GetFrequency(void) const { return(mFrequency); }
+	const float GetFrequency(void) const { return (mFrequency); }
 	void SetFrequency(const float freq) { mFrequency = freq; }
-	const float GetMinScale(void) const { return(mMinScale); }
+	const float GetMinScale(void) const { return (mMinScale); }
 	void SetMinScale(const float minscale) { mMinScale = minscale; }
-	const float GetMaxScale(void) const { return(mMaxScale); }
+	const float GetMaxScale(void) const { return (mMaxScale); }
 	void SetMaxScale(const float maxscale) { mMaxScale = maxscale; }
 };
 
 class CCGHeightDetails
 {
 private:
-	int				mNumModels;
-	int				mTotalFrequency;
-	CRandomModel	mModels[MAX_RANDOM_MODELS];
+	int mNumModels;
+	int mTotalFrequency;
+	CRandomModel mModels[MAX_RANDOM_MODELS];
+
 public:
 	// Constructors
-	CCGHeightDetails( void ) { memset(this, 0, sizeof(*this)); }
-	~CCGHeightDetails( void ) { }
+	CCGHeightDetails(void) { memset(this, 0, sizeof(*this)); }
+	~CCGHeightDetails(void) {}
 
 	// Accessors
-	const int GetNumModels(void) const { return(mNumModels); }
-	const int GetAverageFrequency(void) const { return(mTotalFrequency / mNumModels); }
+	const int GetNumModels(void) const { return (mNumModels); }
+	const int GetAverageFrequency(void) const { return (mTotalFrequency / mNumModels); }
 
 	// Prototypes
 	void AddModel(const CRandomModel *hd);
@@ -50,20 +52,21 @@ public:
 class CCGPatch
 {
 private:
-	class CCMLandScape	*owner;
-	class CCGLandScape	*localowner;
-	CCMPatch			*common;
+	class CCMLandScape *owner;
+	class CCGLandScape *localowner;
+	CCMPatch *common;
+
 public:
 };
 
 class CRMLandScape
 {
 private:
-	CCMLandScape			*common;
+	CCMLandScape *common;
 
-	byte					*mDensityMap;							// Data image of model densities
-	int						mModelCount;							// Count of spawned client models
-	CCGHeightDetails		mHeightDetails[HEIGHT_RESOLUTION];		// Array of info specific to height
+	byte *mDensityMap;									// Data image of model densities
+	int mModelCount;									// Count of spawned client models
+	CCGHeightDetails mHeightDetails[HEIGHT_RESOLUTION]; // Array of info specific to height
 
 public:
 	CRMLandScape(void);
@@ -71,14 +74,14 @@ public:
 
 	// Accessors
 	void SetCommon(CCMLandScape *landscape) { common = landscape; }
-	const CCMLandScape *GetCommon( void ) const { return(common); }
-	const thandle_t GetCommonId( void ) const { return(common->GetTerrainId()); }
-	const int GetTerxels(void) const { return(common->GetTerxels()); }
-	const int GetRealWidth(void) const { return(common->GetRealWidth()); }
-	const float GetPatchScalarSize(void) const { return(common->GetPatchScalarSize()); }
-	const CCGHeightDetails *GetHeightDetail(int height) const { return(mHeightDetails + height); }
+	const CCMLandScape *GetCommon(void) const { return (common); }
+	const thandle_t GetCommonId(void) const { return (common->GetTerrainId()); }
+	const int GetTerxels(void) const { return (common->GetTerxels()); }
+	const int GetRealWidth(void) const { return (common->GetRealWidth()); }
+	const float GetPatchScalarSize(void) const { return (common->GetPatchScalarSize()); }
+	const CCGHeightDetails *GetHeightDetail(int height) const { return (mHeightDetails + height); }
 	void ClearModelCount(void) { mModelCount = 0; }
-	const int GetModelCount(void) const { return(mModelCount); }
+	const int GetModelCount(void) const { return (mModelCount); }
 
 	// Prototypes
 	void SetShaders(const int height, const qhandle_t shader);

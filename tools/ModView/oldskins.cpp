@@ -18,7 +18,6 @@
 ////#include "GenericParser.h"
 #include "oldskins.h"
 
-
 // file format:  (dead simple)
 //
 //armor_chest,models/players/stormtrooper/torso_legs.tga
@@ -27,21 +26,20 @@
 
 OldSkinSets_t OldSkinsFound;
 
-
 // returns NULL for all ok, else error string...
 //
 LPCSTR OldSkins_Parse(LPCSTR psSkinName, LPCSTR psText)
 {
 	CString strText(psText);
-			strText.Replace(va("%c%c",0x0A,0x0D),va("%c",0x0A));	// file was read in binary mode, so account for 0x0A/0x0D pairs
-			strText.Replace("\t","");
-			strText.Replace(" ","");
-			strText.MakeLower();
-	
+	strText.Replace(va("%c%c", 0x0A, 0x0D), va("%c", 0x0A)); // file was read in binary mode, so account for 0x0A/0x0D pairs
+	strText.Replace("\t", "");
+	strText.Replace(" ", "");
+	strText.MakeLower();
+
 	while (!strText.IsEmpty())
 	{
 		CString strThisLine;
-		
+
 		int iLoc = strText.Find('\n');
 
 		if (iLoc == -1)
@@ -52,16 +50,16 @@ LPCSTR OldSkins_Parse(LPCSTR psSkinName, LPCSTR psText)
 		else
 		{
 			strThisLine = strText.Left(iLoc);
-			strText = strText.Mid(iLoc+1);
+			strText = strText.Mid(iLoc + 1);
 		}
 
 		if (!strThisLine.IsEmpty())
 		{
 			iLoc = strThisLine.Find(',');
 			if (iLoc != -1)
-			{	
-				CString strSurfaceName	(strThisLine.Left(iLoc));						
-				CString strTGAName		(strThisLine.Mid (iLoc+1));
+			{
+				CString strSurfaceName(strThisLine.Left(iLoc));
+				CString strTGAName(strThisLine.Mid(iLoc + 1));
 
 				strSurfaceName.TrimLeft();
 				strSurfaceName.TrimRight();
@@ -79,13 +77,13 @@ LPCSTR OldSkins_Parse(LPCSTR psSkinName, LPCSTR psText)
 				}
 				else
 				{
-					OldSkinsFound[psSkinName].push_back(StringPairVector_t::value_type((LPCSTR)strSurfaceName,(LPCSTR)strTGAName));
+					OldSkinsFound[psSkinName].push_back(StringPairVector_t::value_type((LPCSTR)strSurfaceName, (LPCSTR)strTGAName));
 				}
 			}
 			else
 			{
-				return va("Error parsing line \"%s\" in skin \"%s\"!",(LPCSTR)strThisLine,psSkinName);
-			}			
+				return va("Error parsing line \"%s\" in skin \"%s\"!", (LPCSTR)strThisLine, psSkinName);
+			}
 		}
 	}
 
@@ -104,13 +102,12 @@ LPCSTR OldSkins_FilenameToSkinDescription(string strLocalSkinFileName)
 	int iLoc = strSkinName.Find('_');
 	if (iLoc != -1)
 	{
-		strSkinName = strSkinName.Mid(iLoc+1);
+		strSkinName = strSkinName.Mid(iLoc + 1);
 	}
 
-	sprintf(sTemp,strSkinName);
+	sprintf(sTemp, strSkinName);
 	return sTemp;
 }
-
 
 // returns true if at least one set of skin data was read, else false...
 //
@@ -121,34 +118,34 @@ static bool OldSkins_Read(LPCSTR psLocalFilename_GLM)
 	CWaitCursor;
 
 	OldSkinsFound.clear();
-	
-	LPCSTR psSkinsPath = va("%s%s",gamedir,Filename_PathOnly(psLocalFilename_GLM));
+
+	LPCSTR psSkinsPath = va("%s%s", gamedir, Filename_PathOnly(psLocalFilename_GLM));
 
 	if (psSkinsPath)
 	{
-		CString strSkinFileMustContainThisName( Filename_WithoutPath( Filename_WithoutExt( psLocalFilename_GLM )) );	
-				strSkinFileMustContainThisName += "_";	// eg: "turret_canon_"
+		CString strSkinFileMustContainThisName(Filename_WithoutPath(Filename_WithoutExt(psLocalFilename_GLM)));
+		strSkinFileMustContainThisName += "_"; // eg: "turret_canon_"
 		char **ppsSkinFiles;
 		int iSkinFiles;
 
 		// scan for skin files...
 		//
-		ppsSkinFiles =	//ri.FS_ListFiles( "shaders", ".shader", &iSkinFiles );
-						Sys_ListFiles(	psSkinsPath,// const char *directory, 
-										".skin",	// const char *extension, 
-										NULL,		// char *filter, 
-										&iSkinFiles,// int *numfiles, 
-										qfalse		// qboolean wantsubs 
-										);
+		ppsSkinFiles =				   //ri.FS_ListFiles( "shaders", ".shader", &iSkinFiles );
+			Sys_ListFiles(psSkinsPath, // const char *directory,
+						  ".skin",	   // const char *extension,
+						  NULL,		   // char *filter,
+						  &iSkinFiles, // int *numfiles,
+						  qfalse	   // qboolean wantsubs
+			);
 
-		if ( !ppsSkinFiles || !iSkinFiles )
+		if (!ppsSkinFiles || !iSkinFiles)
 		{
 			return false;
 		}
 
-		if ( iSkinFiles > MAX_SKIN_FILES ) 
+		if (iSkinFiles > MAX_SKIN_FILES)
 		{
-			WarningBox(va("%d skin files found, capping to %d\n\n(tell me if this ever happens -Ste)", iSkinFiles, MAX_SKIN_FILES ));
+			WarningBox(va("%d skin files found, capping to %d\n\n(tell me if this ever happens -Ste)", iSkinFiles, MAX_SKIN_FILES));
 
 			iSkinFiles = MAX_SKIN_FILES;
 		}
@@ -157,30 +154,31 @@ static bool OldSkins_Read(LPCSTR psLocalFilename_GLM)
 		//
 		char *buffers[MAX_SKIN_FILES] = {0};
 		long iTotalBytesLoaded = 0;
-		for ( int i=0; i<iSkinFiles && !psError; i++ )
+		for (int i = 0; i < iSkinFiles && !psError; i++)
 		{
 			char sFileName[MAX_QPATH];
 
 			string strLocalSkinFileName(ppsSkinFiles[i]);
 
 			// only look at skins that begin "modelname_skinvariation" for a given "modelname_"
-			if (!strnicmp(strSkinFileMustContainThisName,strLocalSkinFileName.c_str(),strlen(strSkinFileMustContainThisName)))
+			if (!strnicmp(strSkinFileMustContainThisName, strLocalSkinFileName.c_str(), strlen(strSkinFileMustContainThisName)))
 			{
-				Com_sprintf( sFileName, sizeof( sFileName ), "%s/%s", Filename_PathOnly(psLocalFilename_GLM), strLocalSkinFileName.c_str() );
+				Com_sprintf(sFileName, sizeof(sFileName), "%s/%s", Filename_PathOnly(psLocalFilename_GLM), strLocalSkinFileName.c_str());
 				//ri.Printf( PRINT_ALL, "...loading '%s'\n", sFileName );
 
-				iTotalBytesLoaded += ri.FS_ReadFile( sFileName, (void **)&buffers[i] );
+				iTotalBytesLoaded += ri.FS_ReadFile(sFileName, (void **)&buffers[i]);
 
-				if ( !buffers[i] ) {
-					ri.Error( ERR_DROP, "Couldn't load %s", sFileName );
+				if (!buffers[i])
+				{
+					ri.Error(ERR_DROP, "Couldn't load %s", sFileName);
 				}
 
 				char *psDataPtr = buffers[i];
 
-				psError = OldSkins_Parse( OldSkins_FilenameToSkinDescription(strLocalSkinFileName), psDataPtr);
+				psError = OldSkins_Parse(OldSkins_FilenameToSkinDescription(strLocalSkinFileName), psDataPtr);
 				if (psError)
 				{
-					ErrorBox(va("Skins_Read(): Error reading file \"%s\"!\n\n( Skins will be ignored for this model )\n\nError was:\n\n%s",sFileName,psError));
+					ErrorBox(va("Skins_Read(): Error reading file \"%s\"!\n\n( Skins will be ignored for this model )\n\nError was:\n\n%s", sFileName, psError));
 					OldSkinsFound.clear();
 				}
 			}
@@ -188,17 +186,17 @@ static bool OldSkins_Read(LPCSTR psLocalFilename_GLM)
 
 		// free loaded skin files...
 		//
-		for ( i=0; i<iSkinFiles; i++ )
+		for (i = 0; i < iSkinFiles; i++)
 		{
 			if (buffers[i])
 			{
-				ri.FS_FreeFile( buffers[i] );
+				ri.FS_FreeFile(buffers[i]);
 			}
 		}
 
 		// ... and file list...
-		//		
-		Sys_FreeFileList( ppsSkinFiles );
+		//
+		Sys_FreeFileList(ppsSkinFiles);
 	}
 
 	if (psError)
@@ -209,11 +207,9 @@ static bool OldSkins_Read(LPCSTR psLocalFilename_GLM)
 	return !!(OldSkinsFound.size());
 }
 
-
-
 int DaysSinceCompile(void);
 bool OldSkins_FilesExist(LPCSTR psLocalFilename_GLM)
-{		
+{
 	return OldSkins_Read(psLocalFilename_GLM);
 }
 
@@ -221,9 +217,9 @@ bool OldSkins_Read(LPCSTR psLocalFilename_GLM, ModelContainer_t *pContainer)
 {
 	if (OldSkins_Read(psLocalFilename_GLM))
 	{
-		pContainer->OldSkinSets = OldSkinsFound;	// huge nested stl-copy
+		pContainer->OldSkinSets = OldSkinsFound; // huge nested stl-copy
 
-/*		for (OldSkinSets_t::iterator it = OldSkinsFound.begin(); it != OldSkinsFound.end(); ++it)
+		/*		for (OldSkinSets_t::iterator it = OldSkinsFound.begin(); it != OldSkinsFound.end(); ++it)
 		{
 			string strFile = (*it).first;
 			StringPairVector_t &blah = (*it).second;
@@ -245,37 +241,35 @@ bool OldSkins_Read(LPCSTR psLocalFilename_GLM, ModelContainer_t *pContainer)
 	return false;
 }
 
-
-
 // psSkinName = "blue", or "default" etc...
 //
 // this fills in a modelcontainer's "MaterialBinds" and "MaterialShaders" fields (registering textures etc)
 //	based on the skinset pointed at by pContainer->OldSkinSets and strSkinFile
 //
-bool OldSkins_Apply( ModelContainer_t *pContainer, LPCSTR psSkinName )
+bool OldSkins_Apply(ModelContainer_t *pContainer, LPCSTR psSkinName)
 {
 	CWaitCursor wait;
 
 	bool bReturn = true;
 
-	pContainer->strCurrentSkinFile	= psSkinName;
-//	pContainer->strCurrentSkinEthnic= "";
+	pContainer->strCurrentSkinFile = psSkinName;
+	//	pContainer->strCurrentSkinEthnic= "";
 
 	pContainer->MaterialBinds.clear();
 	pContainer->MaterialShaders.clear();
 
-	for (int iSurface = 0; iSurface<pContainer->iNumSurfaces; iSurface++)
+	for (int iSurface = 0; iSurface < pContainer->iNumSurfaces; iSurface++)
 	{
 		// when we're at this point we know it's GLM model, and that the shader name is in fact a material name...
 		//
-		LPCSTR psMaterialName = GLMModel_GetSurfaceShaderName( pContainer->hModel, iSurface );
+		LPCSTR psMaterialName = GLMModel_GetSurfaceShaderName(pContainer->hModel, iSurface);
 
-		pContainer->MaterialShaders	[psMaterialName] = "";			// just insert the key for now, so the map<> is legit.
-		pContainer->MaterialBinds	[psMaterialName] = (GLuint) 0;	// default to gl-white-notfound texture
+		pContainer->MaterialShaders[psMaterialName] = "";	   // just insert the key for now, so the map<> is legit.
+		pContainer->MaterialBinds[psMaterialName] = (GLuint)0; // default to gl-white-notfound texture
 	}
 
-//typedef vector< pair<string,string> > StringPairVector_t;
-//typedef map<string,StringPairVector_t> OldSkinSets_t;	// map key = (eg) "blue", string-pairs
+	//typedef vector< pair<string,string> > StringPairVector_t;
+	//typedef map<string,StringPairVector_t> OldSkinSets_t;	// map key = (eg) "blue", string-pairs
 
 	OldSkinSets_t::iterator itOldSkins = pContainer->OldSkinSets.find(psSkinName);
 	if (itOldSkins != pContainer->OldSkinSets.end())
@@ -285,34 +279,32 @@ bool OldSkins_Apply( ModelContainer_t *pContainer, LPCSTR psSkinName )
 		for (int iSkinEntry = 0; iSkinEntry < StringPairs.size(); iSkinEntry++)
 		{
 			LPCSTR psMaterialName = StringPairs[iSkinEntry].first.c_str();
-			LPCSTR psShaderName   = StringPairs[iSkinEntry].second.c_str();
+			LPCSTR psShaderName = StringPairs[iSkinEntry].second.c_str();
 
 			pContainer->MaterialShaders[psMaterialName] = psShaderName;
 
-//			LPCSTR psLocalTexturePath = R_FindShader( psShaderName );		// shader->texture name
-//			if (psLocalTexturePath && strlen(psLocalTexturePath))
-//			{
-//				TextureHandle_t hTexture = TextureHandle_ForName( psLocalTexturePath );
-//
-//				if (hTexture == -1)
-//				{
-//					hTexture = Texture_Load(psLocalTexturePath);
-//				}
-//
-//				GLuint uiBind = Texture_GetGLBind( hTexture );
-//
-//				pContainer->MaterialBinds[psMaterialName] = uiBind;
-//			}
+			//			LPCSTR psLocalTexturePath = R_FindShader( psShaderName );		// shader->texture name
+			//			if (psLocalTexturePath && strlen(psLocalTexturePath))
+			//			{
+			//				TextureHandle_t hTexture = TextureHandle_ForName( psLocalTexturePath );
+			//
+			//				if (hTexture == -1)
+			//				{
+			//					hTexture = Texture_Load(psLocalTexturePath);
+			//				}
+			//
+			//				GLuint uiBind = Texture_GetGLBind( hTexture );
+			//
+			//				pContainer->MaterialBinds[psMaterialName] = uiBind;
+			//			}
 			TextureHandle_t hTexture = Texture_Load(psShaderName);
-			GLuint uiBind = Texture_GetGLBind( hTexture );
+			GLuint uiBind = Texture_GetGLBind(hTexture);
 			pContainer->MaterialBinds[psMaterialName] = uiBind;
 		}
 	}
 
 	return bReturn;
 }
-
-
 
 bool OldSkins_ApplyToTree(HTREEITEM hTreeItem_Parent, ModelContainer_t *pContainer)
 {
@@ -322,9 +314,9 @@ bool OldSkins_ApplyToTree(HTREEITEM hTreeItem_Parent, ModelContainer_t *pContain
 	{
 		bReturn = true;
 
-		TreeItemData_t	TreeItemData={0};
-						TreeItemData.iItemType		= TREEITEMTYPE_OLDSKINSHEADER;
-						TreeItemData.iModelHandle	= pContainer->hModel;
+		TreeItemData_t TreeItemData = {0};
+		TreeItemData.iItemType = TREEITEMTYPE_OLDSKINSHEADER;
+		TreeItemData.iModelHandle = pContainer->hModel;
 
 		HTREEITEM hTreeItem_SkinsHeader = ModelTree_InsertItem("Skins available", hTreeItem_Parent, TreeItemData.uiData);
 
@@ -333,13 +325,13 @@ bool OldSkins_ApplyToTree(HTREEITEM hTreeItem_Parent, ModelContainer_t *pContain
 		int iSkinNumber = 0;
 		for (OldSkinSets_t::iterator itSkins = pContainer->OldSkinSets.begin(); itSkins != pContainer->OldSkinSets.end(); ++itSkins, iSkinNumber++)
 		{
-			string strSkinName((*itSkins).first);	// eg "blue"
+			string strSkinName((*itSkins).first); // eg "blue"
 
-			TreeItemData.iItemNumber	= iSkinNumber;
-			TreeItemData.iItemType		= TREEITEMTYPE_OLDSKIN;
-			
+			TreeItemData.iItemNumber = iSkinNumber;
+			TreeItemData.iItemType = TREEITEMTYPE_OLDSKIN;
+
 			HTREEITEM hTreeItem_ThisSkin = ModelTree_InsertItem(strSkinName.c_str(), hTreeItem_SkinsHeader, TreeItemData.uiData);
-/*			
+			/*			
 			// body parts...
 			//
 			StringPairVector_t &StringPairs = (*itSkins).second);
@@ -373,7 +365,6 @@ bool OldSkins_ApplyToTree(HTREEITEM hTreeItem_Parent, ModelContainer_t *pContain
 	return bReturn;
 }
 
-
 // sets up valid skin tables based on first entries loaded, also registers/binds appropriate textures...
 //
 void OldSkins_ApplyDefault(ModelContainer_t *pContainer)
@@ -406,10 +397,9 @@ void OldSkins_ApplyDefault(ModelContainer_t *pContainer)
 	}
 }
 
-
 GLuint OldSkins_GetGLBind(ModelContainer_t *pContainer, LPCSTR psSurfaceName)
 {
-/*	debug only, do NOT leave in or massive performance hit!!
+	/*	debug only, do NOT leave in or massive performance hit!!
 
 	int iSize = pContainer->MaterialBinds.size();
 	for (MaterialBinds_t::iterator it = pContainer->MaterialBinds.begin(); it != pContainer->MaterialBinds.end(); ++it)
@@ -423,25 +413,24 @@ GLuint OldSkins_GetGLBind(ModelContainer_t *pContainer, LPCSTR psSurfaceName)
 	return pContainer->MaterialBinds[psSurfaceName];
 }
 
-
 extern bool g_bReportImageLoadErrors;
-bool OldSkins_Validate( ModelContainer_t *pContainer, int iSkinNumber )
+bool OldSkins_Validate(ModelContainer_t *pContainer, int iSkinNumber)
 {
-	bool bReturn = true;	
+	bool bReturn = true;
 	bool bPREV_bReportImageLoadErrors = g_bReportImageLoadErrors;
-										g_bReportImageLoadErrors = false;	
+	g_bReportImageLoadErrors = false;
 
 	// build up a list of shaders used...
-	//	
-	StringSet_t UniqueSkinShaders;	
+	//
+	StringSet_t UniqueSkinShaders;
 	//SkinFileMaterialsMissing_t SkinFileMaterialsMissing;
 	int iThisSkinIndex = 0;
 
 	CString strSkinFileSurfaceDiscrepancies;
-	
+
 	for (OldSkinSets_t::iterator itOldSkins = pContainer->OldSkinSets.begin(); itOldSkins != pContainer->OldSkinSets.end(); ++itOldSkins, iThisSkinIndex++)
-	{					
-		string strSkinName				= (*itOldSkins).first;
+	{
+		string strSkinName = (*itOldSkins).first;
 		StringPairVector_t &StringPairs = (*itOldSkins).second;
 
 		if (iSkinNumber == iThisSkinIndex || iSkinNumber == -1)
@@ -451,20 +440,20 @@ bool OldSkins_Validate( ModelContainer_t *pContainer, int iSkinNumber )
 				string strSurface(StringPairs[iSurface].first);
 				string strTGAName(StringPairs[iSurface].second);
 
-				UniqueSkinShaders.insert(UniqueSkinShaders.end(),strTGAName);
+				UniqueSkinShaders.insert(UniqueSkinShaders.end(), strTGAName);
 
 				if (iSkinNumber == -1)
 				{
 					// compare the current material against every other skin file, and report any that don't contain it...
-					//					
+					//
 					for (OldSkinSets_t::iterator itOldSkins_Other = pContainer->OldSkinSets.begin(); itOldSkins_Other != pContainer->OldSkinSets.end(); ++itOldSkins_Other)
 					{
-						string strSkinName_Other				= (*itOldSkins_Other).first;
-						StringPairVector_t &StringPairs_Other	= (*itOldSkins_Other).second;
+						string strSkinName_Other = (*itOldSkins_Other).first;
+						StringPairVector_t &StringPairs_Other = (*itOldSkins_Other).second;
 
 						for (int iSurface_Other = 0; iSurface_Other < StringPairs_Other.size(); iSurface_Other++)
 						{
-							string strSurface_Other(StringPairs_Other[iSurface_Other].first);							
+							string strSurface_Other(StringPairs_Other[iSurface_Other].first);
 
 							if (strSurface_Other == strSurface)
 							{
@@ -475,12 +464,11 @@ bool OldSkins_Validate( ModelContainer_t *pContainer, int iSkinNumber )
 						{
 							// surface not found in this file...
 							//
-							strSkinFileSurfaceDiscrepancies += va("Surface \"%s\" ( skin \"%s\" ) had no entry in skin \"%s\"\n",strSurface.c_str(),strSkinName.c_str(),strSkinName_Other.c_str());
+							strSkinFileSurfaceDiscrepancies += va("Surface \"%s\" ( skin \"%s\" ) had no entry in skin \"%s\"\n", strSurface.c_str(), strSkinName.c_str(), strSkinName_Other.c_str());
 						}
 					}
 				}
-
-			}			
+			}
 		}
 	}
 
@@ -491,21 +479,21 @@ bool OldSkins_Validate( ModelContainer_t *pContainer, int iSkinNumber )
 	string strNotFoundList;
 	int iUniqueIndex = 0;
 	for (StringSet_t::iterator it = UniqueSkinShaders.begin(); it != UniqueSkinShaders.end(); ++it, iUniqueIndex++)
-	{			
+	{
 		string strShader(*it);
 
-		StatusMessage(va("Processing shader %d/%d: \"%s\"\n",iUniqueIndex,UniqueSkinShaders.size(),strShader.c_str()));
+		StatusMessage(va("Processing shader %d/%d: \"%s\"\n", iUniqueIndex, UniqueSkinShaders.size(), strShader.c_str()));
 
-		OutputDebugString(va("Unique: \"%s\"... ",strShader.c_str()));
+		OutputDebugString(va("Unique: \"%s\"... ", strShader.c_str()));
 
-		int iTextureHandle = Texture_Load(strShader.c_str(), true);	// bInhibitStatus
+		int iTextureHandle = Texture_Load(strShader.c_str(), true); // bInhibitStatus
 
-		GLuint uiGLBind = Texture_GetGLBind( iTextureHandle );
+		GLuint uiGLBind = Texture_GetGLBind(iTextureHandle);
 
 		if (uiGLBind == 0)
 		{
 			OutputDebugString("NOT FOUND\n");
-			
+
 			strNotFoundList += strShader;
 			strNotFoundList += "\n";
 		}
@@ -520,28 +508,27 @@ bool OldSkins_Validate( ModelContainer_t *pContainer, int iSkinNumber )
 
 	StatusMessage(NULL);
 
-	
 	// Now output results...
 
 	// If too many lines to fit on screen (which is now happening), send 'em to notepad instead...
 	//
 	// ( tacky way of counting lines...)
 	CString strTackyCount(strNotFoundList.c_str());
-			strTackyCount += strFoundList.c_str();			
+	strTackyCount += strFoundList.c_str();
 
-	int iLines = strTackyCount.Replace('\n','?');	// :-)
+	int iLines = strTackyCount.Replace('\n', '?'); // :-)
 
-	#define MAX_BOX_LINES_HERE 50
+#define MAX_BOX_LINES_HERE 50
 
 	// new popup before the other ones...
 	//
 	if (!strSkinFileSurfaceDiscrepancies.IsEmpty())
 	{
-		strSkinFileSurfaceDiscrepancies.Insert(0,va("( \"%s\" )\n\nThe following skin file errors occured during cross-checking...\n\n",pContainer->sLocalPathName));
+		strSkinFileSurfaceDiscrepancies.Insert(0, va("( \"%s\" )\n\nThe following skin file errors occured during cross-checking...\n\n", pContainer->sLocalPathName));
 
-		if (GetYesNo(va("%s\n\nSend copy of report to Notepad?", (LPCSTR) strSkinFileSurfaceDiscrepancies)))
+		if (GetYesNo(va("%s\n\nSend copy of report to Notepad?", (LPCSTR)strSkinFileSurfaceDiscrepancies)))
 		{
-			SendStringToNotepad( strSkinFileSurfaceDiscrepancies, "skinfile_discrepancies.txt");
+			SendStringToNotepad(strSkinFileSurfaceDiscrepancies, "skinfile_discrepancies.txt");
 		}
 	}
 
@@ -549,37 +536,35 @@ bool OldSkins_Validate( ModelContainer_t *pContainer, int iSkinNumber )
 	{
 		if (iLines > MAX_BOX_LINES_HERE)
 		{
-			if (GetYesNo(va("All shaders found...    :-)\n\nList has > %d entries, send to Notepad?",MAX_BOX_LINES_HERE)))
+			if (GetYesNo(va("All shaders found...    :-)\n\nList has > %d entries, send to Notepad?", MAX_BOX_LINES_HERE)))
 			{
-				SendStringToNotepad(va("All shaders found...    :-)\n\nList follows:\n\n%s",strFoundList.c_str()),"found_shaders.txt");
+				SendStringToNotepad(va("All shaders found...    :-)\n\nList follows:\n\n%s", strFoundList.c_str()), "found_shaders.txt");
 			}
 		}
 		else
 		{
-			InfoBox(va("All shaders found...    :-)\n\nList follows:\n\n%s",strFoundList.c_str()));
+			InfoBox(va("All shaders found...    :-)\n\nList follows:\n\n%s", strFoundList.c_str()));
 		}
 	}
 	else
 	{
 		if (iLines > MAX_BOX_LINES_HERE)
 		{
-			if (GetYesNo(va("Some missing shader, some found, but list is > %d entries, send to Notepad?",MAX_BOX_LINES_HERE)))
+			if (GetYesNo(va("Some missing shader, some found, but list is > %d entries, send to Notepad?", MAX_BOX_LINES_HERE)))
 			{
-				SendStringToNotepad(va("Missing shaders:\n\n%s\n\nFound shaders:\n\n%s",strNotFoundList.c_str(),strFoundList.c_str()),"found_shaders.txt");
+				SendStringToNotepad(va("Missing shaders:\n\n%s\n\nFound shaders:\n\n%s", strNotFoundList.c_str(), strFoundList.c_str()), "found_shaders.txt");
 			}
 		}
 		else
 		{
-			WarningBox(va("Missing shaders:\n\n%s\n\nFound shaders:\n\n%s",strNotFoundList.c_str(),strFoundList.c_str()));
+			WarningBox(va("Missing shaders:\n\n%s\n\nFound shaders:\n\n%s", strNotFoundList.c_str(), strFoundList.c_str()));
 		}
 		bReturn = false;
 	}
 
-
 	g_bReportImageLoadErrors = bPREV_bReportImageLoadErrors;
 	return bReturn;
 }
-
 
 /*
 #include "sys/timeb.h"
@@ -676,5 +661,3 @@ int DaysSinceCompile(void)
 
 */
 ////////////////// eof /////////////////
-
-

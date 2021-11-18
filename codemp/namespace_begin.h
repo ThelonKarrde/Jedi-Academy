@@ -1,11 +1,14 @@
 #ifdef _XBOX
 
 #ifdef _GAME
-namespace game {
+namespace game
+{
 #elif defined _CGAME
-namespace cgame {
+namespace cgame
+{
 #elif defined _UI
-namespace ui {
+namespace ui
+{
 #else
 // Hmmm. Some of the module headers end up included in EXE code.
 // Let's hope that the apocalpyse can be held at bay.

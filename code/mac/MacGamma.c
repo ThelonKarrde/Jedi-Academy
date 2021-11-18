@@ -5,7 +5,7 @@
 
 	Written by:	Geoff Stahl
 
-	Copyright:	Copyright © 1999 Apple Computer, Inc., All Rights Reserved
+	Copyright:	Copyright ï¿½ 1999 Apple Computer, Inc., All Rights Reserved
 
 	Change History (most recent first):
 
@@ -21,8 +21,6 @@
          <1>     5/20/99    GGS     Initial Add
 */
 
-
-
 // system includes ----------------------------------------------------------
 
 #include <Devices.h>
@@ -32,13 +30,9 @@
 #include <Quickdraw.h>
 #include <video.h>
 
-
-
 // project includes ---------------------------------------------------------
 
 #include "MacGamma.h"
-
-
 
 // functions (external/public) ----------------------------------------------
 
@@ -46,24 +40,24 @@
 
 // Returns the device gamma table pointer in ppDeviceTable
 
-OSErr GetGammaTable (GDHandle hGD, GammaTblPtr * ppTableGammaOut)
+OSErr GetGammaTable(GDHandle hGD, GammaTblPtr *ppTableGammaOut)
 {
-	VDGammaRecord   DeviceGammaRec;
-	CntrlParam		cParam;
-	OSErr			err;
-	
-	cParam.ioCompletion = NULL;										// set up control params
+	VDGammaRecord DeviceGammaRec;
+	CntrlParam cParam;
+	OSErr err;
+
+	cParam.ioCompletion = NULL; // set up control params
 	cParam.ioNamePtr = NULL;
 	cParam.ioVRefNum = 0;
 	cParam.ioCRefNum = (**hGD).gdRefNum;
-	cParam.csCode = cscGetGamma;									// Get Gamma commnd to device
-	*(Ptr *)cParam.csParam = (Ptr) &DeviceGammaRec;					// record for gamma
+	cParam.csCode = cscGetGamma;				   // Get Gamma commnd to device
+	*(Ptr *)cParam.csParam = (Ptr)&DeviceGammaRec; // record for gamma
 
-	err = PBStatus( (ParmBlkPtr)&cParam, 0 );						// get gamma
-	
-	*ppTableGammaOut = (GammaTblPtr)(DeviceGammaRec.csGTable);		// pull table out of record
-	
-	return err;	
+	err = PBStatus((ParmBlkPtr)&cParam, 0); // get gamma
+
+	*ppTableGammaOut = (GammaTblPtr)(DeviceGammaRec.csGTable); // pull table out of record
+
+	return err;
 }
 
 // --------------------------------------------------------------------------
@@ -72,25 +66,25 @@ OSErr GetGammaTable (GDHandle hGD, GammaTblPtr * ppTableGammaOut)
 
 // creates an empty gamma table of a given size, assume no formula data will be used
 
-Ptr CreateEmptyGammaTable (short channels, short entries, short bits)
+Ptr CreateEmptyGammaTable(short channels, short entries, short bits)
 {
-	GammaTblPtr		pTableGammaOut = NULL;
-	short			tableSize, dataWidth;
+	GammaTblPtr pTableGammaOut = NULL;
+	short tableSize, dataWidth;
 
-	dataWidth = (bits + 7) / 8;										// number of bytes per entry
-	tableSize = sizeof (GammaTbl) + (channels * entries * dataWidth);
-	pTableGammaOut = (GammaTblPtr) NewPtrClear (tableSize);			// allocate new tabel
+	dataWidth = (bits + 7) / 8; // number of bytes per entry
+	tableSize = sizeof(GammaTbl) + (channels * entries * dataWidth);
+	pTableGammaOut = (GammaTblPtr)NewPtrClear(tableSize); // allocate new tabel
 
-	if (pTableGammaOut)												// if we successfully allocated
+	if (pTableGammaOut) // if we successfully allocated
 	{
-		pTableGammaOut->gVersion = 0;								// set parameters based on input
+		pTableGammaOut->gVersion = 0; // set parameters based on input
 		pTableGammaOut->gType = 0;
 		pTableGammaOut->gFormulaSize = 0;
 		pTableGammaOut->gChanCnt = channels;
 		pTableGammaOut->gDataCnt = entries;
 		pTableGammaOut->gDataWidth = bits;
 	}
-	return (Ptr)pTableGammaOut;										// return whatever we allocated
+	return (Ptr)pTableGammaOut; // return whatever we allocated
 }
 
 // --------------------------------------------------------------------------
@@ -99,34 +93,34 @@ Ptr CreateEmptyGammaTable (short channels, short entries, short bits)
 
 // given a pointer toa device gamma table properly iterates and copies
 
-Ptr CopyGammaTable (GammaTblPtr pTableGammaIn)
+Ptr CopyGammaTable(GammaTblPtr pTableGammaIn)
 {
-	GammaTblPtr		pTableGammaOut = NULL;
-	short			tableSize, dataWidth;
+	GammaTblPtr pTableGammaOut = NULL;
+	short tableSize, dataWidth;
 
-	if (pTableGammaIn)												// if there is a table to copy 
+	if (pTableGammaIn) // if there is a table to copy
 	{
-		dataWidth = (pTableGammaIn->gDataWidth + 7) / 8;			// number of bytes per entry
-		tableSize = sizeof (GammaTbl) + pTableGammaIn->gFormulaSize +
+		dataWidth = (pTableGammaIn->gDataWidth + 7) / 8; // number of bytes per entry
+		tableSize = sizeof(GammaTbl) + pTableGammaIn->gFormulaSize +
 					(pTableGammaIn->gChanCnt * pTableGammaIn->gDataCnt * dataWidth);
-		pTableGammaOut = (GammaTblPtr) NewPtr (tableSize);			// allocate new table
-		if (pTableGammaOut)											
-			BlockMove( (Ptr)pTableGammaIn, (Ptr)pTableGammaOut, tableSize);	// move everything
+		pTableGammaOut = (GammaTblPtr)NewPtr(tableSize); // allocate new table
+		if (pTableGammaOut)
+			BlockMove((Ptr)pTableGammaIn, (Ptr)pTableGammaOut, tableSize); // move everything
 	}
-	return (Ptr)pTableGammaOut;										// return whatever we allocated, could be NULL
+	return (Ptr)pTableGammaOut; // return whatever we allocated, could be NULL
 }
 
 // --------------------------------------------------------------------------
 
 // DisposeGammaTable
 
-// disposes gamma table returned from GetGammaTable, GetDeviceGamma, or CopyGammaTable 
+// disposes gamma table returned from GetGammaTable, GetDeviceGamma, or CopyGammaTable
 // 5/20/99: (GGS) added
 
-void DisposeGammaTable (Ptr pGamma)
+void DisposeGammaTable(Ptr pGamma)
 {
 	if (pGamma)
-		DisposePtr((Ptr) pGamma);									// get rid of it
+		DisposePtr((Ptr)pGamma); // get rid of it
 }
 
 // --------------------------------------------------------------------------
@@ -136,17 +130,17 @@ void DisposeGammaTable (Ptr pGamma)
 // returns pointer to copy of orginal device gamma table in native format (allocates memory for gamma table, call DisposeDeviceGamma to delete)
 // 5/20/99: (GGS) change spec to return the allocated pointer vice storing internally
 
-Ptr GetDeviceGamma (GDHandle hGD)
+Ptr GetDeviceGamma(GDHandle hGD)
 {
-	GammaTblPtr		pTableGammaDevice = NULL;
-	GammaTblPtr		pTableGammaReturn = NULL;	
-	OSErr			err;
-	
-	err = GetGammaTable (hGD, &pTableGammaDevice);					// get a pointer to the devices table
-	if ((err == noErr) && pTableGammaDevice)						// if succesful
-		pTableGammaReturn = (GammaTblPtr) CopyGammaTable (pTableGammaDevice); // copy to global
+	GammaTblPtr pTableGammaDevice = NULL;
+	GammaTblPtr pTableGammaReturn = NULL;
+	OSErr err;
 
-	return (Ptr) pTableGammaReturn;
+	err = GetGammaTable(hGD, &pTableGammaDevice);							// get a pointer to the devices table
+	if ((err == noErr) && pTableGammaDevice)								// if succesful
+		pTableGammaReturn = (GammaTblPtr)CopyGammaTable(pTableGammaDevice); // copy to global
+
+	return (Ptr)pTableGammaReturn;
 }
 
 // --------------------------------------------------------------------------
@@ -156,29 +150,29 @@ Ptr GetDeviceGamma (GDHandle hGD)
 // sets device to saved table
 // 5/20/99: (GGS) now does not delete table, avoids confusion
 
-void RestoreDeviceGamma (GDHandle hGD, Ptr pGammaTable)
+void RestoreDeviceGamma(GDHandle hGD, Ptr pGammaTable)
 {
 	VDSetEntryRecord setEntriesRec;
-	VDGammaRecord	gameRecRestore;
-	CTabHandle      hCTabDeviceColors;
-	Ptr				csPtr;
-	OSErr			err = noErr;
-	
-	if (pGammaTable)												// if we have a table to restore								
+	VDGammaRecord gameRecRestore;
+	CTabHandle hCTabDeviceColors;
+	Ptr csPtr;
+	OSErr err = noErr;
+
+	if (pGammaTable) // if we have a table to restore
 	{
-		gameRecRestore.csGTable = pGammaTable;						// setup restore record
-		csPtr = (Ptr) &gameRecRestore;
-		err = Control((**hGD).gdRefNum, cscSetGamma, (Ptr) &csPtr);	// restore gamma
-		
-		if ((err == noErr) && ((**(**hGD).gdPMap).pixelSize == 8))	// if successful and on an 8 bit device
+		gameRecRestore.csGTable = pGammaTable; // setup restore record
+		csPtr = (Ptr)&gameRecRestore;
+		err = Control((**hGD).gdRefNum, cscSetGamma, (Ptr)&csPtr); // restore gamma
+
+		if ((err == noErr) && ((**(**hGD).gdPMap).pixelSize == 8)) // if successful and on an 8 bit device
 		{
-			hCTabDeviceColors = (**(**hGD).gdPMap).pmTable;			// do SetEntries to force CLUT update
-			setEntriesRec.csTable = (ColorSpec *) &(**hCTabDeviceColors).ctTable;
+			hCTabDeviceColors = (**(**hGD).gdPMap).pmTable; // do SetEntries to force CLUT update
+			setEntriesRec.csTable = (ColorSpec *)&(**hCTabDeviceColors).ctTable;
 			setEntriesRec.csStart = 0;
 			setEntriesRec.csCount = (**hCTabDeviceColors).ctSize;
-			csPtr = (Ptr) &setEntriesRec;
-			
-			err = Control((**hGD).gdRefNum, cscSetEntries, (Ptr) &csPtr); // SetEntries in CLUT
+			csPtr = (Ptr)&setEntriesRec;
+
+			err = Control((**hGD).gdRefNum, cscSetEntries, (Ptr)&csPtr); // SetEntries in CLUT
 		}
 	}
 }
@@ -190,49 +184,49 @@ void RestoreDeviceGamma (GDHandle hGD, Ptr pGammaTable)
 // returns a pointer to a set of all current device gammas in native format (returns NULL on failure, which means reseting gamma will not be possible)
 // 5/20/99: (GGS) added
 
-Ptr GetSystemGammas (void)										
+Ptr GetSystemGammas(void)
 {
-	precSystemGamma pSysGammaOut;									// return pointer to system device gamma info
-	short devCount = 0;												// number of devices attached
+	precSystemGamma pSysGammaOut; // return pointer to system device gamma info
+	short devCount = 0;			  // number of devices attached
 	Boolean fail = false;
 	GDHandle hGDevice;
-	
-	pSysGammaOut = (precSystemGamma) NewPtr (sizeof (recSystemGamma)); // allocate for structure
-	
-	hGDevice = GetDeviceList ();							// top of device list
-	do																// iterate
+
+	pSysGammaOut = (precSystemGamma)NewPtr(sizeof(recSystemGamma)); // allocate for structure
+
+	hGDevice = GetDeviceList(); // top of device list
+	do							// iterate
 	{
-		devCount++;													// count devices					
-		hGDevice = GetNextDevice (hGDevice);						// next device
+		devCount++;							// count devices
+		hGDevice = GetNextDevice(hGDevice); // next device
 	} while (hGDevice);
-	
-	pSysGammaOut->devGamma = (precDeviceGamma *) NewPtr (sizeof (precDeviceGamma) * devCount); // allocate for array of pointers to device records
+
+	pSysGammaOut->devGamma = (precDeviceGamma *)NewPtr(sizeof(precDeviceGamma) * devCount); // allocate for array of pointers to device records
 	if (pSysGammaOut)
 	{
-		pSysGammaOut->numDevices = devCount;						// stuff count
-		
-		devCount = 0;												// reset iteration
-		hGDevice = GetDeviceList ();
+		pSysGammaOut->numDevices = devCount; // stuff count
+
+		devCount = 0; // reset iteration
+		hGDevice = GetDeviceList();
 		do
 		{
-			pSysGammaOut->devGamma [devCount] = (precDeviceGamma) NewPtr (sizeof (recDeviceGamma));	  // new device record
-			if (pSysGammaOut->devGamma [devCount])					// if we actually allocated memory
+			pSysGammaOut->devGamma[devCount] = (precDeviceGamma)NewPtr(sizeof(recDeviceGamma)); // new device record
+			if (pSysGammaOut->devGamma[devCount])												// if we actually allocated memory
 			{
-				pSysGammaOut->devGamma [devCount]->hGD = hGDevice;										  // stuff handle
-				pSysGammaOut->devGamma [devCount]->pDeviceGamma = (GammaTblPtr)GetDeviceGamma (hGDevice); // copy gamma table
+				pSysGammaOut->devGamma[devCount]->hGD = hGDevice;										// stuff handle
+				pSysGammaOut->devGamma[devCount]->pDeviceGamma = (GammaTblPtr)GetDeviceGamma(hGDevice); // copy gamma table
 			}
-			else													// otherwise dump record on exit
-			 fail = true;
-			devCount++;												// next device
-			hGDevice = GetNextDevice (hGDevice);						
+			else // otherwise dump record on exit
+				fail = true;
+			devCount++; // next device
+			hGDevice = GetNextDevice(hGDevice);
 		} while (hGDevice);
 	}
-	if (!fail)														// if we did not fail
-		return (Ptr) pSysGammaOut;									// return pointer to structure
+	if (!fail)					  // if we did not fail
+		return (Ptr)pSysGammaOut; // return pointer to structure
 	else
 	{
-		DisposeSystemGammas (&(Ptr)pSysGammaOut);					// otherwise dump the current structures (dispose does error checking)
-		return NULL;												// could not complete
+		DisposeSystemGammas(&(Ptr)pSysGammaOut); // otherwise dump the current structures (dispose does error checking)
+		return NULL;							 // could not complete
 	}
 }
 
@@ -243,13 +237,13 @@ Ptr GetSystemGammas (void)
 // restores all system devices to saved gamma setting
 // 5/20/99: (GGS) added
 
-void RestoreSystemGammas (Ptr pSystemGammas)
+void RestoreSystemGammas(Ptr pSystemGammas)
 {
 	short i;
-	precSystemGamma pSysGammaIn = (precSystemGamma) pSystemGammas;
+	precSystemGamma pSysGammaIn = (precSystemGamma)pSystemGammas;
 	if (pSysGammaIn)
-		for ( i = 0; i < pSysGammaIn->numDevices; i++)			// for all devices
-			RestoreDeviceGamma (pSysGammaIn->devGamma [i]->hGD, (Ptr) pSysGammaIn->devGamma [i]->pDeviceGamma);	// restore gamma
+		for (i = 0; i < pSysGammaIn->numDevices; i++)														// for all devices
+			RestoreDeviceGamma(pSysGammaIn->devGamma[i]->hGD, (Ptr)pSysGammaIn->devGamma[i]->pDeviceGamma); // restore gamma
 }
 
 // --------------------------------------------------------------------------
@@ -259,25 +253,25 @@ void RestoreSystemGammas (Ptr pSystemGammas)
 // iterates through and deletes stored gamma settings
 // 5/20/99: (GGS) added
 
-void DisposeSystemGammas (Ptr* ppSystemGammas)
+void DisposeSystemGammas(Ptr *ppSystemGammas)
 {
 	precSystemGamma pSysGammaIn;
 	if (ppSystemGammas)
 	{
-		pSysGammaIn = (precSystemGamma) *ppSystemGammas;
+		pSysGammaIn = (precSystemGamma)*ppSystemGammas;
 		if (pSysGammaIn)
 		{
 			short i;
-			for (i = 0; i < pSysGammaIn->numDevices; i++)		// for all devices
-				if (pSysGammaIn->devGamma [i])						// if pointer is valid
+			for (i = 0; i < pSysGammaIn->numDevices; i++) // for all devices
+				if (pSysGammaIn->devGamma[i])			  // if pointer is valid
 				{
-					DisposeGammaTable ((Ptr) pSysGammaIn->devGamma [i]->pDeviceGamma); // dump gamma table
-					DisposePtr ((Ptr) pSysGammaIn->devGamma [i]);						 // dump device info
+					DisposeGammaTable((Ptr)pSysGammaIn->devGamma[i]->pDeviceGamma); // dump gamma table
+					DisposePtr((Ptr)pSysGammaIn->devGamma[i]);						// dump device info
 				}
-			DisposePtr ((Ptr) pSysGammaIn->devGamma);				// dump device pointer array		
-			DisposePtr ((Ptr) pSysGammaIn);							// dump system structure
+			DisposePtr((Ptr)pSysGammaIn->devGamma); // dump device pointer array
+			DisposePtr((Ptr)pSysGammaIn);			// dump system structure
 			*ppSystemGammas = NULL;
-		}	
+		}
 	}
 }
 
@@ -287,36 +281,36 @@ void DisposeSystemGammas (Ptr* ppSystemGammas)
 
 // retrieves the gamma ramp from a graphics device (pRamp: 3 arrays of 256 elements each)
 
-Boolean GetDeviceGammaRampGD (GDHandle hGD, Ptr pRamp)
+Boolean GetDeviceGammaRampGD(GDHandle hGD, Ptr pRamp)
 {
-	GammaTblPtr		pTableGammaTemp = NULL;
-	long 			indexChan, indexEntry;
-	OSErr			err;
-	
-	if (pRamp)															// ensure pRamp is allocated
+	GammaTblPtr pTableGammaTemp = NULL;
+	long indexChan, indexEntry;
+	OSErr err;
+
+	if (pRamp) // ensure pRamp is allocated
 	{
-		err = GetGammaTable (hGD, &pTableGammaTemp);					// get a pointer to the current gamma
-		if ((err == noErr) && pTableGammaTemp)							// if successful
-		{															
+		err = GetGammaTable(hGD, &pTableGammaTemp); // get a pointer to the current gamma
+		if ((err == noErr) && pTableGammaTemp)		// if successful
+		{
 			// fill ramp
-			unsigned char * pEntry = (unsigned char *)&pTableGammaTemp->gFormulaData + pTableGammaTemp->gFormulaSize; // base of table
-			short bytesPerEntry = (pTableGammaTemp->gDataWidth + 7) / 8; // size, in bytes, of the device table entries
-			short shiftRightValue = pTableGammaTemp->gDataWidth - 8; 	 // number of right shifts device -> ramp
-			short channels = pTableGammaTemp->gChanCnt;	
-			short entries = pTableGammaTemp->gDataCnt;									
-			if (channels == 3)											// RGB format
-			{															// note, this will create runs of entries if dest. is bigger (not linear interpolate)
+			unsigned char *pEntry = (unsigned char *)&pTableGammaTemp->gFormulaData + pTableGammaTemp->gFormulaSize; // base of table
+			short bytesPerEntry = (pTableGammaTemp->gDataWidth + 7) / 8;											 // size, in bytes, of the device table entries
+			short shiftRightValue = pTableGammaTemp->gDataWidth - 8;												 // number of right shifts device -> ramp
+			short channels = pTableGammaTemp->gChanCnt;
+			short entries = pTableGammaTemp->gDataCnt;
+			if (channels == 3) // RGB format
+			{				   // note, this will create runs of entries if dest. is bigger (not linear interpolate)
 				for (indexChan = 0; indexChan < channels; indexChan++)
 					for (indexEntry = 0; indexEntry < 256; indexEntry++)
-						*((unsigned char *)pRamp + (indexChan << 8) + indexEntry) = 
-						  *(pEntry + (indexChan * entries * bytesPerEntry) + indexEntry * ((entries * bytesPerEntry) >> 8)) >> shiftRightValue;
+						*((unsigned char *)pRamp + (indexChan << 8) + indexEntry) =
+							*(pEntry + (indexChan * entries * bytesPerEntry) + indexEntry * ((entries * bytesPerEntry) >> 8)) >> shiftRightValue;
 			}
-			else														// single channel format
+			else // single channel format
 			{
-				for (indexEntry = 0; indexEntry < 256; indexEntry++)	// for all entries set vramp value
-					for (indexChan = 0; indexChan < channels; indexChan++)	// repeat for all channels
-						*((unsigned char *)pRamp + (indexChan << 8) + indexEntry) = 
-						  *(pEntry + ((indexEntry * entries * bytesPerEntry) >> 8)) >> shiftRightValue;
+				for (indexEntry = 0; indexEntry < 256; indexEntry++)	   // for all entries set vramp value
+					for (indexChan = 0; indexChan < channels; indexChan++) // repeat for all channels
+						*((unsigned char *)pRamp + (indexChan << 8) + indexEntry) =
+							*(pEntry + ((indexEntry * entries * bytesPerEntry) >> 8)) >> shiftRightValue;
 			}
 			return true;
 		}
@@ -330,10 +324,10 @@ Boolean GetDeviceGammaRampGD (GDHandle hGD, Ptr pRamp)
 
 // retrieves the gamma ramp from a graphics device associated with a GWorld pointer (pRamp: 3 arrays of 256 elements each)
 
-Boolean GetDeviceGammaRampGW (GWorldPtr pGW, Ptr pRamp)
+Boolean GetDeviceGammaRampGW(GWorldPtr pGW, Ptr pRamp)
 {
-	GDHandle hGD = GetGWorldDevice (pGW);
-	return GetDeviceGammaRampGD (hGD, pRamp);
+	GDHandle hGD = GetGWorldDevice(pGW);
+	return GetDeviceGammaRampGD(hGD, pRamp);
 }
 
 // --------------------------------------------------------------------------
@@ -342,18 +336,18 @@ Boolean GetDeviceGammaRampGW (GWorldPtr pGW, Ptr pRamp)
 
 // retrieves the gamma ramp from a graphics device associated with a CGraf pointer (pRamp: 3 arrays of 256 elements each)
 
-Boolean GetDeviceGammaRampCGP (CGrafPtr pGraf, Ptr pRamp)
+Boolean GetDeviceGammaRampCGP(CGrafPtr pGraf, Ptr pRamp)
 {
 	CGrafPtr pGrafSave;
 	GDHandle hGDSave;
 	GDHandle hGD;
 	Boolean fResult;
-	
-	GetGWorld (&pGrafSave, &hGDSave);
-	SetGWorld (pGraf, NULL);
-	hGD = GetGDevice ();
-	fResult = GetDeviceGammaRampGD (hGD, pRamp);
-	SetGWorld (pGrafSave, hGDSave);
+
+	GetGWorld(&pGrafSave, &hGDSave);
+	SetGWorld(pGraf, NULL);
+	hGD = GetGDevice();
+	fResult = GetDeviceGammaRampGD(hGD, pRamp);
+	SetGWorld(pGrafSave, hGDSave);
 	return fResult;
 }
 
@@ -363,94 +357,94 @@ Boolean GetDeviceGammaRampCGP (CGrafPtr pGraf, Ptr pRamp)
 
 // sets the gamma ramp for a graphics device (pRamp: 3 arrays of 256 elements each (R,G,B))
 
-Boolean SetDeviceGammaRampGD (GDHandle hGD, Ptr pRamp)
+Boolean SetDeviceGammaRampGD(GDHandle hGD, Ptr pRamp)
 {
 	VDSetEntryRecord setEntriesRec;
-	VDGammaRecord	gameRecRestore;
-	GammaTblPtr		pTableGammaNew;
-	GammaTblPtr		pTableGammaCurrent = NULL;
-	CTabHandle      hCTabDeviceColors;
-	Ptr				csPtr;
-	OSErr			err;
-	short 			dataBits, entries, channels = 3;						// force three channels in the gamma table
-	
-	if (pRamp)																// ensure pRamp is allocated
+	VDGammaRecord gameRecRestore;
+	GammaTblPtr pTableGammaNew;
+	GammaTblPtr pTableGammaCurrent = NULL;
+	CTabHandle hCTabDeviceColors;
+	Ptr csPtr;
+	OSErr err;
+	short dataBits, entries, channels = 3; // force three channels in the gamma table
+
+	if (pRamp) // ensure pRamp is allocated
 	{
-		err= GetGammaTable (hGD, &pTableGammaCurrent);						// get pointer to current table
+		err = GetGammaTable(hGD, &pTableGammaCurrent); // get pointer to current table
 		if ((err == noErr) && pTableGammaCurrent)
 		{
-			dataBits = pTableGammaCurrent->gDataWidth;						// table must have same data width
-			entries = pTableGammaCurrent->gDataCnt;							// table must be same size
-			pTableGammaNew = (GammaTblPtr) CreateEmptyGammaTable (channels, entries, dataBits); // our new table
-			if (pTableGammaNew)												// if successful fill table
-			{	
-				unsigned char * pGammaBase = (unsigned char *)&pTableGammaNew->gFormulaData + pTableGammaNew->gFormulaSize; // base of table
-				if (entries == 256 && dataBits == 8)						// simple case: direct mapping
-					BlockMove ((Ptr)pRamp, (Ptr)pGammaBase, channels * entries); // move everything
-				else														// tough case handle entry, channel and data size disparities
+			dataBits = pTableGammaCurrent->gDataWidth;										  // table must have same data width
+			entries = pTableGammaCurrent->gDataCnt;											  // table must be same size
+			pTableGammaNew = (GammaTblPtr)CreateEmptyGammaTable(channels, entries, dataBits); // our new table
+			if (pTableGammaNew)																  // if successful fill table
+			{
+				unsigned char *pGammaBase = (unsigned char *)&pTableGammaNew->gFormulaData + pTableGammaNew->gFormulaSize; // base of table
+				if (entries == 256 && dataBits == 8)																	   // simple case: direct mapping
+					BlockMove((Ptr)pRamp, (Ptr)pGammaBase, channels * entries);											   // move everything
+				else																									   // tough case handle entry, channel and data size disparities
 				{
-					short bytesPerEntry = (dataBits + 7) / 8; 				// size, in bytes, of the device table entries
-					short shiftRightValue = 8 - dataBits;					// number of right shifts ramp -> device
+					short bytesPerEntry = (dataBits + 7) / 8; // size, in bytes, of the device table entries
+					short shiftRightValue = 8 - dataBits;	  // number of right shifts ramp -> device
 					short indexChan;
 					short indexEntry;
 					short indexByte;
-					
-					shiftRightValue += ((bytesPerEntry - 1) * 8);  			// multibyte entries and the need to map a byte at a time most sig. to least sig.
-					for ( indexChan = 0; indexChan < channels; indexChan++) // for all the channels
-						for ( indexEntry = 0; indexEntry < entries; indexEntry++) // for all the entries
+
+					shiftRightValue += ((bytesPerEntry - 1) * 8);				 // multibyte entries and the need to map a byte at a time most sig. to least sig.
+					for (indexChan = 0; indexChan < channels; indexChan++)		 // for all the channels
+						for (indexEntry = 0; indexEntry < entries; indexEntry++) // for all the entries
 						{
-							short currentShift = shiftRightValue;			// reset current bit shift
+							short currentShift = shiftRightValue;													// reset current bit shift
 							long temp = *((unsigned char *)pRamp + (indexChan << 8) + (indexEntry << 8) / entries); // get data from ramp
-							for ( indexByte = 0; indexByte < bytesPerEntry; indexByte++) // for all bytes
+							for (indexByte = 0; indexByte < bytesPerEntry; indexByte++)								// for all bytes
 							{
-								if (currentShift < 0)						// shift data correctly for current byte
+								if (currentShift < 0) // shift data correctly for current byte
 									*(pGammaBase++) = temp << -currentShift;
 								else
 									*(pGammaBase++) = temp >> currentShift;
-								currentShift -= 8;							// increment shift to align to next less sig. byte
+								currentShift -= 8; // increment shift to align to next less sig. byte
 							}
 						}
 				}
-				
+
 				// set gamma
-				gameRecRestore.csGTable = (Ptr) pTableGammaNew;				// setup restore record
-				csPtr = (Ptr) &gameRecRestore;
-				err = Control((**hGD).gdRefNum, cscSetGamma, (Ptr) &csPtr);	// restore gamma
-				
-				if (((**(**hGD).gdPMap).pixelSize == 8) && (err == noErr))	// if successful and on an 8 bit device
+				gameRecRestore.csGTable = (Ptr)pTableGammaNew; // setup restore record
+				csPtr = (Ptr)&gameRecRestore;
+				err = Control((**hGD).gdRefNum, cscSetGamma, (Ptr)&csPtr); // restore gamma
+
+				if (((**(**hGD).gdPMap).pixelSize == 8) && (err == noErr)) // if successful and on an 8 bit device
 				{
-					hCTabDeviceColors = (**(**hGD).gdPMap).pmTable;			// do SetEntries to force CLUT update
-					setEntriesRec.csTable = (ColorSpec *) &(**hCTabDeviceColors).ctTable;
+					hCTabDeviceColors = (**(**hGD).gdPMap).pmTable; // do SetEntries to force CLUT update
+					setEntriesRec.csTable = (ColorSpec *)&(**hCTabDeviceColors).ctTable;
 					setEntriesRec.csStart = 0;
 					setEntriesRec.csCount = (**hCTabDeviceColors).ctSize;
-					csPtr = (Ptr) &setEntriesRec;
-					err = Control((**hGD).gdRefNum, cscSetEntries, (Ptr) &csPtr);	// SetEntries in CLUT
+					csPtr = (Ptr)&setEntriesRec;
+					err = Control((**hGD).gdRefNum, cscSetEntries, (Ptr)&csPtr); // SetEntries in CLUT
 				}
-				DisposeGammaTable ((Ptr) pTableGammaNew);					// dump table
+				DisposeGammaTable((Ptr)pTableGammaNew); // dump table
 				if (err == noErr)
 					return true;
 			}
 		}
 	}
-	else																	// set NULL gamma -> results in linear map
+	else // set NULL gamma -> results in linear map
 	{
-		gameRecRestore.csGTable = (Ptr) NULL;								// setup restore record
-		csPtr = (Ptr) &gameRecRestore;
-		err = Control((**hGD).gdRefNum, cscSetGamma, (Ptr) &csPtr);			// restore gamma
-		
-		if (((**(**hGD).gdPMap).pixelSize == 8) && (err == noErr))			// if successful and on an 8 bit device
+		gameRecRestore.csGTable = (Ptr)NULL; // setup restore record
+		csPtr = (Ptr)&gameRecRestore;
+		err = Control((**hGD).gdRefNum, cscSetGamma, (Ptr)&csPtr); // restore gamma
+
+		if (((**(**hGD).gdPMap).pixelSize == 8) && (err == noErr)) // if successful and on an 8 bit device
 		{
-			hCTabDeviceColors = (**(**hGD).gdPMap).pmTable;					// do SetEntries to force CLUT update
-			setEntriesRec.csTable = (ColorSpec *) &(**hCTabDeviceColors).ctTable;
+			hCTabDeviceColors = (**(**hGD).gdPMap).pmTable; // do SetEntries to force CLUT update
+			setEntriesRec.csTable = (ColorSpec *)&(**hCTabDeviceColors).ctTable;
 			setEntriesRec.csStart = 0;
 			setEntriesRec.csCount = (**hCTabDeviceColors).ctSize;
-			csPtr = (Ptr) &setEntriesRec;
-			err = Control((**hGD).gdRefNum, cscSetEntries, (Ptr) &csPtr);	// SetEntries in CLUT
+			csPtr = (Ptr)&setEntriesRec;
+			err = Control((**hGD).gdRefNum, cscSetEntries, (Ptr)&csPtr); // SetEntries in CLUT
 		}
 		if (err == noErr)
 			return true;
 	}
-	return false;															// memory allocation or device control failed if we get here
+	return false; // memory allocation or device control failed if we get here
 }
 
 // --------------------------------------------------------------------------
@@ -459,10 +453,10 @@ Boolean SetDeviceGammaRampGD (GDHandle hGD, Ptr pRamp)
 
 // sets the gamma ramp for a graphics device associated with a GWorld pointer (pRamp: 3 arrays of 256 elements each (R,G,B))
 
-Boolean SetDeviceGammaRampGW (GWorldPtr pGW, Ptr pRamp)
+Boolean SetDeviceGammaRampGW(GWorldPtr pGW, Ptr pRamp)
 {
-	GDHandle hGD = GetGWorldDevice (pGW);
-	return SetDeviceGammaRampGD (hGD, pRamp);
+	GDHandle hGD = GetGWorldDevice(pGW);
+	return SetDeviceGammaRampGD(hGD, pRamp);
 }
 
 // --------------------------------------------------------------------------
@@ -471,17 +465,17 @@ Boolean SetDeviceGammaRampGW (GWorldPtr pGW, Ptr pRamp)
 
 // sets the gamma ramp for a graphics device associated with a CGraf pointer (pRamp: 3 arrays of 256 elements each (R,G,B))
 
-Boolean SetDeviceGammaRampCGP (CGrafPtr pGraf, Ptr pRamp)
+Boolean SetDeviceGammaRampCGP(CGrafPtr pGraf, Ptr pRamp)
 {
 	CGrafPtr pGrafSave;
 	GDHandle hGDSave;
 	GDHandle hGD;
 	Boolean fResult;
-	
-	GetGWorld (&pGrafSave, &hGDSave);
-	SetGWorld (pGraf, NULL);
-	hGD = GetGDevice ();
-	fResult = SetDeviceGammaRampGD (hGD, pRamp);
-	SetGWorld (pGrafSave, hGDSave);
+
+	GetGWorld(&pGrafSave, &hGDSave);
+	SetGWorld(pGraf, NULL);
+	hGD = GetGDevice();
+	fResult = SetDeviceGammaRampGD(hGD, pRamp);
+	SetGWorld(pGrafSave, hGDSave);
 	return fResult;
 }

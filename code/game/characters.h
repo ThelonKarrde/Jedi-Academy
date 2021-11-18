@@ -46,7 +46,7 @@ typedef enum //# characters_e
 
 typedef struct
 {
-	char	*name;
-	char	*sound;
-	sfxHandle_t		soundIndex;
+	char *name;
+	char *sound;
+	sfxHandle_t soundIndex;
 } characterName_t;

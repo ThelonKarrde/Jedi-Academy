@@ -5,72 +5,86 @@
 
 // this file is excluded from release builds because of intrinsics
 
-size_t strlen( const char *string ) {
-	const char	*s;
+size_t strlen(const char *string)
+{
+	const char *s;
 
 	s = string;
-	while ( *s ) {
+	while (*s)
+	{
 		s++;
 	}
 	return s - string;
 }
 
-
-char *strcat( char *strDestination, const char *strSource ) {
-	char	*s;
-
-	s = strDestination;
-	while ( *s ) {
-		s++;
-	}
-	while ( *strSource ) {
-		*s++ = *strSource++;
-	}
-	*s = 0;
-	return strDestination;
-}
-
-char *strcpy( char *strDestination, const char *strSource ) {
+char *strcat(char *strDestination, const char *strSource)
+{
 	char *s;
 
 	s = strDestination;
-	while ( *strSource ) {
+	while (*s)
+	{
+		s++;
+	}
+	while (*strSource)
+	{
 		*s++ = *strSource++;
 	}
 	*s = 0;
 	return strDestination;
 }
 
+char *strcpy(char *strDestination, const char *strSource)
+{
+	char *s;
 
-int strcmp( const char *string1, const char *string2 ) {
-	while ( *string1 == *string2 && *string1 && *string2 ) {
+	s = strDestination;
+	while (*strSource)
+	{
+		*s++ = *strSource++;
+	}
+	*s = 0;
+	return strDestination;
+}
+
+int strcmp(const char *string1, const char *string2)
+{
+	while (*string1 == *string2 && *string1 && *string2)
+	{
 		string1++;
 		string2++;
 	}
 	return *string1 - *string2;
 }
 
-
-char *strchr( const char *string, int c ) {
-	do {
-		if ( *string == c ) {
-			return ( char * )string;
+char *strchr(const char *string, int c)
+{
+	do
+	{
+		if (*string == c)
+		{
+			return (char *)string;
 		}
 		string++;
-	} while ( *(string-1) );
+	} while (*(string - 1));
 	return (char *)0;
 }
 
-char *strstr( const char *string, const char *strCharSet ) {
-	while ( *string ) {
-		int		i;
+char *strstr(const char *string, const char *strCharSet)
+{
+	while (*string)
+	{
+		int i;
 
-		for ( i = 0 ; strCharSet[i] ; i++ ) {
-			if ( string[i] != strCharSet[i] ) {
+		for (i = 0; strCharSet[i]; i++)
+		{
+			if (string[i] != strCharSet[i])
+			{
 				break;
 			}
 		}
-		if ( !strCharSet[i] ) {
+		if (!strCharSet[i])
+		{
 			return (char *)string;
 		}
 		string++;
@@ -80,8 +94,10 @@ char *strstr( const char *string, const char *strCharSet ) {
 
 #ifndef _MSC_VER
 
-int tolower( int c ) {
-	if ( c >= 'A' && c <= 'Z' ) {
+int tolower(int c)
+{
+	if (c >= 'A' && c <= 'Z')
+	{
 		c += 'a' - 'A';
 	}
 	return c;
@@ -89,16 +105,16 @@ int tolower( int c ) {
 
 #endif
 
-int toupper( int c ) {
-	if ( c >= 'a' && c <= 'z' ) {
+int toupper(int c)
+{
+	if (c >= 'a' && c <= 'z')
+	{
 		c += 'A' - 'a';
 	}
 	return c;
 }
 
 //#ifndef _MSC_VER
-
-
 
 #if 0
 
@@ -387,37 +403,40 @@ double atan2( double y, double x ) {
 	return base + dir * i * ( M_PI/2048); 
 }
 
-
 #endif
 
-double tan( double x ) {
+double tan(double x)
+{
 	return sin(x) / cos(x);
 }
 
-
 static int randSeed = 0;
 
-int		rand( void ) {
+int rand(void)
+{
 	randSeed = (69069 * randSeed + 1);
 	return randSeed & 0x7fff;
 }
 
-double atof( const char *string ) {
-	double	sign;
-	double	value;
-	int		c;
-
+double atof(const char *string)
+{
+	double sign;
+	double value;
+	int c;
 
 	// skip whitespace
-	while ( *string <= ' ' ) {
-		if ( !*string ) {
+	while (*string <= ' ')
+	{
+		if (!*string)
+		{
 			return 0;
 		}
 		string++;
 	}
 
 	// check sign
-	switch ( *string ) {
+	switch (*string)
+	{
 	case '+':
 		string++;
 		sign = 1;
@@ -433,31 +452,35 @@ double atof( const char *string ) {
 
 	// read digits
 	value = 0;
-	do {
+	do
+	{
 		c = *string++;
-		if ( c < '0' || c > '9' ) {
+		if (c < '0' || c > '9')
+		{
 			break;
 		}
 		c -= '0';
 		value = value * 10 + c;
-	} while ( 1 );
+	} while (1);
 
 	// check for decimal point
-	if ( c == '.' ) {
+	if (c == '.')
+	{
 		double fraction;
 
 		string++;
 		fraction = 0.1;
-		do {
+		do
+		{
 			c = *string++;
-			if ( c < '0' || c > '9' ) {
+			if (c < '0' || c > '9')
+			{
 				break;
 			}
 			c -= '0';
 			value += c * fraction;
 			fraction *= 0.1;
-		} while ( 1 );
-
+		} while (1);
 	}
 
 	// not handling 10e10 notation...
@@ -467,22 +490,25 @@ double atof( const char *string ) {
 
 #ifndef _MSC_VER
 
-int atoi( const char *string ) {
-	int		sign;
-	int		value;
-	int		c;
-
+int atoi(const char *string)
+{
+	int sign;
+	int value;
+	int c;
 
 	// skip whitespace
-	while ( *string <= ' ' ) {
-		if ( !*string ) {
+	while (*string <= ' ')
+	{
+		if (!*string)
+		{
 			return 0;
 		}
 		string++;
 	}
 
 	// check sign
-	switch ( *string ) {
+	switch (*string)
+	{
 	case '+':
 		string++;
 		sign = 1;
@@ -498,14 +524,16 @@ int atoi( const char *string ) {
 
 	// read digits
 	value = 0;
-	do {
+	do
+	{
 		c = *string++;
-		if ( c < '0' || c > '9' ) {
+		if (c < '0' || c > '9')
+		{
 			break;
 		}
 		c -= '0';
 		value = value * 10 + c;
-	} while ( 1 );
+	} while (1);
 
 	// not handling 10e10 notation...
 
@@ -514,135 +542,155 @@ int atoi( const char *string ) {
 
 #endif
 
-int abs( int n ) {
+int abs(int n)
+{
 	return n < 0 ? -n : n;
 }
 
-double fabs( double x ) {
+double fabs(double x)
+{
 	return x < 0 ? -x : x;
 }
 
-
-
 //=========================================================
 
-
-void AddInt( char **buf_p, int val, int width ) {
-	char	text[32];
-	int		digits;
-	int		signedVal;
-	char	*buf;
+void AddInt(char **buf_p, int val, int width)
+{
+	char text[32];
+	int digits;
+	int signedVal;
+	char *buf;
 
 	digits = 0;
 	signedVal = val;
-	if ( val < 0 ) {
+	if (val < 0)
+	{
 		val = -val;
 	}
-	do {
+	do
+	{
 		text[digits++] = '0' + val % 10;
 		val /= 10;
-	} while ( val );
+	} while (val);
 
-	if ( signedVal < 0 ) {
+	if (signedVal < 0)
+	{
 		text[digits++] = '-';
 	}
 
 	buf = *buf_p;
 
-	while ( digits < width ) {
+	while (digits < width)
+	{
 		*buf++ = ' ';
 		width--;
 	}
 
-	while ( digits-- ) {
+	while (digits--)
+	{
 		*buf++ = text[digits];
 	}
 
 	*buf_p = buf;
 }
 
-void AddFloat( char **buf_p, float fval, int width ) {
-	char	text[32];
-	int		digits;
-	float	signedVal;
-	char	*buf;
-	int		val;
+void AddFloat(char **buf_p, float fval, int width)
+{
+	char text[32];
+	int digits;
+	float signedVal;
+	char *buf;
+	int val;
 
 	// FIXME!!!! handle fractions
 
 	digits = 0;
 	signedVal = fval;
-	if ( fval < 0 ) {
+	if (fval < 0)
+	{
 		fval = -fval;
 	}
 
 	val = (int)fval;
-	do {
+	do
+	{
 		text[digits++] = '0' + val % 10;
 		val /= 10;
-	} while ( val );
+	} while (val);
 
-	if ( signedVal < 0 ) {
+	if (signedVal < 0)
+	{
 		text[digits++] = '-';
 	}
 
 	buf = *buf_p;
 
-	while ( digits < width ) {
+	while (digits < width)
+	{
 		*buf++ = ' ';
 		width--;
 	}
 
-	while ( digits-- ) {
+	while (digits--)
+	{
 		*buf++ = text[digits];
 	}
 
 	*buf_p = buf;
 }
 
-int vsprintf( char *buffer, const char *fmt, va_list argptr ) {
-	char	*buf_p;
-	int		cmd;
-	int		*arg;
-	char	*s;
-	int		width;
+int vsprintf(char *buffer, const char *fmt, va_list argptr)
+{
+	char *buf_p;
+	int cmd;
+	int *arg;
+	char *s;
+	int width;
 
 	buf_p = buffer;
 	arg = (int *)argptr;
 
-	while ( *fmt ) {
-		if ( fmt[0] != '%' ) {
+	while (*fmt)
+	{
+		if (fmt[0] != '%')
+		{
 			*buf_p++ = *fmt++;
 			continue;
 		}
 
 		cmd = fmt[1];
-		if ( cmd >= '0' && cmd <= '9' ) {
+		if (cmd >= '0' && cmd <= '9')
+		{
 			width = cmd - '0';
 			cmd = fmt[2];
 			fmt++;
-		} else {
+		}
+		else
+		{
 			width = 0;
 		}
 		fmt += 2;
 
-		switch ( cmd ) {
+		switch (cmd)
+		{
 		case 'i':
 		case 'd':
 		case 'u':
-			AddInt( &buf_p, *arg, width );
+			AddInt(&buf_p, *arg, width);
 			break;
 
 		case 'f':
-			AddFloat( &buf_p, *(float *)arg, width );
+			AddFloat(&buf_p, *(float *)arg, width);
 			break;
 
 		case 's':
 			s = (char *)*arg;
-			if ( !s ) {
+			if (!s)
+			{
 				s = "<NULL>";
 			}
-			while ( *s ) {
+			while (*s)
+			{
 				*buf_p++ = *s++;
 			}
 			break;
@@ -653,4 +701,3 @@ int vsprintf( char *buffer, const char *fmt, va_list argptr ) {
 	*buf_p = 0;
 	return buf_p - buffer;
 }
-
